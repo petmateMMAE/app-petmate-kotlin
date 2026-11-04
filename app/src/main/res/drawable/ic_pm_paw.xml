@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generado a partir de la maqueta aprobada (PetMate_App.html). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF1D1733"
+        android:pathData="M7,16a5,4.2 0 1,0 10,0a5,4.2 0 1,0 -10,0zM3.0,10.6a2.2,2.8 0 1,0 4.4,0a2.2,2.8 0 1,0 -4.4,0zM16.6,10.6a2.2,2.8 0 1,0 4.4,0a2.2,2.8 0 1,0 -4.4,0zM6.9,6a2.1,2.8 0 1,0 4.2,0a2.1,2.8 0 1,0 -4.2,0zM12.9,6a2.1,2.8 0 1,0 4.2,0a2.1,2.8 0 1,0 -4.2,0z" />
+</vector>

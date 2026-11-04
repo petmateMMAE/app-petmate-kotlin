@@ -5,7 +5,7 @@
 > constitución gana y el otro documento se corrige.
 >
 > Versión: 1.1.0 · Fecha: 29/10/2026 · Ratificada por: Adrián Adonai García Jiménez
-> Proyecto: app móvil Android de PetMate · Org GitHub: PETMATE-APP-S
+> Proyecto: app móvil Android de PetMate · Org GitHub: petmateMMAE
 
 ---
 

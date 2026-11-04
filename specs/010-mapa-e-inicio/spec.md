@@ -55,7 +55,12 @@ SUPUESTOS QUE ESTOY HACIENDO:
    muestra la última versión cacheada con un aviso de que puede estar
    desactualizada. Nunca se queda en blanco.
 
-10. El proveedor de mapas (Google Maps, MapLibre u otro) NO está decidido. Va
+10. **RESUELTO el 04/11/2026**: el proveedor es **osmdroid con teselas de
+    OpenStreetMap**. Se eligió porque no requiere llave de API, registro ni
+    tarjeta de crédito, y cumple el requisito de costo cero del profesor.
+    Google Maps quedó descartado porque exige habilitar facturación, aunque
+    la carga del mapa en Android sea ilimitada. El supuesto original decía:
+    el proveedor de mapas (Google Maps, MapLibre u otro) NO está decidido. Va
     a Q-01 y bloquea la dependencia del SDK y las tareas que lo tocan; no
     bloquea la spec ni el resto del plan.
 
@@ -179,7 +184,10 @@ recordatorio útil.
 
 | # | Riesgo | Impacto | Mitigación |
 |---|---|---|---|
-| G-01 | El proveedor de mapas no está decidido y bloquea la implementación | Alto | Q-01; la abstracción permite avanzar con un mapa falso en pruebas |
+| G-01 | ~~El proveedor de mapas no está decidido~~ **Resuelto**: osmdroid + OSM | — | Decidido el 04/11/2026 |
+| G-08 | La librería osmdroid está archivada desde nov 2024 (última versión 6.1.20) y no recibe actualizaciones | Medio | Funciona hoy y es estable; si un Android futuro la rompe, se migra a MapLibre. La abstracción de R-14 lo permite |
+| G-09 | OpenStreetMap bloquea el tráfico si no se cumple su política de uso | Alto | User-Agent propio y estable, atribución visible, caché de 7 días y nada de descargas masivas. Todo implementado en `OsmMapConfig` |
+| G-10 | OpenStreetMap no garantiza disponibilidad (no hay SLA) | Medio | Es aceptable para una app escolar; si el servicio falla, el mapa muestra su estado de error |
 | G-02 | La llave del proveedor se filtra en el repositorio | Alto | R-13 y prueba C-14; la llave va por configuración de entorno |
 | G-03 | El mapa se queda en blanco sin red | Alto | Caché del directorio y estado de error con reintento (C-10, C-11) |
 | G-04 | "Lo más próximo" se confunde con distancia y se implementa mal | Alto | R-06 y R-07 lo fijan como fecha; C-06 y C-07 lo prueban |
@@ -219,7 +227,7 @@ recordatorio útil.
 
 | # | Pregunta | Para quién | Bloquea |
 |---|---|---|---|
-| Q-01 | ¿Qué proveedor de mapas se usa y cómo se gestiona su llave (restringida por app, por entorno)? | Equipo / Adrián (nube) | SDK y todas las tareas de mapa real |
+| ~~Q-01~~ | ~~¿Qué proveedor de mapas se usa y cómo se gestiona su llave?~~ **RESUELTA 04/11/2026**: osmdroid + OpenStreetMap. No hay llave que gestionar. | — | — |
 | Q-02 | ¿Cuál es el endpoint y el contrato del directorio de negocios: campos, tipos, coordenadas y paginación? | Miguel (backend) | Todas las tareas de datos |
 | Q-03 | ¿Qué tipos de negocio existen y qué icono y color tiene cada uno? | Equipo / maqueta | Marcadores y filtros |
 | Q-04 | ¿Qué se muestra en la tarjeta resumida del negocio (nombre, tipo, dirección, horario, distancia)? | Equipo / maqueta | Tarjeta |

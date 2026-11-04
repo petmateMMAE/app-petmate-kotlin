@@ -1,11 +1,7 @@
 package mx.petmate.app.ui.navigation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -16,7 +12,10 @@ import mx.petmate.app.domain.model.SessionState
 import mx.petmate.app.ui.auth.LoginScreen
 import mx.petmate.app.ui.auth.RegisterScreen
 import mx.petmate.app.ui.auth.WelcomeScreen
+import mx.petmate.app.ui.components.OwnerTab
 import mx.petmate.app.ui.home.HomeScreen
+import mx.petmate.app.ui.map.MapScreen
+import mx.petmate.app.ui.splash.SplashScreen
 
 /**
  * Grafo unico de navegacion.
@@ -33,19 +32,12 @@ fun PetMateNavHost(
     val sessionState by viewModel.sessionState.collectAsStateWithLifecycle()
 
     when (val state = sessionState) {
-        SessionState.Checking -> Box(
-            modifier = modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
-        ) {
-            CircularProgressIndicator()
-        }
+        // Mientras se revisa la sesion se ve la splash, sin el boton de empezar.
+        SessionState.Checking -> SplashScreen(modifier = modifier)
 
         SessionState.SignedOut -> AuthGraph(modifier = modifier)
 
-        is SessionState.SignedIn -> HomeScreen(
-            userName = state.user.name,
-            modifier = modifier,
-        )
+        is SessionState.SignedIn -> MainGraph(userName = state.user.name, modifier = modifier)
     }
 }
 
@@ -54,9 +46,18 @@ private fun AuthGraph(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = Route.WELCOME,
+        startDestination = Route.SPLASH,
         modifier = modifier,
     ) {
+        composable(Route.SPLASH) {
+            SplashScreen(
+                onStartClick = {
+                    navController.navigate(Route.WELCOME) {
+                        popUpTo(Route.SPLASH) { inclusive = true }
+                    }
+                },
+            )
+        }
         composable(Route.WELCOME) {
             WelcomeScreen(
                 onLoginClick = { navController.navigate(Route.LOGIN) },
@@ -73,6 +74,7 @@ private fun AuthGraph(modifier: Modifier = Modifier) {
                         popUpTo(Route.WELCOME)
                     }
                 },
+                onBackClick = { navController.popBackStack() },
             )
         }
         composable(Route.REGISTER) {
@@ -83,7 +85,33 @@ private fun AuthGraph(modifier: Modifier = Modifier) {
                         popUpTo(Route.WELCOME)
                     }
                 },
+                onBackClick = { navController.popBackStack() },
             )
+        }
+    }
+}
+
+/** Contenido con sesion iniciada: el mapa es la pantalla de inicio (spec 010, A-01). */
+@Composable
+private fun MainGraph(userName: String, modifier: Modifier = Modifier) {
+    val navController = rememberNavController()
+    NavHost(
+        navController = navController,
+        startDestination = Route.MAP,
+        modifier = modifier,
+    ) {
+        composable(Route.MAP) {
+            MapScreen(
+                onTabSelected = { tab ->
+                    // Mascotas y Avisos aun no tienen pantalla (specs 007 y 008).
+                    if (tab == OwnerTab.Profile) navController.navigate(Route.HOME)
+                },
+                // La ficha del negocio llega con la spec 013.
+                onBusinessDetailsClick = {},
+            )
+        }
+        composable(Route.HOME) {
+            HomeScreen(userName = userName)
         }
     }
 }

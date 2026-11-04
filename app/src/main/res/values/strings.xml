@@ -1,50 +1,154 @@
 <resources>
     <string name="app_name">PetMate</string>
 
+    <!-- Acciones comunes -->
+    <string name="action_back">Regresar</string>
+    <string name="action_close">Cerrar</string>
+    <string name="action_help">Ayuda</string>
+    <string name="action_retry">Reintentar</string>
+
+    <!-- Splash -->
+    <string name="splash_tagline">El carnet de salud de tu mascota, siempre en tu celular</string>
+    <string name="splash_tap_to_start">Toca para empezar</string>
+
     <!-- Bienvenida -->
-    <string name="welcome_title">PetMate</string>
-    <string name="welcome_subtitle">El carnet de salud de tu mascota, siempre contigo</string>
-    <string name="welcome_login">Iniciar sesión</string>
-    <string name="welcome_register">Crear cuenta</string>
+    <string name="welcome_slide1_title">Todo su carnet en tu celular</string>
+    <string name="welcome_slide1_body">Vacunas, desparasitaciones, peso y alergias en un solo lugar. Sin perder papeles.</string>
+    <string name="welcome_slide2_title">Un QR para cada mascota</string>
+    <string name="welcome_slide2_body">La veterinaria lo escanea y ve su historial al instante. Tú decides cuándo cambiarlo.</string>
+    <string name="welcome_slide3_title">Encuentra quién la cuide</string>
+    <string name="welcome_slide3_body">Veterinarias, tiendas y estéticas cerca de ti, con su horario y un botón para llamar.</string>
+    <string name="welcome_register">Crear cuenta gratis</string>
+    <string name="welcome_login">Ya tengo cuenta</string>
+    <string name="welcome_demo">Probar sin cuenta</string>
+    <string name="welcome_step">Paso %1$d</string>
+
+    <!-- Bienvenida: textos de las ilustraciones -->
+    <string name="welcome_art_vaccine">Vacuna múltiple</string>
+    <string name="welcome_art_vaccine_when">16/10/2026 · en 3 días</string>
+    <string name="welcome_art_allergy">Alergia: pollo</string>
+    <string name="welcome_art_allergy_status">Activa</string>
+    <string name="welcome_art_weight">12.4 kg</string>
+    <string name="welcome_art_weight_label">Último peso</string>
+    <string name="welcome_art_vet_sees">Ve todo su carnet</string>
+    <string name="welcome_art_qr_code" translatable="false">PM-7K3Q</string>
+    <string name="welcome_art_biz_vet">Veterinaria San Marcos</string>
+    <string name="welcome_art_biz_vet_km">600 m</string>
+    <string name="welcome_art_biz_spa">Patitas Felices</string>
+    <string name="welcome_art_biz_spa_km">1.1 km</string>
+    <string name="welcome_art_biz_shop">Croquetas El Sabueso</string>
+    <string name="welcome_art_biz_shop_km">900 m</string>
+    <string name="welcome_art_distance">a %1$s</string>
 
     <!-- Login -->
-    <string name="login_title">Iniciar sesión</string>
+    <string name="login_title">Hola de nuevo</string>
+    <string name="login_lead">Entra para ver a tus mascotas.</string>
+    <string name="login_password_placeholder">Tu contraseña</string>
+    <string name="login_forgot_password">¿Olvidaste tu contraseña?</string>
     <string name="login_submit">Entrar</string>
-    <string name="login_go_register">¿No tienes cuenta? Crear una</string>
+    <string name="login_no_account">¿No tienes cuenta?</string>
+    <string name="login_go_register">Crear cuenta</string>
+    <string name="login_demo_accounts_title">Cuenta de prueba:</string>
 
     <!-- Registro -->
-    <string name="register_title">Crear cuenta</string>
+    <string name="register_title">Crea tu cuenta</string>
+    <string name="register_lead">Es gratis y solo te toma un minuto.</string>
+    <string name="register_email_hint">Ahí te mandaremos el enlace si olvidas tu contraseña.</string>
+    <string name="register_password_placeholder">Mínimo %1$d caracteres</string>
+    <string name="register_password_confirmation_placeholder">Escríbela otra vez</string>
+    <string name="register_rule_length">Mínimo %1$d caracteres</string>
+    <string name="register_rule_digit">Al menos un número</string>
+    <string name="register_rule_uppercase">Al menos una mayúscula (recomendado)</string>
+    <string name="register_privacy_prefix">Acepto el</string>
+    <string name="register_privacy_document">aviso de privacidad y los términos de uso</string>
+    <string name="register_privacy_suffix">.</string>
     <string name="register_submit">Crear cuenta</string>
-    <string name="register_go_login">¿Ya tienes cuenta? Iniciar sesión</string>
-    <string name="register_privacy">Acepto el aviso de privacidad</string>
+    <string name="register_have_account">¿Ya tienes cuenta?</string>
+    <string name="register_go_login">Entrar</string>
 
     <!-- Campos -->
-    <string name="field_name">Nombre</string>
-    <string name="field_email">Correo electrónico</string>
+    <string name="field_name">Tu nombre</string>
+    <string name="field_name_placeholder">Ej. Mariana Torres</string>
+    <string name="field_email">Correo</string>
+    <string name="field_email_placeholder">tucorreo@ejemplo.com</string>
     <string name="field_password">Contraseña</string>
-    <string name="field_password_confirmation">Confirmar contraseña</string>
+    <string name="field_password_confirmation">Repite tu contraseña</string>
+    <string name="field_required_mark" translatable="false">*</string>
     <string name="field_show_password">Mostrar contraseña</string>
     <string name="field_hide_password">Ocultar contraseña</string>
 
-    <!-- Inicio -->
+    <!-- Barra inferior -->
+    <string name="tab_pets">Mascotas</string>
+    <string name="tab_map">Mapa</string>
+    <string name="tab_reminders">Avisos</string>
+    <string name="tab_profile">Perfil</string>
+    <plurals name="tab_reminders_badge">
+        <item quantity="one">%1$d aviso pendiente</item>
+        <item quantity="other">%1$d avisos pendientes</item>
+    </plurals>
+
+    <!-- Tipos de negocio -->
+    <string name="business_type_vet">Veterinaria</string>
+    <string name="business_type_shop">Tienda</string>
+    <string name="business_type_spa">Estética</string>
+
+    <!-- Mapa (inicio) -->
+    <string name="map_search_placeholder">Busca una veterinaria, tienda…</string>
+    <string name="map_loading">Buscando negocios cerca…</string>
+    <string name="map_help">Arrastra el mapa con el dedo. Toca un ícono para ver el negocio. Usa los botones de colores para filtrar.</string>
+    <string name="map_zoom_in">Acercar</string>
+    <string name="map_zoom_out">Alejar</string>
+    <string name="map_my_location">Mi ubicación</string>
+    <string name="map_you_are_here">Estás aquí</string>
+    <string name="map_pin_description">%1$s, %2$s</string>
+    <string name="map_no_location_title">No sabemos dónde estás.</string>
+    <string name="map_no_location_body">Mueve el mapa con el dedo o activa tu ubicación.</string>
+    <string name="map_no_location_action">Activar</string>
+    <string name="map_empty_title">No encontramos negocios aquí.</string>
+    <string name="map_empty_body">Prueba con otros filtros o busca con otro nombre.</string>
+    <string name="map_error">No pudimos cargar los negocios.</string>
+    <string name="map_open_now">Abierto ahora</string>
+    <string name="map_closed">Cerrado</string>
+    <string name="map_closes_at">Cierra a las %1$s</string>
+    <string name="map_opens_tomorrow_at">Abre mañana a las %1$s</string>
+    <string name="map_open_24h">Abierto las 24 horas</string>
+    <string name="map_schedule_separator">· %1$s</string>
+    <string name="map_distance_from_you">A %1$s de ti</string>
+    <string name="map_action_call">Llamar</string>
+    <string name="map_action_whatsapp">WhatsApp</string>
+    <string name="map_action_no_whatsapp">Sin WhatsApp</string>
+    <string name="map_action_directions">Cómo llegar</string>
+    <string name="map_action_details">Ver horario y servicios</string>
+
+    <!-- Mapa ilustrado: nombres de calles de la maqueta -->
+    <string name="map_street_insurgentes">Av. Insurgentes</string>
+    <string name="map_street_hidalgo">Calle Hidalgo</string>
+    <string name="map_street_zaragoza">Calle Zaragoza</string>
+    <string name="map_street_juarez">Av. Juárez</string>
+    <string name="map_street_morelos">Calle Morelos</string>
+    <string name="map_street_boulevard">Blvd. Tula-Iturbe</string>
+    <string name="map_park_name">Parque La Malinche</string>
+    <string name="map_river_name">Río Tula</string>
+
+    <!-- Inicio provisional (cierre de sesión) -->
     <string name="home_greeting">Hola, %1$s</string>
     <string name="home_signed_in">Ya estás dentro de PetMate</string>
-    <string name="home_placeholder">Aquí irá el mapa de veterinarias, tiendas y estéticas afiliadas.</string>
+    <string name="home_placeholder">Aquí irá tu perfil. Por ahora puedes cerrar sesión.</string>
     <string name="home_logout">Cerrar sesión</string>
 
     <!-- Errores -->
     <string name="error_required">Este campo es obligatorio</string>
-    <string name="error_invalid_email">El correo no tiene un formato válido</string>
-    <string name="error_password_too_short">La contraseña debe tener al menos %1$d caracteres</string>
-    <string name="error_passwords_do_not_match">Las contraseñas no coinciden</string>
-    <string name="error_privacy_required">Debes aceptar el aviso de privacidad</string>
+    <string name="error_invalid_email">Escribe un correo válido, como nombre@correo.com</string>
+    <string name="error_password_too_short">Debe tener al menos %1$d caracteres</string>
+    <string name="error_passwords_do_not_match">Las contraseñas no son iguales</string>
+    <string name="error_privacy_required">Acepta el aviso de privacidad para continuar</string>
     <string name="error_network">Sin conexión. Revisa tu internet e inténtalo de nuevo.</string>
     <string name="error_timeout">El servidor tardó demasiado. Inténtalo de nuevo.</string>
-    <string name="error_unauthorized">Correo o contraseña incorrectos</string>
-    <string name="error_email_taken">Ese correo ya está registrado</string>
+    <string name="error_unauthorized">Correo o contraseña incorrectos. Revisa e intenta otra vez.</string>
+    <string name="error_email_taken">Este correo ya está registrado. ¿Quieres entrar?</string>
     <string name="error_server">Hubo un problema en el servidor. Inténtalo más tarde.</string>
     <string name="error_unknown">Algo salió mal. Inténtalo de nuevo.</string>
 
     <!-- Aviso del backend provisional -->
-    <string name="demo_notice">Modo de prueba: el servidor aún no está conectado. Cuenta de ejemplo: demo@petmate.mx / petmate123</string>
+    <string name="demo_notice">el servidor aún no está conectado. Usa demo@petmate.mx / petmate123</string>
 </resources>
