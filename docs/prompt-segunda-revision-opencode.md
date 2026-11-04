@@ -10,22 +10,24 @@ auditoría de todo lo que cambió, para decidir qué se corrige y qué no.
 abajo completo. OpenCode **no debe modificar archivos** en esta revisión: solo
 reporta. Las correcciones se autorizan una por una después de leer su informe.
 
-> ⚠️ **El límite diario de mensajes es por modelo, no de la cuenta.**
-> El 04/11/2026 el primer intento (DeepSeek V4.1 Flash Free) se agotó con un
-> solo mensaje: disparó tres comandos de exploración seguidos y cada respuesta
-> del modelo cuenta. Se resolvió escribiendo `/models` y cambiando de modelo —
-> no hay que esperar a que el límite se reinicie.
+> ⚠️ **Con modelos gratuitos, usar la versión con el código ya pegado.**
 >
-> Dos medidas quedaron en este documento por eso:
+> El 04/11/2026 fallaron dos intentos seguidos, con dos modelos distintos:
 >
-> 1. El prompt le **prohíbe explorar la estructura**. El inventario ya está
->    dentro del prompt y verificado, así no gasta mensajes contando archivos.
-> 2. La **versión por partes** de más abajo son cinco sesiones independientes,
->    una pregunta cada una. Si el límite se acaba en la parte 3, las partes 1 y
->    2 ya están entregadas y no se repiten.
+> | Modelo | Qué pasó |
+> |---|---|
+> | DeepSeek V4.1 Flash Free | Se agotó en el primer mensaje, listando carpetas |
+> | Big Pickle | Reportó `4 reads` y luego `14 reads` — sí leía, y se agotó |
 >
-> Al elegir modelo, preferir uno con ventana de contexto grande: la auditoría
-> lee 61 archivos de spec más 57 de Kotlin.
+> El segundo caso es el que enseña la lección: **el límite se gasta en las
+> lecturas de archivo, no en los mensajes.** Prohibirle listar carpetas sirvió
+> de poco; el gasto real era abrir los 57 archivos que el prompt le pedía.
+>
+> Por eso existe la **versión con el código ya pegado** (la siguiente sección):
+> se le entrega el código leído y gasta una lectura en vez de 57.
+>
+> El límite además es **por modelo, no de la cuenta**: `/models` y cambiar de
+> modelo da una tanda nueva sin esperar el reinicio.
 
 ---
 
@@ -207,7 +209,82 @@ te va a decir que correcciones autoriza.
 
 ---
 
-## Versión por partes (recomendada con modelos gratuitos)
+## Versión con el código ya pegado (la que de verdad funciona en gratis)
+
+> **Por qué esta existe.** El 04/11/2026 fallaron dos intentos con dos modelos
+> distintos. El segundo (Big Pickle) reportó `Explored: 4 reads` y luego
+> `Explored: 14 reads` antes de agotarse: **sí estaba leyendo**. El límite de los
+> modelos gratuitos se gasta en las *lecturas de archivo*, no en los mensajes.
+> Pedirle que abra 57 archivos lo mata antes de que alcance a opinar.
+>
+> La solución es no hacerlo leer. El archivo
+> [`paquete-auditoria-codigo.md`](paquete-auditoria-codigo.md) trae la capa de
+> arquitectura completa (`core`, `domain`, `data`, `di`: 26 archivos, 34 KB) ya
+> pegada. Se le entrega eso y gasta **una lectura en vez de 57**.
+>
+> Las 4,700 líneas que quedan fuera son Compose pintando pantallas: no sirven
+> para auditar trazabilidad ni dirección de dependencias.
+
+### Cómo usarla
+
+1. Abrir `docs/paquete-auditoria-codigo.md`, copiar **todo**.
+2. En OpenCode, pegar primero el prompt de abajo.
+3. Pegar el paquete debajo, en el mismo mensaje.
+
+```
+Auditoria de la app movil Android de PetMate (Kotlin + Compose, Spec Driven
+Development).
+
+REGLA 1: NO modifiques ningun archivo. Solo lees y reportas.
+REGLA 2: NO abras archivos y NO listes carpetas. Tienes un limite de lecturas y
+lo necesito completo para el analisis. Abajo te pego el codigo que importa; con
+eso basta. La UNICA excepcion: puedes leer specs/001-arquitectura-base/task.md
+si te hace falta, y nada mas.
+
+DATOS VERIFICADOS (no los recuentes)
+  280 tareas en los 20 specs/0NN-*/task.md
+    0 marcadas como hechas ([x])
+   57 archivos .kt (54 en app/src/main, 3 de prueba)
+   24 pruebas unitarias, 0 fallos
+
+LA CONTRADICCION QUE QUIERO QUE EXPLIQUES
+
+Hay 280 tareas y ninguna marcada como hecha, pero el codigo existe y compila.
+Es decir: se escribio codigo sin cerrar formalmente ninguna tarea. El profesor
+evalua la trazabilidad entre especificacion y codigo, asi que esto es lo mas
+grave que puede encontrar.
+
+Con el codigo que te pego abajo, contestame:
+
+1. ¿Que modulos de codigo existen que claramente corresponden a tareas de las
+   specs 001 (arquitectura base) y 002 (identidad y sesion)? Nombralos.
+2. ¿Que ves en el codigo que NO parece venir de ninguna spec?
+3. ¿La direccion de dependencias es correcta (ui -> domain <- data, con domain
+   en Kotlin puro)? ¿Algun archivo de domain importa android.* o algo de data?
+4. ¿Hay secretos, llaves o credenciales en el codigo?
+5. ¿Que me recomiendas hacer con las 280 tareas sin marcar, considerando que la
+   entrega es el 02/12/2026?
+
+Entrega una tabla: hallazgo | archivo | gravedad (bloqueante/alta/media/baja) |
+que propones. Ordenada de mas grave a menos. Despues, tres frases de resumen y
+tus tres primeras acciones si tu decidieras.
+
+Si algo no lo puedes afirmar con lo que te di, di "no pude verificarlo". No
+inventes hallazgos.
+
+EL CODIGO (capa de arquitectura completa: core, domain, data, di)
+
+---PEGAR AQUI EL CONTENIDO DE docs/paquete-auditoria-codigo.md---
+```
+
+---
+
+## Versión por partes (si prefiere leer él los archivos)
+
+> ⚠️ Estas cinco partes le piden abrir archivos, así que **con modelos gratuitos
+> probablemente se agoten**. Sirven si consigues un modelo de pago o si quieres
+> que la lectura la haga él como evidencia. Para gratis, usar la versión de
+> arriba.
 
 Cinco sesiones independientes. Cada una es un mensaje y entrega su propia tabla
 de hallazgos. Si el límite se acaba en la parte 3, las partes 1 y 2 ya están
