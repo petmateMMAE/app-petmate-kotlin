@@ -90,18 +90,25 @@ dueño.
 | **Miguel Angel Nuñez Gómez** | Backend (API) y NoSQL: MongoDB Atlas + Redis, JWT, caché, rate limit, moderación, chat, push |
 | **Emanuel Cruz Cruz** | Pruebas unitarias, de seguridad, de integración, de nube y de regresión |
 
-Organización GitHub: **PETMATE-APP-S**.
+Organización GitHub: **petmateMMAE**.
 
 | Repositorio | Qué es | Visibilidad |
 |---|---|---|
 | `app-petmate-kotlin` | **Este**: app móvil Android (Kotlin + Compose) | privado |
 | `backend-petmate-nosdd-aspnetcore` | Backend (API REST en ASP.NET Core) | privado |
 
-URL de este repo: https://github.com/PETMATE-APP-S/app-petmate-kotlin
+URL de este repo: https://github.com/petmateMMAE/app-petmate-kotlin
 Ramas: `main` (estable) y `develop`.
 
-> ⚠️ Existe un proyecto gemelo con otra profesora en la organización
-> `PetMate-AMEL`. **No se mezclan repositorios, commits, tableros ni entregas.**
+> ⚠️ Hay otras dos organizaciones de GitHub que **no** se usan para este
+> proyecto y con las que no se mezcla nada (repositorios, commits, tableros ni
+> entregas):
+>
+> | Organización | Qué es | Estado |
+> |---|---|---|
+> | `petmateMMAE` | **La correcta.** Aquí vive todo el trabajo de esta clase. | en uso |
+> | `PETMATE-APP-S` | Primer intento del equipo; su estructura quedó mal armada y se abandonó el 04/11/2026. | abandonada |
+> | `PetMate-AMEL` | Proyecto gemelo con otra profesora. | ajena |
 
 ---
 
@@ -127,8 +134,9 @@ Ramas: `main` (estable) y `develop`.
 ## 6. Bitácora
 
 ### 27/10/2026
-- Arranca el proyecto en la organización **PETMATE-APP-S**; el repositorio del
-  backend en ASP.NET Core ya existe.
+- Arranca el proyecto en la organización `PETMATE-APP-S` (abandonada el
+  04/11/2026, ver esa fecha); el repositorio del backend en ASP.NET Core ya
+  existe.
 - Se crea la estructura de **Spec Driven Development** de la app móvil:
   `constitution.md`, `AGENTS.md`, `memoria.md`, subagentes, skills y la unidad
   `specs/001-arquitectura-base/` con `spec.md`, `plan.md` y `task.md`.
@@ -139,7 +147,7 @@ Ramas: `main` (estable) y `develop`.
 - Se verifica en PowerShell que la estructura está completa y que **0 de 42**
   tareas se ejecutaron (evidencia en `docs/evidencia-verificacion.md`).
 - Se crea el repositorio **`app-petmate-kotlin`** (privado) en la organización
-  **PETMATE-APP-S**, con ramas `main` y `develop`. Primer commit: la estructura
+  `PETMATE-APP-S`, con ramas `main` y `develop`. Primer commit: la estructura
   SDD completa, sin código de las capas.
 - No se pudo correr la auditoría en **OpenCode**: la cuenta devuelve
   `Free usage limit reached` incluso con un mensaje de una palabra y tras
@@ -147,6 +155,27 @@ Ramas: `main` (estable) y `develop`.
   `docs/prompt-auditoria-opencode.md` para cuando se restablezca la cuota.
 - Pendiente para la próxima clase: instrucciones sobre las specs de
   funcionalidad específica de backend y móvil.
+
+### 04/11/2026
+- Se integra el **mapa real**: `osmdroid` 6.1.20 con teselas de OpenStreetMap.
+  Se arrastra y hace zoom, y los marcadores de la maqueta se pintan encima,
+  reposicionados en cada movimiento.
+- **Decisión del proveedor** (cierra la Q-01 de la spec 010): osmdroid porque
+  no pide llave de API, registro ni tarjeta. Google Maps no cobra la carga del
+  mapa en Android, pero **sí exige habilitar facturación**, lo que choca con
+  el costo cero del profesor. MapLibre está activo, pero su wrapper de Compose
+  no está publicado en Maven Central y su API está en beta.
+- **Riesgo asumido**: osmdroid está archivado desde noviembre de 2024. Funciona
+  y es estable, pero no recibe actualizaciones. Si un Android futuro lo rompe,
+  se migra a MapLibre.
+- La política de OpenStreetMap se cumple en `OsmMapConfig`: User-Agent propio
+  (el genérico está prohibido y bloquean el tráfico), atribución visible que no
+  se puede ocultar, caché de 7 días y nada de descarga masiva.
+- `MapBusiness` pasa de `mapX`/`mapY` a `latitude`/`longitude` reales. El mapa
+  ilustrado de la maqueta se conserva para las previsualizaciones, que no
+  pueden cargar un mapa de red.
+- Permisos de ubicación agregados al manifiesto. La app funciona sin ellos:
+  centra el mapa en una posición por defecto.
 
 ### 03/11/2026
 - Se implementa el flujo de identidad: bienvenida, registro, login, logout y
@@ -169,6 +198,25 @@ Ramas: `main` (estable) y `develop`.
 - Dependencias agregadas con autorización: Hilt, Navigation Compose, Room,
   Retrofit, OkHttp, kotlinx.serialization, DataStore, security-crypto, MockK,
   Turbine y coroutines-test.
+
+### 04/11/2026
+- **Diseño de pantallas igual a la maqueta** (`PetMate_App.html`), sin lógica
+  nueva: splash, bienvenida (3 slides), login, registro y el **mapa como
+  pantalla de inicio** (spec 010, A-01). Login y registro conservan sus
+  ViewModels; solo cambió su `Content`.
+- **Tema de marca**: paleta clara y oscura de la maqueta en `ui/theme`, colores
+  extra en `MaterialTheme.petMateColors` y sin color dinámico. Fuentes
+  **Baloo 2** (títulos) y **Figtree** (texto) en `res/font`, convertidas de la
+  maqueta (licencia OFL). Íconos de la maqueta como vectores `ic_pm_*`.
+- Componentes compartidos en `ui/components` (botones, campo de texto, barra
+  inferior, `@PetMatePreviews` para ver claro y oscuro a la vez).
+- El mapa es **ilustrado** (el dibujo de la maqueta) con datos de ejemplo en
+  `MapSampleData`; `MapScreen` lleva un TODO para su `MapViewModel`. El mapa
+  real espera la decisión del SDK (`010/Q-01`).
+- Perfil aún no existe: la pestaña "Perfil" abre la pantalla provisional con
+  "Cerrar sesión" para no perder el logout.
+- No se pudo compilar en el entorno de la sesión (sin acceso a Google Maven);
+  falta correr `./gradlew build` y revisar las previews en Android Studio.
 
 ### 29/10/2026
 - El profesor autoriza crear **todas** las specs, no solo la arquitectura base.
@@ -197,8 +245,8 @@ Ramas: `main` (estable) y `develop`.
   (track interno → prueba cerrada), consumo del backend en Azure con
   reintentos e idempotencia, punto de intercepción de moderación, base de FCM,
   mecanismo de permisos y outbox de sincronización offline.
-- Se corrigen desalineaciones menores: nombre de la organización
-  (`PETMATE-APP-S`), nombre real del repositorio (`app-petmate-kotlin`), R-14
+- Se corrigen desalineaciones menores: nombre de la organización (entonces
+  `PETMATE-APP-S`), nombre real del repositorio (`app-petmate-kotlin`), R-14
   condicionada a Q-01 y advertencia de autorización en T-010 por el manifiesto.
 - La revisión del `git diff` detectó y corrigió cuatro textos que contradecían
   la rectificación: G-06 y D-12 aún decían que la subida a Play era de la spec
@@ -238,6 +286,24 @@ Ramas: `main` (estable) y `develop`.
 - Dependencias que quedan bloqueadas por preguntas abiertas, no por falta de
   diseño: el SDK de mapas (`010/Q-01`), `coil-compose` en 007 (autorización
   pendiente) y el contrato de red de cada unidad con el backend.
+
+### 04/11/2026 — cambio de organización en GitHub
+- El equipo revisó la organización `PETMATE-APP-S` y concluyó que su estructura
+  de repositorios estaba mal armada. **Se abandona** y todo el trabajo de la
+  materia pasa a la organización **`petmateMMAE`**.
+- Se crea `petmateMMAE/app-petmate-kotlin` (privado) y se reapunta el `origin`
+  local. Se suben las tres ramas (`main`, `develop` y la rama de diseño) con
+  todo su historial, de modo que no se pierde ningún commit anterior.
+- Se actualizan las menciones de la organización en `constitution.md`,
+  `memoria.md`, `specs/001-arquitectura-base/spec.md` y
+  `docs/prompt-specs-completas-opencode.md`. Las menciones **históricas** de la
+  bitácora se dejan con el nombre viejo a propósito: en esas fechas la
+  organización nueva no existía.
+- `PETMATE-APP-S` **no se borra**: queda como respaldo hasta que el equipo
+  confirme que en `petmateMMAE` está todo.
+- Se aprueba el diseño de pantallas y el mapa real; la rama
+  `feature/010-diseno-pantallas-maqueta` se integra a `develop` y a `main`.
+- Verificado antes de subir: `assembleDebug` correcto y **24 pruebas, 0 fallos**.
 
 ---
 

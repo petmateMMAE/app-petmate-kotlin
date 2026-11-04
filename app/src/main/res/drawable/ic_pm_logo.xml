@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generado a partir de la maqueta aprobada (PetMate_App.html). Logo de marca: colores fijos a proposito. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <path
+        android:pathData="M27,9a5,5 0 1,0 10,0a5,5 0 1,0 -10,0z"
+        android:strokeWidth="4"
+        android:strokeColor="#FFFFC53D" />
+    <path
+        android:fillColor="#FFFFC53D"
+        android:pathData="M32 13c12 0 24 8 24 22 0 13-11 23-24 23S8 48 8 35c0-14 12-22 24-22z" />
+    <path
+        android:fillColor="#FF5B3CC4"
+        android:pathData="M32 18c10 0 19 7 19 17 0 11-9 18-19 18s-19-7-19-18c0-10 9-17 19-17z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M24.5,41a7.5,6 0 1,0 15.0,0a7.5,6 0 1,0 -15.0,0zM19.1,33a3.4,4.3 0 1,0 6.8,0a3.4,4.3 0 1,0 -6.8,0zM38.1,33a3.4,4.3 0 1,0 6.8,0a3.4,4.3 0 1,0 -6.8,0zM24.3,26.5a3.2,4.2 0 1,0 6.4,0a3.2,4.2 0 1,0 -6.4,0zM33.3,26.5a3.2,4.2 0 1,0 6.4,0a3.2,4.2 0 1,0 -6.4,0z" />
+</vector>

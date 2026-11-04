@@ -230,7 +230,7 @@ Cada criterio es verificable por alguien que no escribió esta spec.
 **Externas a esta unidad:**
 - Acuerdo con el responsable del backend sobre la URL base, el endpoint de
   salud, el formato de error y el flujo de renovación de token.
-- Repositorio creado en la organización **PETMATE-APP-S** con ramas `main` y
+- Repositorio creado en la organización **petmateMMAE** con ramas `main` y
   `develop` protegidas.
 - Secretos de CI/CD configurados en GitHub (credenciales de firma).
 - Cuenta de Google Play Console, track interno/cerrado y service account de
