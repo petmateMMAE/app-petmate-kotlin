@@ -10,6 +10,23 @@ auditoría de todo lo que cambió, para decidir qué se corrige y qué no.
 abajo completo. OpenCode **no debe modificar archivos** en esta revisión: solo
 reporta. Las correcciones se autorizan una por una después de leer su informe.
 
+> ⚠️ **El límite diario de mensajes es por modelo, no de la cuenta.**
+> El 04/11/2026 el primer intento (DeepSeek V4.1 Flash Free) se agotó con un
+> solo mensaje: disparó tres comandos de exploración seguidos y cada respuesta
+> del modelo cuenta. Se resolvió escribiendo `/models` y cambiando de modelo —
+> no hay que esperar a que el límite se reinicie.
+>
+> Dos medidas quedaron en este documento por eso:
+>
+> 1. El prompt le **prohíbe explorar la estructura**. El inventario ya está
+>    dentro del prompt y verificado, así no gasta mensajes contando archivos.
+> 2. La **versión por partes** de más abajo son cinco sesiones independientes,
+>    una pregunta cada una. Si el límite se acaba en la parte 3, las partes 1 y
+>    2 ya están entregadas y no se repiten.
+>
+> Al elegir modelo, preferir uno con ventana de contexto grande: la auditoría
+> lee 61 archivos de spec más 57 de Kotlin.
+
 ---
 
 ## Prompt (pegar completo)
@@ -19,10 +36,16 @@ Eres el auditor de este proyecto. Trabajas sobre la carpeta actual, que es la
 app movil Android de PetMate (Kotlin + Jetpack Compose), desarrollada con Spec
 Driven Development.
 
-REGLA MAS IMPORTANTE: en esta sesion NO modificas ningun archivo. No escribes
-codigo, no corriges specs, no haces commits. Solo lees y reportas. Si encuentras
-algo que hay que arreglar, lo describes y esperas autorizacion. Si crees que una
+REGLA 1: en esta sesion NO modificas ningun archivo. No escribes codigo, no
+corriges specs, no haces commits. Solo lees y reportas. Si encuentras algo que
+hay que arreglar, lo describes y esperas autorizacion. Si crees que una
 correccion es urgente, lo dices en el informe, pero tampoco la aplicas.
+
+REGLA 2: NO explores la estructura. No corras ls, dir, Get-ChildItem, tree,
+find ni equivalentes para ver que archivos hay. El inventario ya lo tienes mas
+abajo y es correcto. Tienes un limite de mensajes y cada comando que gastes
+listando carpetas es un archivo que no vas a leer. Ve directo a abrir los
+archivos que te nombro.
 
 CONTEXTO DE POR QUE TE LLAMO
 
@@ -39,6 +62,24 @@ cuatro cosas que no has visto:
 
 Quiero que revises si todo eso es coherente con lo que las specs dicen, o si nos
 desviamos sin darnos cuenta.
+
+INVENTARIO (ya verificado, no lo vuelvas a contar)
+
+  Unidades de spec:        20  (001-arquitectura-base ... 020-liberacion-play)
+  Archivos de spec:        61  (20 x spec.md/plan.md/task.md + MAPA-CAPACIDADES.md)
+  Tareas totales:         280
+  Tareas marcadas [x]:      0
+  Archivos Kotlin:         57  (54 en main, 3 de prueba)
+  Pruebas unitarias:       24  (0 fallos)
+  Subagentes:               5  (.opencode/agents/)
+  Skills:                   4  (.agents/skills/)
+
+Los tres archivos de prueba son:
+  app/src/test/java/mx/petmate/app/data/repository/FakeAuthRepositoryTest.kt
+  app/src/test/java/mx/petmate/app/domain/usecase/ValidateCredentialsUseCaseTest.kt
+  app/src/test/java/mx/petmate/app/ui/auth/LoginViewModelTest.kt
+
+Si tus cuentas no dan esto, dilo en el informe: puede ser que algo cambio.
 
 QUE TIENES QUE LEER
 
@@ -166,6 +207,138 @@ te va a decir que correcciones autoriza.
 
 ---
 
+## Versión por partes (recomendada con modelos gratuitos)
+
+Cinco sesiones independientes. Cada una es un mensaje y entrega su propia tabla
+de hallazgos. Si el límite se acaba en la parte 3, las partes 1 y 2 ya están
+guardadas y no se repiten.
+
+**Antes de pegar cualquiera:** si el modelo dice que se acabó el límite, escribir
+`/models` y elegir otro de los gratuitos. El límite es por modelo, no de la
+cuenta.
+
+### Parte 1 — Código sin tarea
+
+```
+Auditoria de la app movil Android de PetMate (Kotlin + Compose, Spec Driven
+Development). NO modifiques archivos y NO listes carpetas: ve directo a leer.
+
+Dato verificado: hay 280 tareas en los 20 specs/0NN-*/task.md, ninguna marcada
+como hecha ([x]), pero existen 57 archivos .kt (54 en app/src/main, 3 de prueba).
+
+Lee los task.md de specs/001-arquitectura-base, specs/002-identidad-y-sesion y
+specs/010-mapa-e-inicio, y el codigo en app/src/main/java/mx/petmate/app/.
+
+Dime, con ruta y linea:
+1. Que codigo existe que no corresponde a ninguna tarea.
+2. Que tareas describen codigo que ya existe y deberian estar marcadas.
+3. Que codigo contradice lo que su spec pedia.
+
+Entrega una tabla: hallazgo | archivo:linea | gravedad | que propones.
+Luego detente.
+```
+
+### Parte 2 — La constitución contra el código
+
+```
+Auditoria de la app movil Android de PetMate. NO modifiques archivos y NO listes
+carpetas.
+
+Lee constitution.md completo y luego el codigo en
+app/src/main/java/mx/petmate/app/ (54 archivos), app/build.gradle.kts y
+.gitignore.
+
+Revisa cada uno de los 12 principios contra el codigo real. Pon atencion en:
+- P3: direccion de dependencias (ui -> domain <- data; domain en Kotlin puro).
+  ¿Algun archivo de domain/ importa android.* o algo de data/?
+- P6: nada de secretos ni llaves en archivos versionados. Revisa tambien
+  local.properties, .gitignore y los buildConfigField.
+- Los umbrales de cobertura que fija la constitucion contra las 24 pruebas que
+  existen.
+
+Entrega tres listas: principios que SI se cumplen, los que NO (con
+archivo:linea), y los que no se pueden verificar todavia y por que.
+Luego detente.
+```
+
+### Parte 3 — Dependencias nuevas
+
+```
+Auditoria de la app movil Android de PetMate. NO modifiques archivos y NO listes
+carpetas.
+
+Lee gradle/libs.versions.toml, app/build.gradle.kts,
+app/src/main/java/mx/petmate/app/ui/map/OsmMapConfig.kt,
+specs/010-mapa-e-inicio/spec.md y la seccion de limites de agentes de
+constitution.md.
+
+Contexto: se agrego osmdroid 6.1.20 para el mapa y se bajo AGP de 9 a 8.7.3
+porque Hilt no era compatible con AGP 9. La constitucion dice que agregar
+dependencias requiere preguntar primero.
+
+Contesta:
+1. ¿Estan declaradas y justificadas en la spec que les corresponde?
+2. osmdroid esta archivado desde noviembre de 2024 (sin mantenimiento). ¿Ese
+   riesgo esta escrito? ¿Es aceptable para una app que se publica en Google Play?
+3. ¿El cambio de AGP y Gradle quedo documentado con su razon?
+4. La politica de teselas de OpenStreetMap exige User-Agent propio, atribucion
+   visible y cache. ¿El codigo las cumple?
+
+Entrega tabla: hallazgo | archivo:linea | gravedad | que propones. Luego detente.
+```
+
+### Parte 4 — Coherencia entre specs
+
+```
+Auditoria de las especificaciones de PetMate (app movil Android). NO modifiques
+archivos y NO listes carpetas.
+
+Hay 20 unidades en specs/001-* a specs/020-*. Las 002 a 010 las escribio un
+agente y las 011 a 020 otro, asi que busca donde no empatan.
+
+Lee specs/MAPA-CAPACIDADES.md primero, y luego los spec.md de 004, 005, 009,
+013 y 017 (son los que tocan los mismos temas).
+
+Busca:
+1. Referencias cruzadas rotas: una spec que cite una tarea, pregunta (Q-) o
+   riesgo (G-) que no existe o apunta al numero equivocado.
+2. Dependencias hacia adelante: una unidad que dependa de otra de numero mayor.
+3. Contradicciones reales entre dos specs sobre el mismo tema. En particular:
+   moderacion de contenido (004) contra sincronizacion offline (005), y
+   privacidad por tipo de negocio (013/017) contra compartir historial (009).
+4. Terminos que significan lo mismo pero se llaman distinto segun la unidad.
+
+Entrega tabla: hallazgo | archivo:linea | gravedad | que propones. Luego detente.
+```
+
+### Parte 5 — Entrega y organización
+
+```
+Auditoria de la app movil Android de PetMate. NO modifiques archivos y NO listes
+carpetas.
+
+Lee specs/020-liberacion-play/spec.md y plan.md, memoria.md y constitution.md.
+
+Contexto: la evaluacion es el 02/12/2026 y la app tiene que estar publicada en
+Google Play. La prueba cerrada necesita 12 probadores durante 14 dias. Tambien
+se cambio de organizacion de GitHub (de PETMATE-APP-S a petmateMMAE) porque la
+primera tenia la estructura mal armada.
+
+Contesta:
+1. Segun el calendario de la spec 020, ¿se llega al 02/12/2026? ¿Que fecha es
+   la mas critica?
+2. ¿Que falta para publicar que no este escrito en ninguna spec?
+3. ¿Quedo alguna referencia a la organizacion vieja que deberia actualizarse?
+   Nota: en la bitacora de memoria.md las menciones historicas conservan el
+   nombre viejo a proposito, porque en esas fechas la organizacion nueva no
+   existia. ¿Te parece correcto o deberian cambiarse todas?
+4. Si tu decidieras, ¿cuales serian las tres primeras acciones?
+
+Entrega tabla de hallazgos y tus tres acciones en orden. Luego detente.
+```
+
+---
+
 ## Versión corta (si la sesión se corta o va muy lenta)
 
 ```
@@ -214,7 +387,7 @@ preguntas para el equipo. Luego detente sin aplicar nada.
 | Archivos de spec | 61 (20 × 3 + el mapa de capacidades) |
 | Tareas totales | 280 |
 | Tareas marcadas como hechas | 0 |
-| Archivos Kotlin | 57 |
+| Archivos Kotlin | 57 (54 en `main`, 3 de prueba) |
 | Pruebas unitarias | 24, 0 fallos |
 | Subagentes definidos | 5 |
 | Skills definidas | 4 |

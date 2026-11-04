@@ -312,6 +312,6 @@ Ramas: `main` (estable) y `develop`.
 | # | Qué | Severidad | Nota |
 |---|---|---|---|
 | D-01 | `app/src/main/java/.../` sigue en `com.example.petmateedel` | Media | Debería ser un `applicationId` real (p. ej. `mx.petmate.app`) antes de publicar en Google Play. Requiere permiso para cambiarlo. |
-| D-02 | Quedaron en el repositorio `hs_err_pid26380.log` y `replay_pid26380.log` | Baja | Logs de un crash de la JVM de Gradle; se pueden borrar. |
+| D-02 | ~~Quedaron en el repositorio `hs_err_pid26380.log` y `replay_pid26380.log`~~ | Cerrada 04/11/2026 | Se verificó que **nunca estuvieron versionados**; la deuda estaba mal redactada. Siguen en la carpeta local (ahora son cuatro: `pid24740` y `pid26380`) y ya tienen regla en `.gitignore`. Se pueden borrar a mano cuando se quiera. |
 | D-03 | `minSdk` 24 vs. Android 8+ (API 26) de los lineamientos | Media | Confirmar con el profesor (ver §3). |
 | D-04 | No hay matriz de versionamiento escrita todavía | Alta | Los lineamientos la exigen **antes** de desarrollar. Es la tarea T-001. |
