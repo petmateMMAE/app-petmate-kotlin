@@ -20,7 +20,7 @@ que ya escribe archivos.
 
 ```
 Estás en el repositorio de la app móvil Android de PetMate (Kotlin + Jetpack
-Compose), en la organización de GitHub PETMATE-APP-S.
+Compose), en la organización de GitHub petmateMMAE.
 
 TU TRABAJO EN ESTA ETAPA: AUDITAR. No escribas ni modifiques ningún archivo
 todavía. Solo lee y reporta.

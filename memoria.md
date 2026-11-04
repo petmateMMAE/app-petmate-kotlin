@@ -90,18 +90,25 @@ dueño.
 | **Miguel Angel Nuñez Gómez** | Backend (API) y NoSQL: MongoDB Atlas + Redis, JWT, caché, rate limit, moderación, chat, push |
 | **Emanuel Cruz Cruz** | Pruebas unitarias, de seguridad, de integración, de nube y de regresión |
 
-Organización GitHub: **PETMATE-APP-S**.
+Organización GitHub: **petmateMMAE**.
 
 | Repositorio | Qué es | Visibilidad |
 |---|---|---|
 | `app-petmate-kotlin` | **Este**: app móvil Android (Kotlin + Compose) | privado |
 | `backend-petmate-nosdd-aspnetcore` | Backend (API REST en ASP.NET Core) | privado |
 
-URL de este repo: https://github.com/PETMATE-APP-S/app-petmate-kotlin
+URL de este repo: https://github.com/petmateMMAE/app-petmate-kotlin
 Ramas: `main` (estable) y `develop`.
 
-> ⚠️ Existe un proyecto gemelo con otra profesora en la organización
-> `PetMate-AMEL`. **No se mezclan repositorios, commits, tableros ni entregas.**
+> ⚠️ Hay otras dos organizaciones de GitHub que **no** se usan para este
+> proyecto y con las que no se mezcla nada (repositorios, commits, tableros ni
+> entregas):
+>
+> | Organización | Qué es | Estado |
+> |---|---|---|
+> | `petmateMMAE` | **La correcta.** Aquí vive todo el trabajo de esta clase. | en uso |
+> | `PETMATE-APP-S` | Primer intento del equipo; su estructura quedó mal armada y se abandonó el 04/11/2026. | abandonada |
+> | `PetMate-AMEL` | Proyecto gemelo con otra profesora. | ajena |
 
 ---
 
@@ -127,8 +134,9 @@ Ramas: `main` (estable) y `develop`.
 ## 6. Bitácora
 
 ### 27/10/2026
-- Arranca el proyecto en la organización **PETMATE-APP-S**; el repositorio del
-  backend en ASP.NET Core ya existe.
+- Arranca el proyecto en la organización `PETMATE-APP-S` (abandonada el
+  04/11/2026, ver esa fecha); el repositorio del backend en ASP.NET Core ya
+  existe.
 - Se crea la estructura de **Spec Driven Development** de la app móvil:
   `constitution.md`, `AGENTS.md`, `memoria.md`, subagentes, skills y la unidad
   `specs/001-arquitectura-base/` con `spec.md`, `plan.md` y `task.md`.
@@ -139,7 +147,7 @@ Ramas: `main` (estable) y `develop`.
 - Se verifica en PowerShell que la estructura está completa y que **0 de 42**
   tareas se ejecutaron (evidencia en `docs/evidencia-verificacion.md`).
 - Se crea el repositorio **`app-petmate-kotlin`** (privado) en la organización
-  **PETMATE-APP-S**, con ramas `main` y `develop`. Primer commit: la estructura
+  `PETMATE-APP-S`, con ramas `main` y `develop`. Primer commit: la estructura
   SDD completa, sin código de las capas.
 - No se pudo correr la auditoría en **OpenCode**: la cuenta devuelve
   `Free usage limit reached` incluso con un mensaje de una palabra y tras
@@ -237,8 +245,8 @@ Ramas: `main` (estable) y `develop`.
   (track interno → prueba cerrada), consumo del backend en Azure con
   reintentos e idempotencia, punto de intercepción de moderación, base de FCM,
   mecanismo de permisos y outbox de sincronización offline.
-- Se corrigen desalineaciones menores: nombre de la organización
-  (`PETMATE-APP-S`), nombre real del repositorio (`app-petmate-kotlin`), R-14
+- Se corrigen desalineaciones menores: nombre de la organización (entonces
+  `PETMATE-APP-S`), nombre real del repositorio (`app-petmate-kotlin`), R-14
   condicionada a Q-01 y advertencia de autorización en T-010 por el manifiesto.
 - La revisión del `git diff` detectó y corrigió cuatro textos que contradecían
   la rectificación: G-06 y D-12 aún decían que la subida a Play era de la spec
@@ -278,6 +286,24 @@ Ramas: `main` (estable) y `develop`.
 - Dependencias que quedan bloqueadas por preguntas abiertas, no por falta de
   diseño: el SDK de mapas (`010/Q-01`), `coil-compose` en 007 (autorización
   pendiente) y el contrato de red de cada unidad con el backend.
+
+### 04/11/2026 — cambio de organización en GitHub
+- El equipo revisó la organización `PETMATE-APP-S` y concluyó que su estructura
+  de repositorios estaba mal armada. **Se abandona** y todo el trabajo de la
+  materia pasa a la organización **`petmateMMAE`**.
+- Se crea `petmateMMAE/app-petmate-kotlin` (privado) y se reapunta el `origin`
+  local. Se suben las tres ramas (`main`, `develop` y la rama de diseño) con
+  todo su historial, de modo que no se pierde ningún commit anterior.
+- Se actualizan las menciones de la organización en `constitution.md`,
+  `memoria.md`, `specs/001-arquitectura-base/spec.md` y
+  `docs/prompt-specs-completas-opencode.md`. Las menciones **históricas** de la
+  bitácora se dejan con el nombre viejo a propósito: en esas fechas la
+  organización nueva no existía.
+- `PETMATE-APP-S` **no se borra**: queda como respaldo hasta que el equipo
+  confirme que en `petmateMMAE` está todo.
+- Se aprueba el diseño de pantallas y el mapa real; la rama
+  `feature/010-diseno-pantallas-maqueta` se integra a `develop` y a `main`.
+- Verificado antes de subir: `assembleDebug` correcto y **24 pruebas, 0 fallos**.
 
 ---
 
