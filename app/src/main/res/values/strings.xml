@@ -163,4 +163,52 @@
 
     <!-- Aviso del backend provisional -->
     <string name="demo_notice">demo@petmate.mx / PetMateDemo2026. Toca aquí para llenar los campos.</string>
+
+    <!-- Modo demo ("Probar sin cuenta") -->
+    <string name="demo_tag">DEMO</string>
+    <string name="demo_sample_data">Datos de ejemplo</string>
+    <string name="demo_create_account">Crear cuenta</string>
+
+    <!-- Perfil (maqueta, SCREENS.profile) -->
+    <string name="profile_title">Perfil</string>
+    <string name="profile_demo_title">Estás usando la demo</string>
+    <string name="profile_demo_body">Crea una cuenta para guardar a tus mascotas de verdad.</string>
+    <string name="profile_affiliate_title">¿Tienes un negocio para mascotas?</string>
+    <string name="profile_affiliate_body">Afíliate gratis y aparece en el mapa</string>
+    <string name="profile_settings">Ajustes</string>
+    <string name="profile_dark_mode">Modo oscuro</string>
+    <string name="profile_reminders">Avisos</string>
+    <string name="profile_privacy">Privacidad y términos</string>
+    <string name="profile_exit_demo">Salir de la demo</string>
+    <string name="profile_delete_account">Eliminar mi cuenta</string>
+    <string name="profile_footer">PetMate 1.0 · Hecho en la UTTT</string>
+    <string name="profile_logout_title">¿Cerrar sesión?</string>
+    <string name="profile_logout_body">Tus datos se quedan guardados. Para volver a verlos tendrás que entrar con tu correo y contraseña.</string>
+    <string name="profile_cancel">Cancelar</string>
+
+    <!-- Privacidad y términos -->
+    <string name="legal_title">Privacidad</string>
+    <string name="legal_tip">Esta página también está en petmate.mx/legal para leerla sin la app.</string>
+    <string name="legal_data_title">Qué datos guardamos</string>
+    <string name="legal_data_body">Tu nombre, tu correo y los datos de salud de tus mascotas que tú escribes. Si tienes negocio, también su dirección, teléfono y horario.</string>
+    <string name="legal_card_title">Quién ve el carnet</string>
+    <string name="legal_card_body">Solo tú. Cuando un negocio escanea el QR, puede verlo por 30 minutos. Las veterinarias ven todo; las tiendas y estéticas solo ven datos básicos y alergias.</string>
+    <string name="legal_location_title">Tu ubicación</string>
+    <string name="legal_location_body">La usamos solo para mostrarte negocios cerca. No la guardamos.</string>
+    <string name="legal_delete_title">Borrar tu cuenta</string>
+    <string name="legal_delete_body">Puedes borrarla desde Perfil → Eliminar mi cuenta, o pedirlo en petmate.mx/eliminar-cuenta. Borramos todo en un máximo de 30 días.</string>
+    <string name="legal_terms_title">Términos de uso</string>
+    <string name="legal_terms_body">PetMate no sustituye la consulta con un veterinario. Los negocios son responsables de la información que registran.</string>
+
+    <!-- Eliminar cuenta -->
+    <string name="delete_title">¿Seguro que quieres irte?</string>
+    <string name="delete_lead">Esto no se puede deshacer. Se borra:</string>
+    <string name="delete_item_account">Tu cuenta y tu correo</string>
+    <string name="delete_item_pets">Todas tus mascotas y sus carnets</string>
+    <string name="delete_item_qr">Sus códigos QR (dejan de funcionar)</string>
+    <string name="delete_item_business">Tu negocio, si tienes uno</string>
+    <string name="delete_password_label">Escribe tu contraseña para confirmar</string>
+    <string name="delete_confirm">Eliminar mi cuenta para siempre</string>
+    <string name="delete_cancel">Mejor no, regresar</string>
+    <string name="delete_pending">El borrado desde la app todavía no está disponible. Mientras, pídelo en petmate.mx/eliminar-cuenta y lo hacemos en máximo 30 días.</string>
 </resources>

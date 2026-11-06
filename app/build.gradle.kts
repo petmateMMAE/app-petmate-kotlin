@@ -25,10 +25,11 @@ val useFakeBackend: String =
     (localProperties.getProperty("USE_FAKE_BACKEND") ?: System.getenv("USE_FAKE_BACKEND") ?: "false")
         .trim().lowercase().let { if (it == "true") "true" else "false" }
 
-// Aviso de la cuenta demo en el login (revision y pruebas). Se apaga con SHOW_DEMO_ACCOUNT=false.
+// Aviso de una cuenta de prueba con contrasena en el login. Apagado por defecto: la demo del producto
+// es "Probar sin cuenta" en la bienvenida. Solo para pruebas internas: SHOW_DEMO_ACCOUNT=true.
 val showDemoAccount: String =
-    (localProperties.getProperty("SHOW_DEMO_ACCOUNT") ?: System.getenv("SHOW_DEMO_ACCOUNT") ?: "true")
-        .trim().lowercase().let { if (it == "false") "false" else "true" }
+    (localProperties.getProperty("SHOW_DEMO_ACCOUNT") ?: System.getenv("SHOW_DEMO_ACCOUNT") ?: "false")
+        .trim().lowercase().let { if (it == "true") "true" else "false" }
 
 // La llave de subida sale de keystore.properties (ignorado por git) o de
 // variables de entorno en GitHub Actions. Nunca se versiona (constitution.md P6).

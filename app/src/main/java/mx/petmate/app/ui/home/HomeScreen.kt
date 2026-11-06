@@ -2,6 +2,8 @@ package mx.petmate.app.ui.home
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,255 +13,503 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import mx.petmate.app.R
-import mx.petmate.app.domain.model.UserProfile
+import mx.petmate.app.ui.components.DemoStrip
+import mx.petmate.app.ui.components.OwnerTab
+import mx.petmate.app.ui.components.PetMateBottomBar
+import mx.petmate.app.ui.components.PetMateButton
+import mx.petmate.app.ui.components.PetMateButtonStyle
 import mx.petmate.app.ui.theme.PetMateEdelTheme
+import mx.petmate.app.ui.theme.ThemeSettings
 import mx.petmate.app.ui.theme.petMateColors
-import java.text.SimpleDateFormat
-import java.util.Locale
-import java.util.TimeZone
+
+/** Acciones de la pantalla Perfil; las rutas las resuelve el grafo de navegacion. */
+data class ProfileActions(
+    val onTabSelected: (OwnerTab) -> Unit = {},
+    val onCreateAccountClick: () -> Unit = {},
+    val onLoginClick: () -> Unit = {},
+    val onExitDemoClick: () -> Unit = {},
+    val onRemindersClick: () -> Unit = {},
+    val onPrivacyClick: () -> Unit = {},
+    val onAffiliateClick: () -> Unit = {},
+    val onDeleteAccountClick: () -> Unit = {},
+)
 
 /**
- * Perfil del usuario (pestana Perfil del mapa).
+ * Perfil (pestana Perfil), igual a la maqueta (SCREENS.profile de PetMate_App.html).
  *
- * Muestra los datos que devuelve el backend (`GET users/me/get`, pm-037): nombre, correo, tipo de
- * cuenta y fecha de alta, el estado de la sesion y el cierre de sesion.
+ * - Modo demo: tarjeta amarilla "Estas usando la demo" con crear cuenta / ya tengo cuenta,
+ *   y "Salir de la demo" al final.
+ * - Con sesion: tarjeta con iniciales, nombre y correo (GET users/me/get, pm-037), la invitacion
+ *   a afiliar un negocio, "Cerrar sesion" con confirmacion y "Eliminar mi cuenta".
+ * - En los dos: Ajustes con modo oscuro, avisos y privacidad.
  */
 @Composable
 fun HomeScreen(
+    isGuest: Boolean,
     userName: String,
+    userEmail: String,
+    isAffiliate: Boolean,
+    actions: ProfileActions,
     modifier: Modifier = Modifier,
-    onBackToMap: (() -> Unit)? = null,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    LaunchedEffect(isGuest, userName) { viewModel.start(userName, isGuest) }
 
-    LaunchedEffect(userName) { if (uiState.profile == null) viewModel.setUserName(userName) }
-
-    HomeContent(
-        uiState = uiState,
-        onRetry = viewModel::refresh,
-        onLogoutClick = viewModel::onLogoutClicked,
-        onBackToMap = onBackToMap,
+    ProfileContent(
+        isGuest = isGuest,
+        name = uiState.profile?.name ?: uiState.userName.ifBlank { userName },
+        email = uiState.profile?.email ?: userEmail,
+        isAffiliate = uiState.profile?.isAffiliate ?: isAffiliate,
+        isLoggingOut = uiState.isLoggingOut,
+        actions = actions,
+        onConfirmLogout = viewModel::onLogoutClicked,
         modifier = modifier,
     )
 }
 
 @Composable
-private fun HomeContent(
-    uiState: HomeUiState,
-    onRetry: () -> Unit,
-    onLogoutClick: () -> Unit,
-    onBackToMap: (() -> Unit)?,
+private fun ProfileContent(
+    isGuest: Boolean,
+    name: String,
+    email: String,
+    isAffiliate: Boolean,
+    isLoggingOut: Boolean,
+    actions: ProfileActions,
+    onConfirmLogout: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val extra = MaterialTheme.petMateColors
+    var showLogoutDialog by remember { mutableStateOf(false) }
+
     Column(
         modifier = modifier
             .fillMaxSize()
-            .safeDrawingPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+            .background(MaterialTheme.colorScheme.background),
     ) {
-        if (onBackToMap != null) {
-            TextButton(onClick = onBackToMap, modifier = Modifier.align(Alignment.Start)) {
-                Icon(painterResource(R.drawable.ic_pm_back), contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.size(6.dp))
-                Text(stringResource(R.string.profile_back_to_map))
-            }
+        Column(modifier = Modifier.statusBarsPadding()) {
+            if (isGuest) DemoStrip(onCreateAccountClick = actions.onCreateAccountClick)
+            // .topbar h1: 22 / 700, sin boton de regresar.
+            Text(
+                text = stringResource(R.string.profile_title),
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 12.dp),
+            )
         }
 
-        Spacer(Modifier.height(8.dp))
-        val name = uiState.profile?.name ?: uiState.userName
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 18.dp)
+                .padding(bottom = 18.dp),
+        ) {
+            if (isGuest) {
+                DemoCard(onCreateAccountClick = actions.onCreateAccountClick, onLoginClick = actions.onLoginClick)
+            } else {
+                UserCard(name = name, email = email)
+                if (!isAffiliate) {
+                    Spacer(Modifier.height(14.dp))
+                    AffiliateCard(onClick = actions.onAffiliateClick)
+                }
+            }
+
+            SectionTitle(stringResource(R.string.profile_settings))
+            Menu {
+                val darkNow = ThemeSettings.darkMode ?: isSystemInDarkTheme()
+                MenuItem(
+                    icon = R.drawable.ic_pm_moon,
+                    label = stringResource(R.string.profile_dark_mode),
+                    onClick = { ThemeSettings.darkMode = !darkNow },
+                    trailing = {
+                        Switch(
+                            checked = darkNow,
+                            onCheckedChange = { ThemeSettings.darkMode = it },
+                            colors = SwitchDefaults.colors(
+                                checkedTrackColor = MaterialTheme.colorScheme.primary,
+                                checkedThumbColor = Color.White,
+                                checkedBorderColor = Color.Transparent,
+                                uncheckedTrackColor = MaterialTheme.petMateColors.line,
+                                uncheckedThumbColor = Color.White,
+                                uncheckedBorderColor = Color.Transparent,
+                            ),
+                        )
+                    },
+                )
+                MenuDivider()
+                MenuItem(R.drawable.ic_pm_bell, stringResource(R.string.profile_reminders), actions.onRemindersClick)
+                MenuDivider()
+                MenuItem(R.drawable.ic_pm_shield, stringResource(R.string.profile_privacy), actions.onPrivacyClick)
+            }
+
+            Spacer(Modifier.height(14.dp))
+            Menu {
+                if (isGuest) {
+                    MenuItem(R.drawable.ic_pm_logout, stringResource(R.string.profile_exit_demo), actions.onExitDemoClick)
+                } else {
+                    MenuItem(
+                        icon = R.drawable.ic_pm_logout,
+                        label = stringResource(R.string.home_logout),
+                        onClick = { if (!isLoggingOut) showLogoutDialog = true },
+                    )
+                    MenuDivider()
+                    MenuItem(
+                        icon = R.drawable.ic_pm_trash,
+                        label = stringResource(R.string.profile_delete_account),
+                        onClick = actions.onDeleteAccountClick,
+                        danger = true,
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(14.dp))
+            Text(
+                text = stringResource(R.string.profile_footer),
+                fontSize = 12.sp,
+                color = MaterialTheme.petMateColors.ink3,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+
+        PetMateBottomBar(selected = OwnerTab.Profile, onTabSelected = actions.onTabSelected)
+    }
+
+    if (showLogoutDialog) {
+        LogoutDialog(
+            onConfirm = {
+                showLogoutDialog = false
+                onConfirmLogout()
+            },
+            onDismiss = { showLogoutDialog = false },
+        )
+    }
+}
+
+/** .card con fondo sun-soft: aviso de que se esta usando la demo. */
+@Composable
+private fun DemoCard(onCreateAccountClick: () -> Unit, onLoginClick: () -> Unit) {
+    val extra = MaterialTheme.petMateColors
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxWidth()
+            .cardShadow()
+            .background(extra.sunSoft, CardShape)
+            .padding(20.dp),
+    ) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(88.dp)
-                .background(extra.brandSoft, CircleShape),
+                .size(64.dp)
+                .background(extra.sun, RoundedCornerShape(20.dp)),
         ) {
-            Text(
-                text = initials(name),
-                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                color = extra.brandText,
-            )
+            Icon(painterResource(R.drawable.ic_pm_user), contentDescription = null, tint = extra.onSun, modifier = Modifier.size(32.dp))
         }
         Spacer(Modifier.height(12.dp))
         Text(
-            text = name,
-            style = MaterialTheme.typography.headlineSmall,
+            text = stringResource(R.string.profile_demo_title),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
         )
-        uiState.profile?.let {
-            Text(
-                text = it.email,
-                style = MaterialTheme.typography.bodyMedium,
-                color = extra.ink2,
-            )
-        }
-
-        Spacer(Modifier.height(16.dp))
-        SessionBadge()
-        Spacer(Modifier.height(20.dp))
-
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                Text(
-                    text = stringResource(R.string.profile_account_title),
-                    style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                )
-                when {
-                    uiState.profile != null -> ProfileRows(uiState.profile)
-                    uiState.isLoading -> Box(Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(modifier = Modifier.size(28.dp), strokeWidth = 3.dp)
-                    }
-                    else -> Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    ) {
-                        Text(
-                            text = uiState.error?.asString() ?: stringResource(R.string.error_unknown),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = extra.ink2,
-                            textAlign = TextAlign.Center,
-                        )
-                        TextButton(onClick = onRetry) { Text(stringResource(R.string.profile_retry)) }
-                    }
-                }
-            }
-        }
-
-        Spacer(Modifier.height(28.dp))
-        OutlinedButton(
-            onClick = onLogoutClick,
-            enabled = !uiState.isLoggingOut,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-        ) {
-            if (uiState.isLoggingOut) {
-                CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
-            } else {
-                Text(stringResource(R.string.home_logout))
-            }
-        }
-    }
-}
-
-@Composable
-private fun SessionBadge() {
-    val extra = MaterialTheme.petMateColors
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        modifier = Modifier
-            .background(extra.okSoft, MaterialTheme.shapes.large)
-            .padding(horizontal = 12.dp, vertical = 6.dp),
-    ) {
-        Icon(painterResource(R.drawable.ic_pm_check), contentDescription = null, tint = extra.ok, modifier = Modifier.size(16.dp))
+        Spacer(Modifier.height(4.dp))
         Text(
-            text = stringResource(R.string.home_signed_in),
-            style = MaterialTheme.typography.labelLarge,
-            color = extra.ok,
+            text = stringResource(R.string.profile_demo_body),
+            fontSize = 14.sp,
+            color = extra.ink2,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(16.dp))
+        PetMateButton(
+            text = stringResource(R.string.welcome_register),
+            onClick = onCreateAccountClick,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Spacer(Modifier.height(10.dp))
+        PetMateButton(
+            text = stringResource(R.string.welcome_login),
+            onClick = onLoginClick,
+            style = PetMateButtonStyle.Outline,
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }
 
+/** .card con avatar de iniciales (62, radio 20, color de marca), nombre y correo. */
 @Composable
-private fun ProfileRows(profile: UserProfile) {
-    ProfileRow(R.drawable.ic_pm_user, stringResource(R.string.profile_name), profile.name)
-    HorizontalDivider()
-    ProfileRow(R.drawable.ic_pm_mail, stringResource(R.string.profile_email), profile.email)
-    HorizontalDivider()
-    ProfileRow(
-        R.drawable.ic_pm_paw,
-        stringResource(R.string.profile_account_type),
-        stringResource(if (profile.isAffiliate) R.string.profile_type_business else R.string.profile_type_owner),
+private fun UserCard(name: String, email: String) {
+    val colors = MaterialTheme.colorScheme
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .cardShadow()
+            .background(colors.surface, CardShape)
+            .padding(16.dp),
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(62.dp)
+                .background(colors.primary, RoundedCornerShape(20.dp)),
+        ) {
+            Text(
+                text = initials(name),
+                style = MaterialTheme.typography.headlineSmall.copy(fontSize = 24.sp, fontWeight = FontWeight.ExtraBold),
+                color = colors.onPrimary,
+            )
+        }
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = name,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = colors.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (email.isNotBlank()) {
+                Text(
+                    text = email,
+                    fontSize = 14.sp,
+                    color = MaterialTheme.petMateColors.ink2,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+    }
+}
+
+/** .scan-big amarilla: invitacion a afiliar un negocio. */
+@Composable
+private fun AffiliateCard(onClick: () -> Unit) {
+    val extra = MaterialTheme.petMateColors
+    val shape = RoundedCornerShape(28.dp)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(8.dp, shape, ambientColor = extra.sun, spotColor = extra.sun)
+            .background(extra.sun, shape)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 18.dp, vertical = 22.dp),
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(68.dp)
+                .background(extra.onSun, RoundedCornerShape(20.dp)),
+        ) {
+            Icon(painterResource(R.drawable.ic_pm_store), contentDescription = null, tint = extra.sun, modifier = Modifier.size(32.dp))
+        }
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(R.string.profile_affiliate_title),
+                style = MaterialTheme.typography.headlineSmall.copy(fontSize = 20.sp, lineHeight = 24.sp),
+                color = extra.onSun,
+            )
+            Text(
+                text = stringResource(R.string.profile_affiliate_body),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = extra.onSun,
+                modifier = Modifier.alpha(0.85f),
+            )
+        }
+    }
+}
+
+/** .sec-title: 19 / 700, margen 20 arriba y 10 abajo. */
+@Composable
+private fun SectionTitle(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.headlineSmall.copy(fontSize = 19.sp, fontWeight = FontWeight.Bold),
+        modifier = Modifier.padding(top = 20.dp, bottom = 10.dp),
     )
-    formatDate(profile.memberSince)?.let {
-        HorizontalDivider()
-        ProfileRow(R.drawable.ic_pm_info, stringResource(R.string.profile_member_since), it)
+}
+
+/** .menu: superficie con radio 20 y sombra; cada fila es un .mi. */
+@Composable
+private fun Menu(content: @Composable () -> Unit) {
+    Surface(
+        shape = CardShape,
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 2.dp,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column { content() }
     }
 }
 
 @Composable
-private fun ProfileRow(@DrawableRes icon: Int, label: String, value: String) {
+private fun MenuDivider() = HorizontalDivider(color = MaterialTheme.petMateColors.line, thickness = 1.dp)
+
+/** .mi: icono en caja 38 (radio 12), texto 15 / 600 y flecha o control al final. */
+@Composable
+private fun MenuItem(
+    @DrawableRes icon: Int,
+    label: String,
+    onClick: () -> Unit,
+    danger: Boolean = false,
+    trailing: (@Composable () -> Unit)? = null,
+) {
+    val extra = MaterialTheme.petMateColors
+    val tint = if (danger) extra.alert else extra.ink2
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .clickable(onClick = onClick)
+            .padding(14.dp),
     ) {
-        Icon(
-            painterResource(icon),
-            contentDescription = null,
-            tint = MaterialTheme.petMateColors.ink2,
-            modifier = Modifier.size(20.dp),
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(38.dp)
+                .background(if (danger) extra.alertSoft else extra.surface2, RoundedCornerShape(12.dp)),
+        ) {
+            Icon(painterResource(icon), contentDescription = null, tint = tint, modifier = Modifier.size(20.dp))
+        }
+        Spacer(Modifier.width(12.dp))
+        Text(
+            text = label,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = if (danger) extra.alert else MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f),
         )
-        Spacer(Modifier.size(12.dp))
-        Column {
-            Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.petMateColors.ink2)
-            Text(value, style = MaterialTheme.typography.bodyLarge)
+        if (trailing != null) {
+            trailing()
+        } else {
+            Icon(painterResource(R.drawable.ic_pm_chevron), contentDescription = null, tint = extra.ink3, modifier = Modifier.size(20.dp))
         }
     }
 }
 
-private fun initials(name: String): String =
+/** Confirmacion de la maqueta antes de cerrar sesion. */
+@Composable
+private fun LogoutDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    val extra = MaterialTheme.petMateColors
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(56.dp)
+                    .background(extra.brandSoft, RoundedCornerShape(18.dp)),
+            ) {
+                Icon(
+                    painterResource(R.drawable.ic_pm_logout),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(28.dp),
+                )
+            }
+        },
+        title = {
+            Text(stringResource(R.string.profile_logout_title), style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center)
+        },
+        text = {
+            Text(stringResource(R.string.profile_logout_body), fontSize = 14.sp, color = extra.ink2, textAlign = TextAlign.Center)
+        },
+        confirmButton = {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                PetMateButton(text = stringResource(R.string.home_logout), onClick = onConfirm, modifier = Modifier.fillMaxWidth())
+                Spacer(Modifier.height(8.dp))
+                PetMateButton(
+                    text = stringResource(R.string.profile_cancel),
+                    onClick = onDismiss,
+                    style = PetMateButtonStyle.Ghost,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        },
+        containerColor = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(24.dp),
+    )
+}
+
+private val CardShape = RoundedCornerShape(20.dp)
+
+@Composable
+private fun Modifier.cardShadow(): Modifier =
+    shadow(2.dp, CardShape, ambientColor = MaterialTheme.colorScheme.primary, spotColor = MaterialTheme.colorScheme.primary)
+
+internal fun initials(name: String): String =
     name.trim().split(Regex("\\s+")).filter { it.isNotEmpty() }.take(2)
         .joinToString("") { it.first().uppercase() }
         .ifEmpty { "?" }
 
-/**
- * "2026-11-06T17:34:07.123Z" -> "6 nov 2026" en la zona del telefono. Nulo si no se puede leer.
- * Usa SimpleDateFormat porque java.time exige Android 8 y la app soporta desde Android 7 (minSdk 24).
- */
-private fun formatDate(iso: String?): String? = iso?.takeIf { it.length >= 19 }?.let {
-    runCatching {
-        val parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US).apply { timeZone = TimeZone.getTimeZone("UTC") }
-        val date = parser.parse(it.substring(0, 19)) ?: return@runCatching null
-        SimpleDateFormat("d MMM yyyy", Locale.forLanguageTag("es-MX")).format(date)
-    }.getOrNull()
+@Preview(showBackground = true, heightDp = 900)
+@Composable
+private fun ProfileSignedInPreview() {
+    PetMateEdelTheme {
+        ProfileContent(
+            isGuest = false,
+            name = "Ana Lopez",
+            email = "ana@correo.mx",
+            isAffiliate = false,
+            isLoggingOut = false,
+            actions = ProfileActions(),
+            onConfirmLogout = {},
+        )
+    }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, heightDp = 900)
 @Composable
-private fun HomeContentPreview() {
+private fun ProfileDemoPreview() {
     PetMateEdelTheme {
-        HomeContent(
-            uiState = HomeUiState(
-                userName = "Usuario Demo",
-                profile = UserProfile("1", "demo@petmate.mx", "Usuario Demo", false, "2026-11-06T17:34:07Z"),
-            ),
-            onRetry = {},
-            onLogoutClick = {},
-            onBackToMap = {},
+        ProfileContent(
+            isGuest = true,
+            name = "",
+            email = "",
+            isAffiliate = false,
+            isLoggingOut = false,
+            actions = ProfileActions(),
+            onConfirmLogout = {},
         )
     }
 }

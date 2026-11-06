@@ -117,6 +117,28 @@ class FakeAuthRepositoryTest {
         assertEquals(SessionState.SignedIn(guardado), repo.sessionState.first())
     }
 
+    @Test
+    fun `probar sin cuenta entra en modo demo sin guardar nada y salir regresa a fuera`() = runTest(dispatcher) {
+        every { sessionStore.readUser() } returns null
+        val repo = repository()
+        repo.restoreSession()
+        repo.enterGuestMode()
+        assertEquals(SessionState.Guest, repo.sessionState.first())
+        verify(exactly = 0) { sessionStore.saveUser(any()) }
+        repo.exitGuestMode()
+        assertEquals(SessionState.SignedOut, repo.sessionState.first())
+    }
+
+    @Test
+    fun `con sesion iniciada no se puede entrar en modo demo`() = runTest(dispatcher) {
+        val guardado = User(id = "1", name = "Adrian", email = "demo@petmate.mx")
+        every { sessionStore.readUser() } returns guardado
+        val repo = repository()
+        repo.restoreSession()
+        repo.enterGuestMode()
+        assertEquals(SessionState.SignedIn(guardado), repo.sessionState.first())
+    }
+
     private fun nuevaCuenta() = RegisterData(
         name = "Nuevo",
         email = "nuevo@petmate.mx",

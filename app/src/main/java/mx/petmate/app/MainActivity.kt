@@ -11,6 +11,8 @@ import androidx.compose.ui.Modifier
 import dagger.hilt.android.AndroidEntryPoint
 import mx.petmate.app.ui.navigation.PetMateNavHost
 import mx.petmate.app.ui.theme.PetMateEdelTheme
+import mx.petmate.app.ui.theme.ThemeSettings
+import androidx.compose.foundation.isSystemInDarkTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -18,7 +20,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            PetMateEdelTheme {
+            PetMateEdelTheme(darkTheme = ThemeSettings.darkMode ?: isSystemInDarkTheme()) {
                 // Sin padding global: cada pantalla maneja sus barras del
                 // sistema, asi la splash y el mapa llegan hasta arriba.
                 Surface(
