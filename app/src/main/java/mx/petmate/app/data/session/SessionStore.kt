@@ -68,9 +68,45 @@ class SessionStore @Inject constructor(
 
     fun readAccessToken(): String? = prefs?.getString(KEY_ACCESS_TOKEN, null)
 
-    /** Borra todo rastro de la sesion. Se llama siempre al cerrar sesion. */
+    fun readRefreshToken(): String? = prefs?.getString(KEY_REFRESH_TOKEN, null)
+
+    /** Sustituye los tokens tras una renovacion (el refresh token rota en cada uso). */
+    fun updateTokens(accessToken: String, refreshToken: String) {
+        prefs?.edit()
+            ?.putString(KEY_ACCESS_TOKEN, accessToken)
+            ?.putString(KEY_REFRESH_TOKEN, refreshToken)
+            ?.apply()
+    }
+
+    /**
+     * Nombre que el usuario escribio al registrarse con ese correo.
+     *
+     * El backend v0.1.0 no guarda el nombre (spec 002, Q-09): se conserva solo
+     * aqui, cifrado, y sobrevive al cierre de sesion para mostrarlo al volver.
+     */
+    fun rememberName(email: String, name: String) {
+        prefs?.edit()
+            ?.putString(KEY_KNOWN_EMAIL, email.trim().lowercase())
+            ?.putString(KEY_KNOWN_NAME, name.trim())
+            ?.apply()
+    }
+
+    fun knownNameFor(email: String): String? {
+        val store = prefs ?: return null
+        val known = store.getString(KEY_KNOWN_EMAIL, null) ?: return null
+        return if (known == email.trim().lowercase()) store.getString(KEY_KNOWN_NAME, null) else null
+    }
+
+    /** Borra todo rastro de la sesion (tokens y usuario). Se llama siempre al cerrar sesion. */
     fun clear() {
-        prefs?.edit()?.clear()?.apply()
+        prefs?.edit()
+            ?.remove(KEY_USER_ID)
+            ?.remove(KEY_NAME)
+            ?.remove(KEY_EMAIL)
+            ?.remove(KEY_AFFILIATE)
+            ?.remove(KEY_ACCESS_TOKEN)
+            ?.remove(KEY_REFRESH_TOKEN)
+            ?.apply()
     }
 
     private companion object {
@@ -82,5 +118,7 @@ class SessionStore @Inject constructor(
         const val KEY_AFFILIATE = "is_affiliate"
         const val KEY_ACCESS_TOKEN = "access_token"
         const val KEY_REFRESH_TOKEN = "refresh_token"
+        const val KEY_KNOWN_EMAIL = "known_email"
+        const val KEY_KNOWN_NAME = "known_name"
     }
 }

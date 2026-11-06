@@ -63,6 +63,34 @@ class ValidateCredentialsUseCaseTest {
     }
 
     @Test
+    fun `contrasena de 11 caracteres es corta para el backend`() {
+        val errors = validate.validateRegister(
+            validRegistration().copy(password = "a".repeat(11), passwordConfirmation = "a".repeat(11)),
+        )
+        assertEquals(ValidationReason.PASSWORD_TOO_SHORT, errors.first().reason)
+    }
+
+    @Test
+    fun `contrasena de 12 a 128 caracteres es valida`() {
+        listOf(12, 128).forEach { size ->
+            val pwd = "a".repeat(size)
+            val errors = validate.validateRegister(
+                validRegistration().copy(password = pwd, passwordConfirmation = pwd),
+            )
+            assertTrue("longitud $size", errors.isEmpty())
+        }
+    }
+
+    @Test
+    fun `contrasena de mas de 128 caracteres reporta longitud excesiva`() {
+        val pwd = "a".repeat(129)
+        val errors = validate.validateRegister(
+            validRegistration().copy(password = pwd, passwordConfirmation = pwd),
+        )
+        assertEquals(ValidationReason.PASSWORD_TOO_LONG, errors.first().reason)
+    }
+
+    @Test
     fun `contrasenas distintas reportan que no coinciden`() {
         val errors = validate.validateRegister(
             validRegistration().copy(passwordConfirmation = "otraCosa123"),
@@ -81,8 +109,8 @@ class ValidateCredentialsUseCaseTest {
     private fun validRegistration() = RegisterData(
         name = "Adrian",
         email = "adrian@petmate.mx",
-        password = "petmate123",
-        passwordConfirmation = "petmate123",
+        password = "petmate-segura-2026",
+        passwordConfirmation = "petmate-segura-2026",
         privacyAccepted = true,
     )
 }

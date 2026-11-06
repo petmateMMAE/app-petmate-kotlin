@@ -140,6 +140,7 @@
     <string name="error_required">Este campo es obligatorio</string>
     <string name="error_invalid_email">Escribe un correo válido, como nombre@correo.com</string>
     <string name="error_password_too_short">Debe tener al menos %1$d caracteres</string>
+    <string name="error_password_too_long">Debe tener como máximo %1$d caracteres</string>
     <string name="error_passwords_do_not_match">Las contraseñas no son iguales</string>
     <string name="error_privacy_required">Acepta el aviso de privacidad para continuar</string>
     <string name="error_network">Sin conexión. Revisa tu internet e inténtalo de nuevo.</string>
@@ -147,6 +148,8 @@
     <string name="error_unauthorized">Correo o contraseña incorrectos. Revisa e intenta otra vez.</string>
     <string name="error_email_taken">Este correo ya está registrado. ¿Quieres entrar?</string>
     <string name="error_server">Hubo un problema en el servidor. Inténtalo más tarde.</string>
+    <string name="error_too_many_attempts">Demasiados intentos. Espera un minuto e inténtalo de nuevo.</string>
+    <string name="error_service_unavailable">El servicio no está disponible en este momento. Inténtalo más tarde.</string>
     <string name="error_unknown">Algo salió mal. Inténtalo de nuevo.</string>
 
     <!-- Aviso del backend provisional -->

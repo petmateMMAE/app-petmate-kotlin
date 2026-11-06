@@ -13,9 +13,9 @@ import javax.inject.Inject
  * escribir y al enviar, y duplicarlas garantiza que se desincronicen
  * (plan 002, D-05 de la unidad 011 aplica el mismo criterio).
  *
- * La politica definitiva de contrasena la define el backend (spec 002, Q-02).
- * Mientras tanto se exige un minimo conservador que no contradice ninguna
- * politica razonable.
+ * La politica de contrasena es la del backend v0.1.0 (spec 002, Q-02 resuelta):
+ * entre 12 y 128 caracteres. La app la valida antes de enviar para no gastar
+ * intentos del limite de 10 por minuto.
  */
 class ValidateCredentialsUseCase @Inject constructor() {
 
@@ -37,6 +37,9 @@ class ValidateCredentialsUseCase @Inject constructor() {
 
             data.password.length < MIN_PASSWORD_LENGTH ->
                 add(AppError.Validation(FIELD_PASSWORD, ValidationReason.PASSWORD_TOO_SHORT))
+
+            data.password.length > MAX_PASSWORD_LENGTH ->
+                add(AppError.Validation(FIELD_PASSWORD, ValidationReason.PASSWORD_TOO_LONG))
         }
         if (data.password.isNotBlank() && data.password != data.passwordConfirmation) {
             add(
@@ -62,7 +65,8 @@ class ValidateCredentialsUseCase @Inject constructor() {
         const val FIELD_PASSWORD = "password"
         const val FIELD_PASSWORD_CONFIRMATION = "passwordConfirmation"
 
-        const val MIN_PASSWORD_LENGTH = 8
+        const val MIN_PASSWORD_LENGTH = 12
+        const val MAX_PASSWORD_LENGTH = 128
 
         private val EMAIL_PATTERN = Regex("""^[^@\s]+@[^@\s.]+\.[^@\s]+$""")
     }
