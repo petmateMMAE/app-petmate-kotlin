@@ -37,7 +37,7 @@ class FakeAuthRepositoryTest {
     @Test
     fun `la cuenta de ejemplo permite iniciar sesion`() = runTest(dispatcher) {
         val result = repository().login(
-            LoginCredentials(email = "demo@petmate.mx", password = "petmate123"),
+            LoginCredentials(email = "demo@petmate.mx", password = "PetMateDemo2026"),
         )
         assertTrue(result is AppResult.Success)
     }

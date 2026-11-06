@@ -28,6 +28,7 @@ import mx.petmate.app.R
 import mx.petmate.app.core.ui.UiText
 import mx.petmate.app.ui.components.ErrorNotice
 import mx.petmate.app.ui.components.PetMateBackBar
+import mx.petmate.app.domain.model.DemoAccount
 import mx.petmate.app.ui.components.PetMateButton
 import mx.petmate.app.ui.components.PetMatePreviews
 import mx.petmate.app.ui.components.PetMateTextField
@@ -62,7 +63,11 @@ fun LoginScreen(
         onGoToRegister = onGoToRegister,
         onBackClick = onBackClick,
         onForgotPasswordClick = onForgotPasswordClick,
-        showDemoAccount = BuildConfig.USE_FAKE_BACKEND,
+        showDemoAccount = BuildConfig.SHOW_DEMO_ACCOUNT,
+        onUseDemoAccount = {
+            viewModel.onEmailChanged(DemoAccount.EMAIL)
+            viewModel.onPasswordChanged(DemoAccount.PASSWORD)
+        },
         modifier = modifier,
     )
 }
@@ -78,6 +83,7 @@ private fun LoginContent(
     onForgotPasswordClick: (() -> Unit)?,
     showDemoAccount: Boolean,
     modifier: Modifier = Modifier,
+    onUseDemoAccount: () -> Unit = {},
 ) {
     val enabled = !uiState.isSubmitting
     Column(
@@ -142,7 +148,7 @@ private fun LoginContent(
             )
 
             if (showDemoAccount) {
-                DemoAccountsNotice(modifier = Modifier.padding(top = 16.dp))
+                DemoAccountsNotice(modifier = Modifier.padding(top = 16.dp), onClick = onUseDemoAccount)
             }
 
             AuthSwitchRow(

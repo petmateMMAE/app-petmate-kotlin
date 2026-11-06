@@ -326,3 +326,11 @@ Ramas: `main` (estable) y `develop`.
 - **Pruebas:** 34 en verde (7 nuevas de `AuthRepositoryImplTest` con MockWebServer y el formato real).
 - **Lo que no se puede conectar todavía:** mascotas, carnet, mapa de afiliados, QR, etc. El backend aún no tiene esos endpoints (están «Planeado» en su catálogo). Se conectan unidad por unidad conforme Miguel los publique.
 - **Avisos de uso:** en modo ahorro la API tarda 10-20 s en la primera petición y no hay servicio de 23:00 a 7:00 (hora de México). Timeout de red: 30 s.
+## Perfil real y cuenta demo (06/11/2026)
+
+- **Perfil** (pestaña Perfil del mapa): nombre, correo, tipo de cuenta (dueño / negocio), miembro desde, «Sesión iniciada» y cerrar sesión. Datos de `GET users/me/get` del backend (pm-037). Botón «Mapa» para volver.
+- **El nombre ya vive en el servidor:** al registrarse se envía con `PUT users/me/update` (pm-038); al iniciar sesión se lee del perfil. Si el servidor falla, se conserva el nombre local (Q-09 resuelta).
+- **Llamadas autenticadas:** si el access token expiró se renueva una vez con el refresh token; si eso también falla, la sesión se cierra y la app vuelve al login.
+- **Cuenta demo** (backend real y simulado): `demo@petmate.mx` / `PetMateDemo2026`, nombre «Usuario Demo». En el login, tocar el aviso llena los campos. Se oculta con `SHOW_DEMO_ACCOUNT=false` en `local.properties`.
+- **Pruebas:** 38 unitarias en verde.
+- Pendiente aparte (no subido por decisión del equipo): el aviso «Despertando el servidor…» y el timeout de 60 s están guardados en `git stash`.
