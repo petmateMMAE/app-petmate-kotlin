@@ -111,7 +111,7 @@ private fun MainGraph(userName: String, modifier: Modifier = Modifier) {
             )
         }
         composable(Route.HOME) {
-            HomeScreen(userName = userName)
+            HomeScreen(userName = userName, onBackToMap = { navController.popBackStack() })
         }
     }
 }

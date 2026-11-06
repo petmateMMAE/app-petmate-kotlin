@@ -66,6 +66,16 @@ class SessionStore @Inject constructor(
         )
     }
 
+    /** Actualiza los datos del usuario de la sesion sin tocar los tokens (p. ej. el nombre). */
+    fun saveUser(user: User) {
+        prefs?.edit()
+            ?.putString(KEY_USER_ID, user.id)
+            ?.putString(KEY_NAME, user.name)
+            ?.putString(KEY_EMAIL, user.email)
+            ?.putBoolean(KEY_AFFILIATE, user.isAffiliate)
+            ?.apply()
+    }
+
     fun readAccessToken(): String? = prefs?.getString(KEY_ACCESS_TOKEN, null)
 
     fun readRefreshToken(): String? = prefs?.getString(KEY_REFRESH_TOKEN, null)

@@ -132,9 +132,18 @@
 
     <!-- Inicio provisional (cierre de sesión) -->
     <string name="home_greeting">Hola, %1$s</string>
-    <string name="home_signed_in">Ya estás dentro de PetMate</string>
+    <string name="home_signed_in">Sesión iniciada</string>
     <string name="home_placeholder">Aquí irá tu perfil. Por ahora puedes cerrar sesión.</string>
     <string name="home_logout">Cerrar sesión</string>
+    <string name="profile_back_to_map">Mapa</string>
+    <string name="profile_account_title">Tu cuenta</string>
+    <string name="profile_name">Nombre</string>
+    <string name="profile_email">Correo</string>
+    <string name="profile_account_type">Tipo de cuenta</string>
+    <string name="profile_type_owner">Dueño de mascotas</string>
+    <string name="profile_type_business">Negocio afiliado</string>
+    <string name="profile_member_since">Miembro desde</string>
+    <string name="profile_retry">Reintentar</string>
 
     <!-- Errores -->
     <string name="error_required">Este campo es obligatorio</string>
@@ -153,5 +162,5 @@
     <string name="error_unknown">Algo salió mal. Inténtalo de nuevo.</string>
 
     <!-- Aviso del backend provisional -->
-    <string name="demo_notice">el servidor aún no está conectado. Usa demo@petmate.mx / petmate123</string>
+    <string name="demo_notice">demo@petmate.mx / PetMateDemo2026. Toca aquí para llenar los campos.</string>
 </resources>

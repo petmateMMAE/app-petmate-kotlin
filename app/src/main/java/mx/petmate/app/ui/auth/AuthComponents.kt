@@ -1,6 +1,7 @@
 package mx.petmate.app.ui.auth
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +15,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -84,16 +86,22 @@ internal fun AuthSwitchRow(
 }
 
 /**
- * Caja gris con la cuenta de prueba (.test-acc de la maqueta). Solo se muestra
- * mientras BuildConfig.USE_FAKE_BACKEND sea true.
+ * Caja gris con la cuenta de prueba (.test-acc de la maqueta). Se muestra mientras
+ * BuildConfig.SHOW_DEMO_ACCOUNT sea true; al tocarla se llenan los campos con la cuenta demo,
+ * que existe igual en el backend real y en el simulado.
  */
 @Composable
-internal fun DemoAccountsNotice(modifier: Modifier = Modifier) {
+internal fun DemoAccountsNotice(
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
+) {
     val extra = MaterialTheme.petMateColors
     Row(
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         modifier = modifier
             .fillMaxWidth()
+            .clip(MaterialTheme.shapes.medium)
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
             .background(extra.surface2, MaterialTheme.shapes.medium)
             .padding(12.dp),
     ) {
