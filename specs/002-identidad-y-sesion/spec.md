@@ -269,3 +269,20 @@ Cada criterio es verificable por alguien que no escribió esta spec.
 - [ ] Los requisitos y los criterios de éxito son suficientes para planificar.
 - [ ] Las preguntas abiertas están identificadas y se sabe a quién preguntar.
 - [ ] **Aprobada para pasar a `plan.md`.**
+
+---
+
+## Resoluciones con el backend real (06/11/2026)
+
+El backend PetMate v0.1.0 quedó desplegado en Azure (Chile Central) y la app se conecta a él (`USE_FAKE_BACKEND=false` por defecto). Contrato fuente: `docs/api/endpoints.md` del repositorio `backend-petmate-sdd-aspnetcore`.
+
+| Pregunta | Resolución |
+|---|---|
+| Q-01 | **Resuelta para registro, login, renovación y logout.** Base `/api/v1/`; todas las respuestas van envueltas en `{ statusCode, message, data }`. `POST auth/register` y `auth/login` con `{ email, password }` → `data` = `{ accessToken, tokenType, accessTokenExpiresAt, refreshToken, refreshTokenExpiresAt, user { id, email, role } }`. `POST auth/refresh` con `{ refreshToken }` (rota el token). `POST auth/logout` con `Authorization: Bearer <access>` y `{ refreshToken }`. Verificación por correo, reenvío y recuperación **no existen todavía** en el backend: siguen abiertas. |
+| Q-02 | **Resuelta:** la define el backend, 12 a 128 caracteres. La app valida lo mismo antes de enviar. |
+| Q-04 | Solo correo. La app recorta espacios; el backend normaliza. |
+| Q-05 | **Resuelta:** el refresh token viaja en el cuerpo. El access token dura 15 min; si el logout recibe 401, la app renueva una vez y reintenta. |
+| Q-06 | Sin red, el logout borra la sesión local y la remota vence sola (refresh 30 días de inactividad). No se encola. |
+| Q-09 | El backend v0.1.0 **no acepta nombre** (rechaza miembros desconocidos con 400). La app conserva el nombre solo en el dispositivo, cifrado, hasta que existan `users/me` (pm-037/038). |
+| Q-10 | 400 validación, 401 credenciales/sesión, 403 sin permiso, 409 correo registrado, 429 límite de 10/min por IP, 503 dependencia caída. La app muestra un mensaje propio para cada uno. |
+| Rol | `role = Business` → `isAffiliate = true`; `Owner` → dueño. |

@@ -8,7 +8,10 @@ import mx.petmate.app.core.coroutines.DispatcherProvider
 import mx.petmate.app.core.log.Logger
 import mx.petmate.app.core.result.AppResult
 import mx.petmate.app.data.remote.AuthApiService
+import mx.petmate.app.data.remote.dto.AuthDataDto
 import mx.petmate.app.data.remote.dto.LoginRequestDto
+import mx.petmate.app.data.remote.dto.LogoutRequestDto
+import mx.petmate.app.data.remote.dto.RefreshRequestDto
 import mx.petmate.app.data.remote.dto.RegisterRequestDto
 import mx.petmate.app.data.remote.toAppError
 import mx.petmate.app.data.remote.toDomain
@@ -18,18 +21,15 @@ import mx.petmate.app.domain.model.RegisterData
 import mx.petmate.app.domain.model.SessionState
 import mx.petmate.app.domain.model.User
 import mx.petmate.app.domain.repository.AuthRepository
+import retrofit2.HttpException
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Implementacion contra el backend real.
+ * Implementacion contra el backend real (PetMate API v0.1.0 en Azure).
  *
- * TODAVIA NO SE USA: el backend no esta desplegado y su contrato esta
- * pendiente (spec 002, Q-01). Queda escrita para que activarla sea cambiar
- * USE_FAKE_BACKEND en app/build.gradle.kts.
- *
- * Al conectarla hay que revisar que las rutas y los nombres de campo de
- * AuthApiService y de los DTO coincidan con el contrato real.
+ * Se activa con USE_FAKE_BACKEND=false (valor por defecto desde el 06/11/2026).
+ * Contrato: docs/api/endpoints.md del repositorio backend (spec 002, Q-01).
  */
 @Singleton
 class AuthRepositoryImpl @Inject constructor(
@@ -50,20 +50,14 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun register(data: RegisterData): AppResult<User> =
         withContext(dispatchers.io) {
+            val email = data.email.trim()
             runCatching {
-                api.register(
-                    RegisterRequestDto(
-                        name = data.name,
-                        email = data.email,
-                        password = data.password,
-                    ),
-                )
+                // El backend solo acepta correo y contrasena; el nombre se queda en el dispositivo.
+                requireData(api.register(RegisterRequestDto(email = email, password = data.password)).data)
             }.fold(
-                onSuccess = { response ->
-                    val user = response.user.toDomain()
-                    sessionStore.save(user, response.accessToken, response.refreshToken)
-                    state.value = SessionState.SignedIn(user)
-                    AppResult.Success(user)
+                onSuccess = { auth ->
+                    sessionStore.rememberName(email, data.name)
+                    signIn(auth, localName = data.name)
                 },
                 onFailure = { AppResult.Failure(it.toAppError()) },
             )
@@ -71,20 +65,11 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun login(credentials: LoginCredentials): AppResult<User> =
         withContext(dispatchers.io) {
+            val email = credentials.email.trim()
             runCatching {
-                api.login(
-                    LoginRequestDto(
-                        email = credentials.email,
-                        password = credentials.password,
-                    ),
-                )
+                requireData(api.login(LoginRequestDto(email = email, password = credentials.password)).data)
             }.fold(
-                onSuccess = { response ->
-                    val user = response.user.toDomain()
-                    sessionStore.save(user, response.accessToken, response.refreshToken)
-                    state.value = SessionState.SignedIn(user)
-                    AppResult.Success(user)
-                },
+                onSuccess = { auth -> signIn(auth, localName = sessionStore.knownNameFor(email)) },
                 onFailure = { AppResult.Failure(it.toAppError()) },
             )
         }
@@ -92,7 +77,7 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun logout(): AppResult<Unit> = withContext(dispatchers.io) {
         // Lo local se borra SIEMPRE, aunque el servidor falle: el usuario pidio
         // salir y debe salir (spec 002, C-11).
-        val remote = runCatching { api.logout() }
+        val remote = runCatching { revokeRemoteSession() }
         sessionStore.clear()
         state.value = SessionState.SignedOut
         remote.exceptionOrNull()?.let {
@@ -100,6 +85,37 @@ class AuthRepositoryImpl @Inject constructor(
         }
         AppResult.Success(Unit)
     }
+
+    /**
+     * Revoca la sesion en el servidor. Si el access token (15 min) ya expiro,
+     * lo renueva con el refresh token y reintenta una sola vez, como indica el
+     * contrato de logout.
+     */
+    private suspend fun revokeRemoteSession() {
+        val access = sessionStore.readAccessToken()
+        val refresh = sessionStore.readRefreshToken()
+        if (access.isNullOrBlank() || refresh.isNullOrBlank()) return
+        try {
+            api.logout(bearer(access), LogoutRequestDto(refresh))
+        } catch (e: HttpException) {
+            if (e.code() != 401) throw e
+            val renewed = requireData(api.refresh(RefreshRequestDto(refresh)).data)
+            sessionStore.updateTokens(renewed.accessToken, renewed.refreshToken)
+            api.logout(bearer(renewed.accessToken), LogoutRequestDto(renewed.refreshToken))
+        }
+    }
+
+    private fun signIn(data: AuthDataDto, localName: String?): AppResult<User> {
+        val user = data.user.toDomain(localName)
+        sessionStore.save(user, data.accessToken, data.refreshToken)
+        state.value = SessionState.SignedIn(user)
+        return AppResult.Success(user)
+    }
+
+    private fun requireData(data: AuthDataDto?): AuthDataDto =
+        data ?: throw IllegalStateException("Respuesta de autenticacion sin data")
+
+    private fun bearer(token: String) = "Bearer $token"
 
     private companion object {
         const val TAG = "AuthRepository"

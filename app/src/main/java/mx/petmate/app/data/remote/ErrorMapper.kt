@@ -11,6 +11,10 @@ import java.net.SocketTimeoutException
  *
  * Ninguna excepcion debe salir de la capa de datos
  * (constitution.md, AGENTS.md seccion 4).
+ *
+ * Codigos del backend v0.1.0: 400 validacion, 401 credenciales o sesion
+ * invalidas, 403 sin permiso, 409 correo ya registrado, 429 demasiados
+ * intentos, 503 dependencia del servidor no disponible.
  */
 fun Throwable.toAppError(): AppError = when (this) {
     is SocketTimeoutException -> AppError.Timeout

@@ -1,15 +1,14 @@
 package mx.petmate.app.data.remote.dto
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
  * Objetos de transporte de identidad.
  *
- * PROVISIONALES: el contrato real del backend todavia no esta definido
- * (spec 002, Q-01). Los nombres de campo son una propuesta y deben ajustarse
- * cuando Miguel publique el contrato. Mientras tanto la app usa
- * FakeAuthRepository y estos tipos no se ejercitan.
+ * Contrato real del backend v0.1.0 (spec 002, Q-01 resuelta el 06/11/2026):
+ * docs/api/endpoints.md del repositorio backend-petmate-sdd-aspnetcore.
+ * El backend rechaza miembros desconocidos con 400: no agregar campos que no
+ * esten en el contrato (por ejemplo, el nombre en el registro).
  */
 @Serializable
 data class LoginRequestDto(
@@ -19,22 +18,40 @@ data class LoginRequestDto(
 
 @Serializable
 data class RegisterRequestDto(
-    val name: String,
     val email: String,
     val password: String,
 )
 
 @Serializable
-data class AuthResponseDto(
-    val user: UserDto,
-    @SerialName("access_token") val accessToken: String,
-    @SerialName("refresh_token") val refreshToken: String,
+data class RefreshRequestDto(
+    val refreshToken: String,
 )
 
 @Serializable
+data class LogoutRequestDto(
+    val refreshToken: String,
+)
+
+/** `data` de register, login y refresh. */
+@Serializable
+data class AuthDataDto(
+    val accessToken: String,
+    val tokenType: String = "Bearer",
+    val accessTokenExpiresAt: String = "",
+    val refreshToken: String,
+    val refreshTokenExpiresAt: String = "",
+    val user: UserDto,
+)
+
+/** Rol: `Owner` (dueno) o `Business` (afiliado). */
+@Serializable
 data class UserDto(
     val id: String,
-    val name: String,
     val email: String,
-    @SerialName("is_affiliate") val isAffiliate: Boolean = false,
-)
+    val role: String = ROLE_OWNER,
+) {
+    companion object {
+        const val ROLE_OWNER = "Owner"
+        const val ROLE_BUSINESS = "Business"
+    }
+}
