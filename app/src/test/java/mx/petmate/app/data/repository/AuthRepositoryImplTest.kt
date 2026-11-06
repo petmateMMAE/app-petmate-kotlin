@@ -69,12 +69,18 @@ class AuthRepositoryImplTest {
           "user":{"id":"u-1","email":"ana@petmate.mx","role":"$role"}}}
     """.trimIndent()
 
+    private fun profileBody(name: String?, role: String = "Owner") = """
+        {"statusCode":200,"message":"ok","data":{"id":"u-1","email":"ana@petmate.mx","role":"$role",
+          "displayName":${if (name == null) "null" else "\"$name\""},"createdAt":"2026-11-06T17:00:00Z"}}
+    """.trimIndent()
+
     private fun json(code: Int, body: String) =
         MockResponse().setResponseCode(code).setHeader("Content-Type", "application/json").setBody(body)
 
     @Test
-    fun `el registro envia solo correo y contrasena y guarda la sesion con el nombre local`() = runTest(dispatcher) {
+    fun `el registro envia solo correo y contrasena y luego guarda el nombre en el servidor`() = runTest(dispatcher) {
         server.enqueue(json(201, authBody(201)))
+        server.enqueue(json(200, profileBody("Ana")))
 
         val result = repository().register(
             RegisterData("Ana", " ana@petmate.mx ", "contrasena-segura", "contrasena-segura", true),
@@ -88,11 +94,77 @@ class AuthRepositoryImplTest {
         assertEquals("Ana", (result as AppResult.Success).data.name)
         verify { sessionStore.rememberName("ana@petmate.mx", "Ana") }
         verify { sessionStore.save(any(), "acc-1", "ref-1") }
+        val nameRequest = server.takeRequest()
+        assertEquals("PUT", nameRequest.method)
+        assertEquals("/api/v1/users/me/update", nameRequest.path)
+        assertEquals("Bearer acc-1", nameRequest.getHeader("Authorization"))
+        assertEquals("""{"displayName":"Ana"}""", nameRequest.body.readUtf8())
+    }
+
+    @Test
+    fun `si guardar el nombre falla el registro igual termina con el nombre local`() = runTest(dispatcher) {
+        server.enqueue(json(201, authBody(201)))
+        server.enqueue(json(503, """{"statusCode":503,"message":"No disponible.","data":null}"""))
+
+        val result = repository().register(
+            RegisterData("Ana", "ana@petmate.mx", "contrasena-segura", "contrasena-segura", true),
+        )
+
+        assertEquals("Ana", (result as AppResult.Success).data.name)
+    }
+
+    @Test
+    fun `el login toma el nombre del servidor`() = runTest(dispatcher) {
+        server.enqueue(json(200, authBody(200)))
+        server.enqueue(json(200, profileBody("Ana Pérez")))
+
+        val result = repository().login(LoginCredentials("ana@petmate.mx", "contrasena-segura"))
+
+        assertEquals("Ana Pérez", (result as AppResult.Success).data.name)
+        server.takeRequest()
+        val profile = server.takeRequest()
+        assertEquals("/api/v1/users/me/get", profile.path)
+        assertEquals("Bearer acc-1", profile.getHeader("Authorization"))
+    }
+
+    @Test
+    fun `el perfil renueva el token una vez si expiro`() = runTest(dispatcher) {
+        every { sessionStore.readAccessToken() } returns "acc-viejo"
+        every { sessionStore.readRefreshToken() } returns "ref-viejo"
+        every { sessionStore.readUser() } returns null
+        server.enqueue(json(401, """{"statusCode":401,"message":"No autenticado.","data":null}"""))
+        server.enqueue(json(200, authBody(200, access = "acc-nuevo", refresh = "ref-nuevo")))
+        server.enqueue(json(200, profileBody("Ana", role = "Business")))
+
+        val result = repository().loadProfile()
+
+        val profile = (result as AppResult.Success).data
+        assertEquals("Ana", profile.name)
+        assertTrue(profile.isAffiliate)
+        assertEquals("2026-11-06T17:00:00Z", profile.memberSince)
+        verify { sessionStore.updateTokens("acc-nuevo", "ref-nuevo") }
+        server.takeRequest()
+        server.takeRequest()
+        assertEquals("Bearer acc-nuevo", server.takeRequest().getHeader("Authorization"))
+    }
+
+    @Test
+    fun `si la renovacion tambien falla el perfil cierra la sesion`() = runTest(dispatcher) {
+        every { sessionStore.readAccessToken() } returns "acc-viejo"
+        every { sessionStore.readRefreshToken() } returns "ref-viejo"
+        server.enqueue(json(401, """{"statusCode":401,"message":"No autenticado.","data":null}"""))
+        server.enqueue(json(401, """{"statusCode":401,"message":"La sesión no es válida.","data":null}"""))
+
+        val result = repository().loadProfile()
+
+        assertEquals(AppError.Unauthorized, (result as AppResult.Failure).error)
+        verify { sessionStore.clear() }
     }
 
     @Test
     fun `un usuario Business se marca como afiliado`() = runTest(dispatcher) {
         server.enqueue(json(200, authBody(200, role = "Business")))
+        server.enqueue(json(200, profileBody(null, role = "Business")))
         every { sessionStore.knownNameFor(any()) } returns null
 
         val result = repository().login(LoginCredentials("ana@petmate.mx", "contrasena-segura"))

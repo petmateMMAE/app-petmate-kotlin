@@ -12,7 +12,9 @@ import mx.petmate.app.data.session.SessionStore
 import mx.petmate.app.domain.model.LoginCredentials
 import mx.petmate.app.domain.model.RegisterData
 import mx.petmate.app.domain.model.SessionState
+import mx.petmate.app.domain.model.DemoAccount
 import mx.petmate.app.domain.model.User
+import mx.petmate.app.domain.model.UserProfile
 import mx.petmate.app.domain.repository.AuthRepository
 import java.util.UUID
 import javax.inject.Inject
@@ -43,7 +45,7 @@ class FakeAuthRepository @Inject constructor(
     init {
         // Cuenta de ejemplo para poder entrar sin registrarse primero.
         accounts[DEMO_EMAIL] = Account(
-            user = User(id = "demo-1", name = "Adrian", email = DEMO_EMAIL),
+            user = User(id = "demo-1", name = DemoAccount.NAME, email = DEMO_EMAIL),
             password = DEMO_PASSWORD,
         )
     }
@@ -86,6 +88,28 @@ class FakeAuthRepository @Inject constructor(
         AppResult.Success(Unit)
     }
 
+    override suspend fun loadProfile(): AppResult<UserProfile> = withContext(dispatchers.io) {
+        val user = sessionStore.readUser() ?: return@withContext AppResult.Failure(AppError.Unauthorized)
+        AppResult.Success(user.toProfile())
+    }
+
+    override suspend fun updateName(name: String): AppResult<UserProfile> = withContext(dispatchers.io) {
+        val user = sessionStore.readUser() ?: return@withContext AppResult.Failure(AppError.Unauthorized)
+        val updated = user.copy(name = name.trim())
+        accounts[updated.email]?.let { accounts[updated.email] = it.copy(user = updated) }
+        sessionStore.saveUser(updated)
+        state.value = SessionState.SignedIn(updated)
+        AppResult.Success(updated.toProfile())
+    }
+
+    private fun User.toProfile() = UserProfile(
+        id = id,
+        email = email,
+        name = name,
+        isAffiliate = isAffiliate,
+        memberSince = null,
+    )
+
     private fun persist(user: User) {
         sessionStore.save(
             user = user,
@@ -99,7 +123,7 @@ class FakeAuthRepository @Inject constructor(
 
     private companion object {
         const val SIMULATED_LATENCY_MS = 600L
-        const val DEMO_EMAIL = "demo@petmate.mx"
-        const val DEMO_PASSWORD = "petmate123"
+        const val DEMO_EMAIL = DemoAccount.EMAIL
+        const val DEMO_PASSWORD = DemoAccount.PASSWORD
     }
 }

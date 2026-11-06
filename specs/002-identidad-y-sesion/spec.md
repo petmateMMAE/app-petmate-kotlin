@@ -286,3 +286,7 @@ El backend PetMate v0.1.0 quedó desplegado en Azure (Chile Central) y la app se
 | Q-09 | El backend v0.1.0 **no acepta nombre** (rechaza miembros desconocidos con 400). La app conserva el nombre solo en el dispositivo, cifrado, hasta que existan `users/me` (pm-037/038). |
 | Q-10 | 400 validación, 401 credenciales/sesión, 403 sin permiso, 409 correo registrado, 429 límite de 10/min por IP, 503 dependencia caída. La app muestra un mensaje propio para cada uno. |
 | Rol | `role = Business` → `isAffiliate = true`; `Owner` → dueño. |
+### Actualización 06/11/2026 — perfil
+
+- **Q-09 resuelta:** el nombre se guarda en el servidor con `PUT /api/v1/users/me/update` (`{ displayName }`, 1–80 caracteres) justo después del registro, y se lee con `GET /api/v1/users/me/get` al iniciar sesión.
+- La pantalla de perfil muestra los datos del servidor y el estado de la sesión.

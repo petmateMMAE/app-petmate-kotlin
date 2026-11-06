@@ -43,6 +43,21 @@ data class AuthDataDto(
     val user: UserDto,
 )
 
+/** `data` de `GET users/me/get` y `PUT users/me/update` (pm-037, pm-038). */
+@Serializable
+data class ProfileDto(
+    val id: String,
+    val email: String,
+    val role: String = UserDto.ROLE_OWNER,
+    val displayName: String? = null,
+    val createdAt: String? = null,
+)
+
+@Serializable
+data class UpdateProfileRequestDto(
+    val displayName: String,
+)
+
 /** Rol: `Owner` (dueno) o `Business` (afiliado). */
 @Serializable
 data class UserDto(

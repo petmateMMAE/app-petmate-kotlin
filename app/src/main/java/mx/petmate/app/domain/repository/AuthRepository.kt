@@ -6,6 +6,7 @@ import mx.petmate.app.domain.model.LoginCredentials
 import mx.petmate.app.domain.model.RegisterData
 import mx.petmate.app.domain.model.SessionState
 import mx.petmate.app.domain.model.User
+import mx.petmate.app.domain.model.UserProfile
 
 /**
  * Contrato de identidad y sesion.
@@ -31,4 +32,10 @@ interface AuthRepository {
      * (spec 002, C-11).
      */
     suspend fun logout(): AppResult<Unit>
+
+    /** Perfil propio desde el servidor (pm-037). Si la sesion ya no es valida, se cierra. */
+    suspend fun loadProfile(): AppResult<UserProfile>
+
+    /** Cambia el nombre visible en el servidor (pm-038). */
+    suspend fun updateName(name: String): AppResult<UserProfile>
 }
