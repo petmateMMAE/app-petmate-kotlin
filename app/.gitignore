@@ -1,1 +1,3 @@
 /build
+# Salida del asistente "Generate Signed App Bundle" (artefactos firmados)
+/release

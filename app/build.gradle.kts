@@ -25,14 +25,37 @@ val useFakeBackend: String =
     (localProperties.getProperty("USE_FAKE_BACKEND") ?: System.getenv("USE_FAKE_BACKEND") ?: "false")
         .trim().lowercase().let { if (it == "true") "true" else "false" }
 
+// La llave de subida sale de keystore.properties (ignorado por git) o de
+// variables de entorno en GitHub Actions. Nunca se versiona (constitution.md P6).
+val keystoreProperties = Properties().apply {
+    val file = rootProject.file("keystore.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
+
+fun signingValue(key: String): String? =
+    keystoreProperties.getProperty(key) ?: System.getenv(key)
+
 android {
     namespace = "mx.petmate.app"
-    compileSdk = 35
+    // Google Play exige targetSdk 36 desde el 31/08/2026 (AGP 8.9.1 o superior).
+    compileSdk = 36
+
+    signingConfigs {
+        create("release") {
+            val storePath = signingValue("PETMATE_STORE_FILE")
+            if (storePath != null) {
+                storeFile = rootProject.file(storePath)
+                storePassword = signingValue("PETMATE_STORE_PASSWORD")
+                keyAlias = signingValue("PETMATE_KEY_ALIAS")
+                keyPassword = signingValue("PETMATE_KEY_PASSWORD")
+            }
+        }
+    }
 
     defaultConfig {
         applicationId = "mx.petmate.app"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "0.1.0"
 
@@ -49,6 +72,8 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             isDebuggable = false
+            // Sin llave configurada el AAB sale sin firmar (Play lo rechaza).
+            signingConfig = signingConfigs.getByName("release").takeIf { it.storeFile != null }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
