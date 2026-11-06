@@ -34,11 +34,14 @@ class HomeViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
-    init {
-        refresh()
+    /**
+     * Se llama al abrir Perfil. En modo demo ("Probar sin cuenta") no hay cuenta que pedir al
+     * backend, asi que solo con sesion iniciada se carga el perfil.
+     */
+    fun start(userName: String, isGuest: Boolean) {
+        _uiState.update { it.copy(userName = it.profile?.name ?: userName) }
+        if (!isGuest && _uiState.value.profile == null) refresh()
     }
-
-    fun setUserName(name: String) = _uiState.update { it.copy(userName = name) }
 
     fun refresh() {
         if (_uiState.value.isLoading) return

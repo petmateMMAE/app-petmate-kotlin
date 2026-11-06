@@ -33,6 +33,12 @@ interface AuthRepository {
      */
     suspend fun logout(): AppResult<Unit>
 
+    /** Entra al modo demo ("Probar sin cuenta"). Solo valido sin sesion iniciada. */
+    fun enterGuestMode()
+
+    /** Sale del modo demo para crear cuenta o iniciar sesion. */
+    fun exitGuestMode()
+
     /** Perfil propio desde el servidor (pm-037). Si la sesion ya no es valida, se cierra. */
     suspend fun loadProfile(): AppResult<UserProfile>
 

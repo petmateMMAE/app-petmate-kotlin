@@ -8,6 +8,12 @@ object Route {
     const val REGISTER = "register"
     const val MAP = "map"
 
-    /** Pantalla provisional con el cierre de sesion, hasta que exista Perfil (spec 017). */
+    /** Perfil (pestana Perfil, spec 017). */
     const val HOME = "home"
+
+    /** Privacidad y terminos, desde Perfil. */
+    const val LEGAL = "legal"
+
+    /** Eliminar mi cuenta, desde Perfil. */
+    const val DELETE_ACCOUNT = "delete_account"
 }

@@ -99,6 +99,15 @@ class AuthRepositoryImpl @Inject constructor(
         AppResult.Success(Unit)
     }
 
+    override fun enterGuestMode() {
+        if (state.value is SessionState.SignedIn) return
+        state.value = SessionState.Guest
+    }
+
+    override fun exitGuestMode() {
+        if (state.value == SessionState.Guest) state.value = SessionState.SignedOut
+    }
+
     override suspend fun loadProfile(): AppResult<UserProfile> = withContext(dispatchers.io) {
         authorized { access -> api.getProfile(bearer(access)).data }
     }

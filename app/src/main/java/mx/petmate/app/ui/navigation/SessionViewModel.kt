@@ -34,6 +34,10 @@ class SessionViewModel @Inject constructor(
         viewModelScope.launch { repository.restoreSession() }
     }
 
+    fun enterGuestMode() = repository.enterGuestMode()
+
+    fun exitGuestMode() = repository.exitGuestMode()
+
     private companion object {
         const val STOP_TIMEOUT_MS = 5_000L
     }
