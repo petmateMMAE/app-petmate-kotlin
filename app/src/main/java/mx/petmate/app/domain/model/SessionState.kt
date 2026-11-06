@@ -9,5 +9,11 @@ package mx.petmate.app.domain.model
 sealed interface SessionState {
     data object Checking : SessionState
     data object SignedOut : SessionState
+
+    /**
+     * "Probar sin cuenta" (maqueta, bienvenida): se entra a la app con datos de ejemplo,
+     * sin registro ni tokens. No se guarda: al reabrir la app vuelve a la bienvenida.
+     */
+    data object Guest : SessionState
     data class SignedIn(val user: User) : SessionState
 }
