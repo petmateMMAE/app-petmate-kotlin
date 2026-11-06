@@ -31,5 +31,6 @@ enum class ValidationReason {
     REQUIRED,
     INVALID_EMAIL,
     PASSWORD_TOO_SHORT,
+    PASSWORD_TOO_LONG,
     PASSWORDS_DO_NOT_MATCH,
 }

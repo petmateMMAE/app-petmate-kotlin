@@ -19,6 +19,12 @@ val localProperties = Properties().apply {
 fun baseUrl(key: String, fallback: String): String =
     localProperties.getProperty(key) ?: System.getenv(key) ?: fallback
 
+// Backend real por defecto (v0.1.0 desplegado en Azure el 06/11/2026). Para volver al
+// backend simulado: USE_FAKE_BACKEND=true en local.properties o como variable de entorno.
+val useFakeBackend: String =
+    (localProperties.getProperty("USE_FAKE_BACKEND") ?: System.getenv("USE_FAKE_BACKEND") ?: "false")
+        .trim().lowercase().let { if (it == "true") "true" else "false" }
+
 // La llave de subida sale de keystore.properties (ignorado por git) o de
 // variables de entorno en GitHub Actions. Nunca se versiona (constitution.md P6).
 val keystoreProperties = Properties().apply {
@@ -58,9 +64,9 @@ android {
 
     buildTypes {
         debug {
-            // El backend aun no esta desplegado: la app usa el repositorio falso.
+            // URL en local.properties (BASE_URL_DEBUG), nunca en el codigo. Debe terminar en /api/v1/.
             buildConfigField("String", "BASE_URL", "\"${baseUrl("BASE_URL_DEBUG", "http://10.0.2.2:8080/api/v1/")}\"")
-            buildConfigField("boolean", "USE_FAKE_BACKEND", "true")
+            buildConfigField("boolean", "USE_FAKE_BACKEND", useFakeBackend)
         }
         release {
             isMinifyEnabled = true
@@ -73,7 +79,7 @@ android {
                 "proguard-rules.pro",
             )
             buildConfigField("String", "BASE_URL", "\"${baseUrl("BASE_URL_RELEASE", "https://api.petmate.mx/api/v1/")}\"")
-            buildConfigField("boolean", "USE_FAKE_BACKEND", "true")
+            buildConfigField("boolean", "USE_FAKE_BACKEND", useFakeBackend)
         }
     }
     compileOptions {

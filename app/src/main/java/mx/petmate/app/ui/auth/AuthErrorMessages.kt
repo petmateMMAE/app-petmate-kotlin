@@ -13,6 +13,8 @@ fun AppError.toUiText(): UiText = when (this) {
     AppError.Unauthorized -> UiText.Resource(R.string.error_unauthorized)
     is AppError.Server -> when (code) {
         409 -> UiText.Resource(R.string.error_email_taken)
+        429 -> UiText.Resource(R.string.error_too_many_attempts)
+        503 -> UiText.Resource(R.string.error_service_unavailable)
         else -> UiText.Resource(R.string.error_server)
     }
     is AppError.Validation -> reason.toUiText()
@@ -25,6 +27,10 @@ fun ValidationReason.toUiText(): UiText = when (this) {
     ValidationReason.PASSWORD_TOO_SHORT -> UiText.Resource(
         R.string.error_password_too_short,
         listOf(ValidateCredentialsUseCase.MIN_PASSWORD_LENGTH),
+    )
+    ValidationReason.PASSWORD_TOO_LONG -> UiText.Resource(
+        R.string.error_password_too_long,
+        listOf(ValidateCredentialsUseCase.MAX_PASSWORD_LENGTH),
     )
     ValidationReason.PASSWORDS_DO_NOT_MATCH -> UiText.Resource(R.string.error_passwords_do_not_match)
 }

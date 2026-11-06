@@ -40,3 +40,7 @@ replay_pid*.log
 
 # Toda la carpeta del IDE
 /.idea/
+
+# Volcados de la JVM cuando Gradle se cae (D-02)
+hs_err_pid*.log
+replay_pid*.log

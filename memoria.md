@@ -312,6 +312,17 @@ Ramas: `main` (estable) y `develop`.
 | # | Qué | Severidad | Nota |
 |---|---|---|---|
 | D-01 | `app/src/main/java/.../` sigue en `com.example.petmateedel` | Media | Debería ser un `applicationId` real (p. ej. `mx.petmate.app`) antes de publicar en Google Play. Requiere permiso para cambiarlo. |
-| D-02 | Quedaron en el repositorio `hs_err_pid26380.log` y `replay_pid26380.log` | Baja | Logs de un crash de la JVM de Gradle; se pueden borrar. |
+| D-02 | ~~Quedaron en el repositorio `hs_err_pid26380.log` y `replay_pid26380.log`~~ | Cerrada 04/11/2026 | Se verificó que **nunca estuvieron versionados**; la deuda estaba mal redactada. Siguen en la carpeta local (ahora son cuatro: `pid24740` y `pid26380`) y ya tienen regla en `.gitignore`. Se pueden borrar a mano cuando se quiera. |
 | D-03 | `minSdk` 24 vs. Android 8+ (API 26) de los lineamientos | Media | Confirmar con el profesor (ver §3). |
 | D-04 | No hay matriz de versionamiento escrita todavía | Alta | Los lineamientos la exigen **antes** de desarrollar. Es la tarea T-001. |
+
+---
+
+## Conexión con el backend real (06/11/2026)
+
+- **Backend:** PetMate API v0.1.0 en Azure Container Apps, Chile Central (México Central no pudo crear el ambiente). URL en `local.properties` (`BASE_URL_DEBUG` / `BASE_URL_RELEASE`, terminando en `/api/v1/`); no se versiona.
+- **La app ya usa el backend real por defecto.** Para volver al simulado: `USE_FAKE_BACKEND=true` en `local.properties`.
+- **Contrato aplicado** (spec 002, sección «Resoluciones»): envoltura `{statusCode,message,data}`, registro solo con correo y contraseña (12-128), logout con Bearer + refresh token y renovación automática si el access token expiró, rol `Business` = afiliado, nombre guardado solo en el dispositivo.
+- **Pruebas:** 34 en verde (7 nuevas de `AuthRepositoryImplTest` con MockWebServer y el formato real).
+- **Lo que no se puede conectar todavía:** mascotas, carnet, mapa de afiliados, QR, etc. El backend aún no tiene esos endpoints (están «Planeado» en su catálogo). Se conectan unidad por unidad conforme Miguel los publique.
+- **Avisos de uso:** en modo ahorro la API tarda 10-20 s en la primera petición y no hay servicio de 23:00 a 7:00 (hora de México). Timeout de red: 30 s.
