@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Trazo estilo maqueta (24x24, linea 2). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3M20 17v.01"
+        android:strokeWidth="2"
+        android:strokeColor="#FF1D1733"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
  * Contrato real del backend v0.1.0 (spec 002, Q-01 resuelta el 06/11/2026):
  * docs/api/endpoints.md del repositorio backend-petmate-sdd-aspnetcore.
  * El backend rechaza miembros desconocidos con 400: no agregar campos que no
- * esten en el contrato (por ejemplo, el nombre en el registro).
+ * esten en el contrato.
  */
 @Serializable
 data class LoginRequestDto(
@@ -16,8 +16,10 @@ data class LoginRequestDto(
     val password: String,
 )
 
+/** Desde el primer hito del backend (pm-085) el nombre es obligatorio en el registro (1 a 80 caracteres). */
 @Serializable
 data class RegisterRequestDto(
+    val displayName: String,
     val email: String,
     val password: String,
 )
@@ -58,12 +60,16 @@ data class UpdateProfileRequestDto(
     val displayName: String,
 )
 
-/** Rol: `Owner` (dueno) o `Business` (afiliado). */
+/**
+ * Usuario de la sesion. Desde pm-086 el rol es siempre `User` (antes `Owner`/`Business`); ser afiliado
+ * se sabra por `business` cuando exista el modulo de negocios. `displayName` llega desde pm-085.
+ */
 @Serializable
 data class UserDto(
     val id: String,
     val email: String,
     val role: String = ROLE_OWNER,
+    val displayName: String? = null,
 ) {
     companion object {
         const val ROLE_OWNER = "Owner"

@@ -138,6 +138,9 @@ dependencies {
 
     implementation(libs.osmdroid.android)
 
+    // Dibuja el QR de cada mascota (spec 009). Solo el codificador, sin camara.
+    implementation(libs.zxing.core)
+
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockk)

@@ -303,6 +303,12 @@ jobs:
             tests: 'mx.petmate.app.data.repository.AuthRepositoryImplTest'
           - feature: sesion-y-modo-demo
             tests: 'mx.petmate.app.data.repository.FakeAuthRepositoryTest'
+          - feature: reglas-mascota-y-carnet
+            tests: 'mx.petmate.app.domain.usecase.PetRulesTest'
+          - feature: conexion-backend-mascotas-carnet-qr
+            tests: 'mx.petmate.app.data.repository.PetRepositoryImplTest'
+          - feature: mascotas-de-ejemplo-demo
+            tests: 'mx.petmate.app.data.repository.SamplePetRepositoryTest'
     steps:
       - uses: actions/checkout@v5
 

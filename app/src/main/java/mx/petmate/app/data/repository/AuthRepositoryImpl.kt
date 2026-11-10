@@ -56,17 +56,14 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun register(data: RegisterData): AppResult<User> =
         withContext(dispatchers.io) {
             val email = data.email.trim()
+            val name = data.name.trim()
             runCatching {
-                // El alta solo acepta correo y contrasena; el nombre se guarda despues con users/me/update.
-                requireData(api.register(RegisterRequestDto(email = email, password = data.password)).data)
+                // pm-085: el nombre viaja en el mismo registro (obligatorio, 1 a 80 caracteres).
+                requireData(api.register(RegisterRequestDto(displayName = name, email = email, password = data.password)).data)
             }.fold(
                 onSuccess = { auth ->
-                    sessionStore.rememberName(email, data.name)
-                    // Mejor esfuerzo: si falla, el nombre queda en el dispositivo y la cuenta sigue creada.
-                    val serverName = runCatching {
-                        api.updateProfile(bearer(auth.accessToken), UpdateProfileRequestDto(data.name.trim())).data?.displayName
-                    }.onFailure { logger.error(TAG, "No se pudo guardar el nombre en el servidor", it) }.getOrNull()
-                    signIn(auth, localName = serverName ?: data.name)
+                    sessionStore.rememberName(email, name)
+                    signIn(auth, localName = auth.user.displayName ?: name)
                 },
                 onFailure = { AppResult.Failure(it.toAppError()) },
             )
@@ -79,9 +76,9 @@ class AuthRepositoryImpl @Inject constructor(
                 requireData(api.login(LoginRequestDto(email = email, password = credentials.password)).data)
             }.fold(
                 onSuccess = { auth ->
-                    // El login no trae el nombre: se pide el perfil (mejor esfuerzo) para mostrarlo desde el inicio.
-                    val serverName = runCatching { api.getProfile(bearer(auth.accessToken)).data?.displayName }
-                        .getOrNull()
+                    // Desde pm-085 la sesion trae el nombre. Si no viene, se pide el perfil (mejor esfuerzo).
+                    val serverName = auth.user.displayName?.takeIf { it.isNotBlank() }
+                        ?: runCatching { api.getProfile(bearer(auth.accessToken)).data?.displayName }.getOrNull()
                     signIn(auth, localName = serverName ?: sessionStore.knownNameFor(email))
                 },
                 onFailure = { AppResult.Failure(it.toAppError()) },
@@ -107,6 +104,8 @@ class AuthRepositoryImpl @Inject constructor(
     override fun exitGuestMode() {
         if (state.value == SessionState.Guest) state.value = SessionState.SignedOut
     }
+
+    override fun expireSession() = endSession()
 
     override suspend fun loadProfile(): AppResult<UserProfile> = withContext(dispatchers.io) {
         authorized { access -> api.getProfile(bearer(access)).data }

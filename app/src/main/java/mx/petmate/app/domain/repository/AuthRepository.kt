@@ -44,4 +44,7 @@ interface AuthRepository {
 
     /** Cambia el nombre visible en el servidor (pm-038). */
     suspend fun updateName(name: String): AppResult<UserProfile>
+
+    /** La sesion ya no es valida (ni el refresh token sirvio): se borra lo local y se vuelve al login. */
+    fun expireSession()
 }
