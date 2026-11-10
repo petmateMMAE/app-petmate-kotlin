@@ -1,0 +1,16 @@
+# Configuracion de gitleaks para el job `secrets-scan` del pipeline (igual que en el backend).
+# Se usan las reglas por defecto y solo se excluyen los falsos positivos revisados, archivo por archivo (no carpetas completas):
+#   - ValidateCredentialsUseCaseTest.kt: contrasenas ficticias de pruebas unitarias ("petmate-segura-2026") que nunca
+#     fueron credenciales reales.
+# Cualquier archivo nuevo que dispare una regla debe revisarse; solo si es un falso positivo se agrega aqui con su motivo.
+# Las llaves reales (firma, Google Play) se guardan en GitHub Secrets y nunca en el repositorio.
+title = "PetMate app gitleaks"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Falsos positivos revisados (valores ficticios de pruebas)"
+paths = [
+  '''app/src/test/java/mx/petmate/app/domain/usecase/ValidateCredentialsUseCaseTest\.kt''',
+]

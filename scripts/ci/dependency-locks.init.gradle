@@ -1,0 +1,8 @@
+// Solo para CI: activa el bloqueo de dependencias para generar app/gradle.lockfile con las versiones exactas
+// que se resuelven. Trivy y Syft leen ese archivo para buscar vulnerabilidades y armar el SBOM.
+// No cambia el build de nadie: se usa con --init-script unicamente en el pipeline.
+allprojects {
+    dependencyLocking {
+        lockAllConfigurations()
+    }
+}
