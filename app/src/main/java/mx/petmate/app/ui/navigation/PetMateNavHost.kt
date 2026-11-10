@@ -12,10 +12,26 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import mx.petmate.app.ui.pets.AllergiesScreen
+import mx.petmate.app.ui.pets.AllergyFormScreen
+import mx.petmate.app.ui.pets.CarnetScreen
+import mx.petmate.app.ui.pets.CarnetSection
+import mx.petmate.app.ui.pets.DewormFormScreen
+import mx.petmate.app.ui.pets.DewormScreen
+import mx.petmate.app.ui.pets.PetCarnetViewModel
+import mx.petmate.app.ui.pets.PetFormScreen
+import mx.petmate.app.ui.pets.PetsScreen
+import mx.petmate.app.ui.pets.QrScreen
+import mx.petmate.app.ui.pets.VaccineFormScreen
+import mx.petmate.app.ui.pets.VaccinesScreen
+import mx.petmate.app.ui.pets.WeightScreen
 import mx.petmate.app.domain.model.SessionState
 import mx.petmate.app.domain.model.User
 import mx.petmate.app.ui.auth.LoginScreen
@@ -206,15 +222,129 @@ private fun MainGraph(
         composable(Route.DELETE_ACCOUNT) {
             DeleteAccountScreen(onBackClick = { navController.popBackStack() })
         }
+
+        petsGraph(navController = navController, user = user, isGuest = isGuest, onNeedAccount = createAccount)
     }
 }
 
-/** Mascotas y Avisos aun no tienen pantalla (specs 007 y 008). */
+/** Mascotas, carnet y QR (specs 007, 008 y 009). En el modo demo se ven las mascotas de ejemplo y guardar pide cuenta. */
+private fun NavGraphBuilder.petsGraph(
+    navController: NavHostController,
+    user: User?,
+    isGuest: Boolean,
+    onNeedAccount: () -> Unit,
+) {
+    val petArg = listOf(navArgument(Route.ARG_PET_ID) { type = NavType.StringType })
+    val back: () -> Unit = { navController.popBackStack() }
+
+    composable(Route.PETS) {
+        PetsScreen(
+            userName = user?.name.orEmpty(),
+            isGuest = isGuest,
+            onTabSelected = { navController.openTab(it) },
+            onPetClick = { navController.navigate(Route.carnet(it)) },
+            onAddPet = { navController.navigate(Route.petForm()) },
+            onNeedAccount = onNeedAccount,
+        )
+    }
+    composable(
+        Route.PET_FORM,
+        arguments = listOf(navArgument(Route.ARG_PET_ID) { type = NavType.StringType; nullable = true; defaultValue = null }),
+    ) {
+        PetFormScreen(
+            onBackClick = back,
+            onSaved = { petId, isNew ->
+                if (isNew) {
+                    // Recien creada: directo a su carnet (petSaved de la maqueta), sin regresar al formulario.
+                    navController.navigate(Route.carnet(petId)) { popUpTo(Route.PET_FORM) { inclusive = true } }
+                } else {
+                    navController.popBackStack()
+                }
+            },
+            onDeleted = { navController.popBackStack(Route.PETS, inclusive = false) },
+        )
+    }
+    composable(Route.CARNET, arguments = petArg) { entry ->
+        val viewModel: PetCarnetViewModel = hiltViewModel(entry)
+        val petId = viewModel.petId
+        CarnetScreen(
+            viewModel = viewModel,
+            isGuest = isGuest,
+            onBackClick = back,
+            onEditClick = { navController.navigate(Route.petForm(petId)) },
+            onOpen = { section ->
+                navController.navigate(
+                    when (section) {
+                        CarnetSection.Vaccines -> Route.vaccines(petId)
+                        CarnetSection.Deworm -> Route.deworm(petId)
+                        CarnetSection.Weight -> Route.weight(petId)
+                        CarnetSection.Allergies -> Route.allergies(petId)
+                        CarnetSection.Qr -> Route.qr(petId)
+                    },
+                )
+            },
+            onNeedAccount = onNeedAccount,
+        )
+    }
+    composable(Route.QR, arguments = petArg) { entry ->
+        QrScreen(hiltViewModel(entry), isGuest, onBackClick = back, onNeedAccount = onNeedAccount)
+    }
+    composable(Route.VACCINES, arguments = petArg) { entry ->
+        val viewModel: PetCarnetViewModel = hiltViewModel(entry)
+        VaccinesScreen(viewModel, isGuest, back, onAddClick = { navController.navigate(Route.vaccineForm(viewModel.petId)) }, onNeedAccount = onNeedAccount)
+    }
+    composable(Route.VACCINE_FORM, arguments = petArg) { entry ->
+        VaccineFormScreen(hiltViewModel(entry), onBackClick = back, onSaved = back)
+    }
+    composable(Route.DEWORM, arguments = petArg) { entry ->
+        val viewModel: PetCarnetViewModel = hiltViewModel(entry)
+        DewormScreen(viewModel, isGuest, back, onAddClick = { navController.navigate(Route.dewormForm(viewModel.petId)) }, onNeedAccount = onNeedAccount)
+    }
+    composable(Route.DEWORM_FORM, arguments = petArg) { entry ->
+        DewormFormScreen(hiltViewModel(entry), onBackClick = back, onSaved = back)
+    }
+    composable(Route.WEIGHT, arguments = petArg) { entry ->
+        WeightScreen(hiltViewModel(entry), isGuest, onBackClick = back, onNeedAccount = onNeedAccount)
+    }
+    composable(Route.ALLERGIES, arguments = petArg) { entry ->
+        val viewModel: PetCarnetViewModel = hiltViewModel(entry)
+        AllergiesScreen(
+            viewModel = viewModel,
+            isGuest = isGuest,
+            onBackClick = back,
+            onAddClick = { navController.navigate(Route.allergyForm(viewModel.petId)) },
+            onEditClick = { navController.navigate(Route.allergyForm(viewModel.petId, it)) },
+            onNeedAccount = onNeedAccount,
+        )
+    }
+    composable(
+        Route.ALLERGY_FORM,
+        arguments = petArg + navArgument(Route.ARG_ALLERGY_ID) { type = NavType.StringType; nullable = true; defaultValue = null },
+    ) { entry ->
+        AllergyFormScreen(
+            viewModel = hiltViewModel(entry),
+            allergyId = entry.arguments?.getString(Route.ARG_ALLERGY_ID),
+            onBackClick = back,
+            onSaved = back,
+        )
+    }
+}
+
+/** Pestanas de la barra inferior. Avisos aun no tiene pantalla (spec 006). */
 private fun NavHostController.openTab(tab: OwnerTab) {
     when (tab) {
         OwnerTab.Map -> popBackStack(Route.MAP, inclusive = false)
+        OwnerTab.Pets -> if (currentDestination?.route != Route.PETS) {
+            navigate(Route.PETS) {
+                popUpTo(Route.MAP)
+                launchSingleTop = true
+            }
+        }
         OwnerTab.Profile -> if (currentDestination?.route != Route.HOME) {
-            navigate(Route.HOME) { launchSingleTop = true }
+            navigate(Route.HOME) {
+                popUpTo(Route.MAP)
+                launchSingleTop = true
+            }
         }
         else -> Unit
     }

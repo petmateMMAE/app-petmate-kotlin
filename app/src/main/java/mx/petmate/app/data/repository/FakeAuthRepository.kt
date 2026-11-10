@@ -97,6 +97,11 @@ class FakeAuthRepository @Inject constructor(
         if (state.value == SessionState.Guest) state.value = SessionState.SignedOut
     }
 
+    override fun expireSession() {
+        sessionStore.clear()
+        state.value = SessionState.SignedOut
+    }
+
     override suspend fun loadProfile(): AppResult<UserProfile> = withContext(dispatchers.io) {
         val user = sessionStore.readUser() ?: return@withContext AppResult.Failure(AppError.Unauthorized)
         AppResult.Success(user.toProfile())

@@ -55,6 +55,9 @@ Cada clase de prueba es un job de la matriz `feature-tests`, todos al mismo nive
 | validacion-credenciales | `domain.usecase.ValidateCredentialsUseCaseTest` |
 | conexion-backend-auth-perfil | `data.repository.AuthRepositoryImplTest` (registro, login, refresh y perfil contra un servidor simulado) |
 | sesion-y-modo-demo | `data.repository.FakeAuthRepositoryTest` |
+| reglas-mascota-y-carnet | `domain.usecase.PetRulesTest` (validaciones del contrato, edad y fechas) |
+| conexion-backend-mascotas-carnet-qr | `data.repository.PetRepositoryImplTest` (mascotas, QR, carnet, renovación del token y 403/404) |
+| mascotas-de-ejemplo-demo | `data.repository.SamplePetRepositoryTest` (modo demo) |
 
 Al crear una clase de prueba nueva hay que agregarla a la matriz; si no, falla `4 · Cada prueba tiene su job`.
 
