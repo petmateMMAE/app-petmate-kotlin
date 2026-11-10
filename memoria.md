@@ -334,3 +334,13 @@ Ramas: `main` (estable) y `develop`.
 - **Cuenta demo** (backend real y simulado): `demo@petmate.mx` / `PetMateDemo2026`, nombre «Usuario Demo». En el login, tocar el aviso llena los campos. Se oculta con `SHOW_DEMO_ACCOUNT=false` en `local.properties`.
 - **Pruebas:** 38 unitarias en verde.
 - Pendiente aparte (no subido por decisión del equipo): el aviso «Despertando el servidor…» y el timeout de 60 s están guardados en `git stash`.
+## Modo demo y Perfil de la maqueta (06/11/2026)
+
+- **Probar sin cuenta** (`SessionState.Guest`): se entra sin registro, con la franja amarilla DEMO arriba; crear cuenta / ya tengo cuenta / salir de la demo llevan a registro, login o bienvenida. La cuenta demo con contraseña ya no se muestra por defecto.
+- **Perfil** igual a `SCREENS.profile` de la maqueta, más las pantallas Privacidad y términos y Eliminar mi cuenta (sin endpoint de borrado todavía). 40 pruebas unitarias.
+
+## Pipeline CI/CD DevSecOps de la app (10/11/2026)
+
+- Un solo workflow `.github/workflows/pipeline.yml`, mismo flujo que el del backend: secretos (gitleaks) -> compilación + Android Lint -> SAST CodeQL, SAST móvil (mobsfscan), dependencias (Trivy) + SBOM -> una prueba por funcionalidad (matriz) -> puerta de calidad -> APK/AAB de release -> entrega (Release manual, Google Play interna si hay llaves) -> prueba de humo.
+- En PR corre hasta el APK/AAB; en push a `main` entrega. Detalle y diagrama en `docs/ci-cd/pipeline.md`.
+- Variable del repositorio `API_BASE_URL` = URL del backend en Azure (`.../api/v1/`). Firma y Google Play quedan pendientes: hacen falta los secretos de la llave y la cuenta de servicio.
