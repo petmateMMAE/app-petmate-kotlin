@@ -334,3 +334,24 @@ Ramas: `main` (estable) y `develop`.
 - **Cuenta demo** (backend real y simulado): `demo@petmate.mx` / `PetMateDemo2026`, nombre «Usuario Demo». En el login, tocar el aviso llena los campos. Se oculta con `SHOW_DEMO_ACCOUNT=false` en `local.properties`.
 - **Pruebas:** 38 unitarias en verde.
 - Pendiente aparte (no subido por decisión del equipo): el aviso «Despertando el servidor…» y el timeout de 60 s están guardados en `git stash`.
+## Modo demo y Perfil de la maqueta (06/11/2026)
+
+- **Probar sin cuenta** (`SessionState.Guest`): se entra sin registro, con la franja amarilla DEMO arriba; crear cuenta / ya tengo cuenta / salir de la demo llevan a registro, login o bienvenida. La cuenta demo con contraseña ya no se muestra por defecto.
+- **Perfil** igual a `SCREENS.profile` de la maqueta, más las pantallas Privacidad y términos y Eliminar mi cuenta (sin endpoint de borrado todavía). 40 pruebas unitarias.
+
+## Pipeline CI/CD DevSecOps de la app (10/11/2026)
+
+- Un solo workflow `.github/workflows/pipeline.yml`, mismo flujo que el del backend: secretos (gitleaks) -> compilación + Android Lint -> SAST CodeQL, SAST móvil (mobsfscan), dependencias (Trivy) + SBOM -> una prueba por funcionalidad (matriz) -> puerta de calidad -> APK/AAB de release -> entrega (Release manual, Google Play interna si hay llaves) -> prueba de humo.
+- En PR corre hasta el APK/AAB; en push a `main` entrega. Detalle y diagrama en `docs/ci-cd/pipeline.md`.
+- Variable del repositorio `API_BASE_URL` = URL del backend en Azure (`.../api/v1/`). Firma y Google Play quedan pendientes: hacen falta los secretos de la llave y la cuenta de servicio.
+
+## Mascotas, carnet y QR conectados al backend (10/11/2026)
+
+- **Registro con nombre:** el backend del primer hito (pm-085) exige `displayName` en `auth/register`; ya va en el mismo registro (sin el PUT aparte). El login toma el nombre de la sesión y solo pide el perfil si no viene.
+- **Mis mascotas** (spec 007, maqueta `pets`/`petsEmpty`/`petForm`): lista con próxima vacuna/desparasitación y alergias, alta, edición y borrado con confirmación. Especie solo Perro/Gato (lista cerrada del backend), sexo opcional, raza ≤ 60, nombre ≤ 50, nacimiento no futuro ni de hace más de 50 años.
+- **Carnet** (spec 008, maqueta `carnet`): resumen, vacunas, desparasitaciones, peso con gráfica y alergias/condiciones (activas y superadas). Lo que registró un negocio se ve con candado y no se edita (403 del backend).
+- **QR** (spec 009, pm-093 a pm-095): se dibuja con ZXing (`com.google.zxing:core`, solo codificador) el `qrToken`; abajo el código corto; "Generar QR nuevo" con confirmación.
+- **Modo demo:** "Mascotas de ejemplo" en memoria (`SamplePetRepository`); guardar o editar pide crear cuenta.
+- **Sesión:** `AuthorizedCaller` renueva el access token una vez con el refresh (con Mutex) y cierra la sesión solo si la renovación falla; un 403 no cierra sesión.
+- **Fuera de alcance hoy:** fotos (pm-079), copia local sin conexión (spec 005), historial clínico (spec 014) y avisos (spec 006).
+- **Pruebas:** 64 unitarias en verde; 3 jobs nuevos en la matriz del pipeline.

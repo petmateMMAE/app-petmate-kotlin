@@ -62,11 +62,17 @@ class AuthRepositoryImplTest {
 
     private fun repository() = AuthRepositoryImpl(api, sessionStore, dispatchers, logger)
 
-    private fun authBody(code: Int, role: String = "Owner", access: String = "acc-1", refresh: String = "ref-1") = """
+    private fun authBody(
+        code: Int,
+        role: String = "Owner",
+        access: String = "acc-1",
+        refresh: String = "ref-1",
+        name: String? = null,
+    ) = """
         {"statusCode":$code,"message":"ok","data":{
           "accessToken":"$access","tokenType":"Bearer","accessTokenExpiresAt":"2026-11-06T17:15:00Z",
           "refreshToken":"$refresh","refreshTokenExpiresAt":"2026-12-06T17:00:00Z",
-          "user":{"id":"u-1","email":"ana@petmate.mx","role":"$role"}}}
+          "user":{"id":"u-1","email":"ana@petmate.mx","role":"$role"${if (name == null) "" else ",\"displayName\":\"$name\""}}}}
     """.trimIndent()
 
     private fun profileBody(name: String?, role: String = "Owner") = """
@@ -78,39 +84,44 @@ class AuthRepositoryImplTest {
         MockResponse().setResponseCode(code).setHeader("Content-Type", "application/json").setBody(body)
 
     @Test
-    fun `el registro envia solo correo y contrasena y luego guarda el nombre en el servidor`() = runTest(dispatcher) {
-        server.enqueue(json(201, authBody(201)))
-        server.enqueue(json(200, profileBody("Ana")))
+    fun `el registro envia el nombre junto con el correo y la contrasena (pm-085)`() = runTest(dispatcher) {
+        server.enqueue(json(201, authBody(201, name = "Ana")))
 
         val result = repository().register(
-            RegisterData("Ana", " ana@petmate.mx ", "contrasena-segura", "contrasena-segura", true),
+            RegisterData(" Ana ", " ana@petmate.mx ", "contrasena-segura", "contrasena-segura", true),
         )
 
         val request = server.takeRequest()
         assertEquals("/api/v1/auth/register", request.path)
         val sent = request.body.readUtf8()
-        assertEquals("""{"email":"ana@petmate.mx","password":"contrasena-segura"}""", sent)
+        assertEquals("""{"displayName":"Ana","email":"ana@petmate.mx","password":"contrasena-segura"}""", sent)
         assertTrue(result is AppResult.Success)
         assertEquals("Ana", (result as AppResult.Success).data.name)
         verify { sessionStore.rememberName("ana@petmate.mx", "Ana") }
         verify { sessionStore.save(any(), "acc-1", "ref-1") }
-        val nameRequest = server.takeRequest()
-        assertEquals("PUT", nameRequest.method)
-        assertEquals("/api/v1/users/me/update", nameRequest.path)
-        assertEquals("Bearer acc-1", nameRequest.getHeader("Authorization"))
-        assertEquals("""{"displayName":"Ana"}""", nameRequest.body.readUtf8())
+        // Ya no hace falta un PUT aparte para el nombre.
+        assertEquals(1, server.requestCount)
     }
 
     @Test
-    fun `si guardar el nombre falla el registro igual termina con el nombre local`() = runTest(dispatcher) {
+    fun `si la sesion no trae el nombre el registro usa el que escribio el usuario`() = runTest(dispatcher) {
         server.enqueue(json(201, authBody(201)))
-        server.enqueue(json(503, """{"statusCode":503,"message":"No disponible.","data":null}"""))
 
         val result = repository().register(
             RegisterData("Ana", "ana@petmate.mx", "contrasena-segura", "contrasena-segura", true),
         )
 
         assertEquals("Ana", (result as AppResult.Success).data.name)
+    }
+
+    @Test
+    fun `si el login trae el nombre no pide el perfil`() = runTest(dispatcher) {
+        server.enqueue(json(200, authBody(200, name = "Ana Lopez")))
+
+        val result = repository().login(LoginCredentials("ana@petmate.mx", "contrasena-segura"))
+
+        assertEquals("Ana Lopez", (result as AppResult.Success).data.name)
+        assertEquals(1, server.requestCount)
     }
 
     @Test

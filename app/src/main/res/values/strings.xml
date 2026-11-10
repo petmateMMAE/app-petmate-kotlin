@@ -84,6 +84,7 @@
     <string name="tab_profile">Perfil</string>
     <plurals name="tab_reminders_badge">
         <item quantity="one">%1$d aviso pendiente</item>
+        <item quantity="many">%1$d avisos pendientes</item>
         <item quantity="other">%1$d avisos pendientes</item>
     </plurals>
 
@@ -211,4 +212,197 @@
     <string name="delete_confirm">Eliminar mi cuenta para siempre</string>
     <string name="delete_cancel">Mejor no, regresar</string>
     <string name="delete_pending">El borrado desde la app todavía no está disponible. Mientras, pídelo en petmate.mx/eliminar-cuenta y lo hacemos en máximo 30 días.</string>
+
+    <!-- Mascotas (spec 007; maqueta SCREENS.pets, petsEmpty y petForm) -->
+    <string name="pets_title">Mis mascotas</string>
+    <string name="pets_title_demo">Mascotas de ejemplo</string>
+    <string name="pets_subtitle_demo">Así se ve PetMate con datos</string>
+    <string name="pets_hello">Hola, %1$s</string>
+    <string name="pets_empty_title">Aún no tienes mascotas</string>
+    <string name="pets_empty_text">Agrega a tu primera mascota para crear su carnet y su código QR.</string>
+    <string name="pets_add_first">Agregar mi mascota</string>
+    <string name="pets_add">Agregar mascota</string>
+    <string name="pets_next_vaccine">Vacuna %1$s</string>
+    <string name="pets_next_deworm">Desparasitación</string>
+    <string name="pets_badge_vaccine">Vacuna</string>
+    <string name="pets_badge_deworm">Desparasitar</string>
+    <string name="pets_badge_ok">Al día</string>
+    <string name="pets_species_dog">Perro</string>
+    <string name="pets_species_cat">Gato</string>
+    <string name="pets_sex_male">Macho</string>
+    <string name="pets_sex_female">Hembra</string>
+    <string name="pets_age_newborn">Recién nacido</string>
+    <string name="pets_when_today">hoy</string>
+    <string name="pets_when_tomorrow">mañana</string>
+    <string name="pets_pick_date">Elige una fecha</string>
+    <string name="pets_clear">Quitar</string>
+    <string name="pets_ok">Listo</string>
+    <string name="pets_optional">Opcional</string>
+    <string name="pets_error_title">No pudimos cargarlo</string>
+    <string name="pets_error_business_record">No se puede modificar ni borrar: lo registró el negocio.</string>
+    <string name="pets_error_not_found">No encontramos esta mascota. Puede que ya se haya eliminado.</string>
+    <string name="pets_error_limit">Llegaste al máximo permitido. Elimina un registro para agregar otro.</string>
+    <string name="pets_error_too_large">Los datos son demasiado largos. Acórtalos e inténtalo de nuevo.</string>
+    <string name="pets_error_session">Tu sesión terminó. Vuelve a entrar con tu correo.</string>
+    <string name="pets_error_too_long">Debe tener como máximo %1$d caracteres</string>
+    <string name="pets_error_future">La fecha no puede ser futura</string>
+    <string name="pets_error_too_old">No puede ser de hace más de %1$d años</string>
+    <string name="pets_error_next_after_applied">La próxima dosis debe ser después de la fecha en que se aplicó</string>
+    <string name="pets_error_next_future">La próxima fecha debe ser después de hoy</string>
+    <string name="pets_error_weight_range">El peso debe ser mayor que 0 y de hasta 200 kg</string>
+
+    <string name="pet_form_new_title">Nueva mascota</string>
+    <string name="pet_form_edit_title">Editar a %1$s</string>
+    <string name="pet_form_species">¿Qué es?</string>
+    <string name="pet_form_species_hint">Por ahora PetMate guarda perros y gatos.</string>
+    <string name="pet_form_name">Nombre</string>
+    <string name="pet_form_name_placeholder">Ej. Firulais</string>
+    <string name="pet_form_breed">Raza</string>
+    <string name="pet_form_breed_placeholder">Ej. Beagle (si no sabes, déjalo vacío)</string>
+    <string name="pet_form_sex">Sexo</string>
+    <string name="pet_form_birth">Fecha de nacimiento</string>
+    <string name="pet_form_birth_hint">Si no la sabes exacta, pon una aproximada.</string>
+    <string name="pet_form_save">Guardar mascota</string>
+    <string name="pet_form_save_changes">Guardar cambios</string>
+    <string name="pet_form_delete">Eliminar a %1$s</string>
+    <string name="pet_delete_title">¿Eliminar a %1$s?</string>
+    <string name="pet_delete_text">Se borran también su carnet y su código QR. Esto no se puede deshacer.</string>
+    <string name="pet_delete_confirm">Eliminar</string>
+
+    <!-- Carnet (spec 008; maqueta SCREENS.carnet) -->
+    <string name="carnet_edit">Editar</string>
+    <string name="carnet_show_qr">Mostrar QR</string>
+    <string name="carnet_next_vaccine">Próxima vacuna</string>
+    <string name="carnet_deworm">Desparasitación</string>
+    <string name="carnet_last_weight">Último peso</string>
+    <string name="carnet_allergies">Alergias</string>
+    <string name="carnet_none">Ninguna</string>
+    <string name="carnet_all_ok">Todo al día</string>
+    <string name="carnet_no_record">Sin registro</string>
+    <string name="carnet_no_active_allergies">Sin alergias activas</string>
+    <string name="carnet_sections">Su carnet</string>
+    <string name="carnet_qr">Código QR</string>
+
+    <!-- Código QR (spec 009; pm-094 y pm-095) -->
+    <string name="qr_title">Código QR de %1$s</string>
+    <string name="qr_lead">Muéstralo en la veterinaria, tienda o estética.</string>
+    <string name="qr_code_hint">Si no pueden escanearlo, que escriban este código</string>
+    <string name="qr_brightness">Brillo al máximo</string>
+    <string name="qr_only_yours">Solo tú lo controlas</string>
+    <string name="qr_regenerate">Generar QR nuevo</string>
+    <string name="qr_regenerate_note">Hazlo si alguien que no quieres tiene una foto de este QR. El anterior dejará de funcionar.</string>
+    <string name="qr_regenerate_title">¿Generar un QR nuevo?</string>
+    <string name="qr_regenerate_text">El QR y el código actuales dejarán de funcionar. Tendrás que mostrar el nuevo.</string>
+    <string name="qr_regenerate_confirm">Generar nuevo</string>
+    <string name="qr_regenerated">Listo, este es su QR nuevo.</string>
+
+    <!-- Registros del carnet -->
+    <string name="record_applied_on">Aplicada el %1$s</string>
+    <string name="record_next">Próxima: %1$s</string>
+    <string name="record_next_hint">Opcional. Aparecerá como próxima fecha en su carnet.</string>
+    <string name="record_me">Yo</string>
+    <string name="record_by_you">Lo registraste tú</string>
+    <string name="record_by_business">Negocio afiliado</string>
+    <string name="record_locked">No se edita</string>
+    <string name="record_locked_by">Lo registró %1$s: no se edita</string>
+    <string name="record_delete">Eliminar</string>
+    <string name="record_delete_title">¿Eliminar este registro?</string>
+    <string name="record_delete_text">Se quita de su carnet. Esto no se puede deshacer.</string>
+
+    <string name="vaccines_title">Vacunas</string>
+    <string name="vaccines_add">Agregar vacuna</string>
+    <string name="vaccines_empty_title">Aún no hay vacunas</string>
+    <string name="vaccines_empty_text">Agrega la primera con el botón de abajo. Si la puso una veterinaria afiliada, aparecerá sola.</string>
+    <string name="vaccine_form_title">Nueva vacuna</string>
+    <string name="vaccine_which">¿Cuál vacuna?</string>
+    <string name="vaccine_other">Otra</string>
+    <string name="vaccine_other_name">Nombre de la vacuna</string>
+    <string name="vaccine_other_placeholder">Escribe el nombre</string>
+    <string name="vaccine_applied_on">Fecha en que se aplicó</string>
+    <string name="vaccine_batch">Lote</string>
+    <string name="vaccine_batch_placeholder">Viene en la etiqueta del frasco</string>
+    <string name="vaccine_by">¿Quién la aplicó?</string>
+    <string name="vaccine_by_placeholder">Ej. Yo, o el nombre de la veterinaria</string>
+    <string name="vaccine_next">Próxima dosis</string>
+    <string name="vaccine_save">Guardar vacuna</string>
+
+    <string name="deworm_title">Desparasitación</string>
+    <string name="deworm_add">Agregar desparasitación</string>
+    <string name="deworm_empty_title">Aún no hay desparasitaciones</string>
+    <string name="deworm_empty_text">Agrega la última que le dieron para tener a mano la próxima.</string>
+    <string name="deworm_form_title">Nueva desparasitación</string>
+    <string name="deworm_type">Tipo</string>
+    <string name="deworm_internal">Interna</string>
+    <string name="deworm_external">Externa</string>
+    <string name="deworm_type_hint">Interna: pastilla o jarabe contra lombrices. Externa: pipeta o pastilla contra pulgas y garrapatas.</string>
+    <string name="deworm_product">Producto</string>
+    <string name="deworm_product_placeholder">Ej. Drontal Plus</string>
+    <string name="deworm_date">Fecha</string>
+    <string name="deworm_next">Próxima fecha</string>
+    <string name="deworm_save">Guardar desparasitación</string>
+
+    <string name="weight_title">Peso</string>
+    <string name="weight_kg">%1$.1f kg</string>
+    <string name="weight_delta">%1$s kg desde %2$s</string>
+    <string name="weight_empty_title">Aún no hay pesos</string>
+    <string name="weight_empty_text">Pésalo y guarda el dato para ver cómo cambia con el tiempo.</string>
+    <string name="weight_today">¿Cuánto pesa hoy?</string>
+    <string name="weight_kilos">kilos</string>
+    <string name="weight_less">Menos</string>
+    <string name="weight_more">Más</string>
+    <string name="weight_save">Guardar peso</string>
+    <string name="weight_saved">Peso guardado.</string>
+    <string name="weight_history">Historial</string>
+    <string name="weight_latest">Más reciente</string>
+
+    <string name="allergies_title">Alergias y condiciones</string>
+    <string name="allergies_add">Agregar alergia o condición</string>
+    <string name="allergies_tab_active">Activas (%1$d)</string>
+    <string name="allergies_tab_resolved">Superadas (%1$d)</string>
+    <string name="allergies_empty_active_title">Sin alergias activas</string>
+    <string name="allergies_empty_active_text">Si %1$s es alérgico a algo, agrégalo para que lo vean en la estética y la tienda.</string>
+    <string name="allergies_empty_resolved_title">Nada por aquí</string>
+    <string name="allergies_empty_resolved_text">Cuando una alergia ya no le dé, márcala como superada y aparecerá aquí.</string>
+    <string name="allergy_active">Activa</string>
+    <string name="allergy_resolved">Superada</string>
+    <string name="allergy_mark_resolved">Marcar como superada</string>
+    <string name="allergy_reactivate">Volver a activar</string>
+    <string name="allergy_edit">Editar</string>
+    <string name="allergy_kind">Tipo</string>
+    <string name="allergy_kind_allergy">Alergia</string>
+    <string name="allergy_kind_condition">Condición</string>
+    <string name="allergy_form_new">Nueva alergia</string>
+    <string name="allergy_form_edit">Editar alergia</string>
+    <string name="allergy_name">¿A qué es alérgico o qué tiene?</string>
+    <string name="allergy_name_placeholder">Ej. Pollo, penicilina, dermatitis</string>
+    <string name="allergy_notes">Notas</string>
+    <string name="allergy_notes_placeholder">¿Qué le pasa? ¿Qué hay que evitar?</string>
+    <string name="allergy_state">Estado</string>
+    <string name="allergy_save">Guardar</string>
+
+    <plurals name="pets_age_years">
+        <item quantity="one">%1$d año</item>
+        <item quantity="many">%1$d años</item>
+        <item quantity="other">%1$d años</item>
+    </plurals>
+    <plurals name="pets_age_months">
+        <item quantity="one">%1$d mes</item>
+        <item quantity="many">%1$d meses</item>
+        <item quantity="other">%1$d meses</item>
+    </plurals>
+    <plurals name="pets_when_in_days">
+        <item quantity="one">en %1$d día</item>
+        <item quantity="many">en %1$d días</item>
+        <item quantity="other">en %1$d días</item>
+    </plurals>
+    <plurals name="pets_when_days_ago">
+        <item quantity="one">hace %1$d día</item>
+        <item quantity="many">hace %1$d días</item>
+        <item quantity="other">hace %1$d días</item>
+    </plurals>
+    <plurals name="pets_badge_allergies">
+        <item quantity="one">%1$d alergia</item>
+        <item quantity="many">%1$d alergias</item>
+        <item quantity="other">%1$d alergias</item>
+    </plurals>
 </resources>

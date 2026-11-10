@@ -62,8 +62,8 @@ android {
         applicationId = "mx.petmate.app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 3
+        versionName = "0.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -137,6 +137,9 @@ dependencies {
     implementation(libs.androidx.security.crypto)
 
     implementation(libs.osmdroid.android)
+
+    // Dibuja el QR de cada mascota (spec 009). Solo el codificador, sin camara.
+    implementation(libs.zxing.core)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

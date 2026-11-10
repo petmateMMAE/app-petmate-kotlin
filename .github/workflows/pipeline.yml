@@ -1,0 +1,592 @@
+# CI/CD DevSecOps de la app PetMate (Android): UN solo pipeline donde se ve todo el flujo.
+# Es el mismo flujo que el del backend (backend-petmate-sdd-aspnetcore/.github/workflows/pipeline.yml), adaptado a Android.
+#
+#   codigo -> secretos -> compilacion + Android Lint -> [SAST CodeQL | SAST movil (mobsfscan) | dependencias + SBOM
+#           | matriz de pruebas | una prueba por funcionalidad (matriz)] -> puerta de calidad -> APK/AAB de release
+#           -> entrega -> prueba de humo
+#
+# - En pull request (a develop o main) corre todo hasta el APK/AAB y NO entrega: entrega y prueba de humo aparecen como
+#   "skipped" para que el diagrama muestre el flujo completo.
+# - En cada push/merge a main (o a mano desde main) se entregan el APK y el AAB de la version de app/build.gradle.kts.
+#   El GitHub Release app-vX.Y.Z NO se crea con el merge: solo a mano (Run workflow) marcando "create_release".
+#   La subida a Google Play (pista interna) solo ocurre si existen la llave de firma y la cuenta de servicio de Play.
+# - Las pruebas de cada funcionalidad son jobs separados al mismo nivel (matriz `feature-tests`).
+#   scripts/ci/check-test-matrix.sh falla si una clase de prueba no tiene su job.
+# Herramientas $0: runners de GitHub, gitleaks, CodeQL, mobsfscan, Trivy, Syft (todas de codigo abierto).
+name: CI/CD DevSecOps
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Crear el GitHub Release app-vX.Y.Z con el APK y el AAB (autorizacion expresa)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pipeline-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  # URL del backend para el build de release. Es una variable del repositorio (no es secreta): API_BASE_URL.
+  BASE_URL_RELEASE: ${{ vars.API_BASE_URL }}
+  USE_FAKE_BACKEND: 'false'
+  GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx4g
+
+jobs:
+  # ------------- Etapa 1 · Secretos (DevSecOps) -------------
+  secrets-scan:
+    name: "1 · Secretos (gitleaks)"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Buscar secretos en el repositorio y su historial
+        # Imagen oficial de codigo abierto (la accion gitleaks-action exige licencia de pago en organizaciones).
+        run: |
+          docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.18.4 detect \
+            --source /repo --config /repo/.gitleaks.toml --redact --no-banner \
+            --report-format sarif --report-path /repo/gitleaks.sarif
+
+      - name: Informe SARIF
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: gitleaks-sarif
+          path: gitleaks.sarif
+          if-no-files-found: ignore
+          retention-days: 14
+
+  # ------------- Etapa 2 · Compilacion + Android Lint -------------
+  build:
+    name: "2 · Compilacion y Android Lint"
+    needs: secrets-scan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Permiso de ejecucion de gradlew
+        run: chmod +x gradlew
+
+      - name: Compilar debug
+        run: ./gradlew :app:assembleDebug --stacktrace
+
+      - name: Android Lint (los errores bloquean)
+        run: ./gradlew :app:lintDebug
+
+      - name: Informe de Lint
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: android-lint-report
+          path: app/build/reports/lint-results-debug.*
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: APK de debug
+        uses: actions/upload-artifact@v5
+        with:
+          name: apk-debug
+          path: app/build/outputs/apk/debug/*.apk
+          retention-days: 7
+
+  # ------------- Etapa 3 · Seguridad y calidad en paralelo -------------
+  sast:
+    name: "3 · SAST (CodeQL)"
+    needs: build
+    # Interruptor: crear la variable CODEQL_DISABLED=true en el repositorio si CodeQL no esta permitido.
+    if: vars.CODEQL_DISABLED != 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # Los pasos de CodeQL son informativos (continue-on-error): en un repositorio privado sin GitHub Advanced Security
+      # no se pueden publicar alertas. El SAST bloqueante es Android Lint de la etapa 2.
+      - name: Inicializar CodeQL
+        id: init
+        continue-on-error: true
+        uses: github/codeql-action/init@v4
+        with:
+          languages: java-kotlin
+          build-mode: manual
+
+      - name: Compilar para CodeQL
+        if: steps.init.outcome == 'success'
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:compileDebugKotlin --no-build-cache --no-configuration-cache
+
+      - name: Analizar con CodeQL (el SARIF queda como artefacto; no se sube a Code Scanning)
+        id: analyze
+        if: steps.init.outcome == 'success'
+        continue-on-error: true
+        uses: github/codeql-action/analyze@v4
+        with:
+          upload: never
+          upload-database: false
+          output: codeql-results
+
+      - name: Informe CodeQL
+        if: steps.analyze.outcome == 'success'
+        uses: actions/upload-artifact@v5
+        with:
+          name: codeql-sarif
+          path: codeql-results
+          retention-days: 14
+
+      - name: Resumen
+        if: always()
+        run: |
+          {
+            echo "### SAST (CodeQL)"
+            if [ "${{ steps.analyze.outcome }}" = "success" ]; then
+              echo "Analisis completado. El SARIF esta en el artefacto \`codeql-sarif\`."
+            else
+              echo "> CodeQL no se pudo ejecutar o publicar (repositorio privado sin GitHub Advanced Security). Etapa informativa."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  mobile-sast:
+    name: "3 · SAST movil (mobsfscan, OWASP MASVS)"
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Instalar mobsfscan
+        run: pip install mobsfscan==0.4.5
+
+      # Reglas de MobSF para Android (OWASP MASVS): almacenamiento inseguro, cifrado debil, WebView, logs, red en claro, etc.
+      - name: Analizar el codigo y el manifiesto
+        id: scan
+        run: |
+          set +e
+          mobsfscan app/src/main --sarif -o mobsfscan.sarif
+          code=$?
+          mobsfscan app/src/main --json -o mobsfscan.json >/dev/null 2>&1
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Resumen
+        if: always()
+        run: |
+          {
+            echo "### SAST movil (mobsfscan)"
+            if [ -f mobsfscan.json ]; then
+              echo
+              echo "| Severidad | Hallazgos |"
+              echo "|---|---:|"
+              jq -r '[.results // {} | to_entries[] | .value.metadata.severity] | group_by(.) | .[] | "| \(.[0]) | \(length) |"' mobsfscan.json
+            else
+              echo "No se genero el informe."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Informe
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: mobsfscan-report
+          path: mobsfscan.*
+          if-no-files-found: ignore
+          retention-days: 14
+
+      # Solo los hallazgos de severidad ERROR bloquean; WARNING e INFO quedan en el informe.
+      - name: Hallazgos graves bloquean
+        run: |
+          errors=$(jq '[.results // {} | to_entries[] | select(.value.metadata.severity == "ERROR")] | length' mobsfscan.json)
+          echo "Hallazgos ERROR: $errors"
+          if [ "$errors" -gt 0 ]; then echo "::error::mobsfscan encontro $errors hallazgos de severidad ERROR"; exit 1; fi
+
+  dependencies:
+    name: "3 · Dependencias (Trivy) y SBOM"
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # Se genera app/gradle.lockfile con las versiones exactas que van dentro del APK de release.
+      - name: Resolver dependencias de release (gradle.lockfile)
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:dependencies --configuration releaseRuntimeClasspath --write-locks \
+            --init-script scripts/ci/dependency-locks.init.gradle --no-configuration-cache -q > /dev/null
+          echo "Dependencias bloqueadas: $(grep -c '=' app/gradle.lockfile)"
+
+      - name: Vulnerabilidades (HIGH y CRITICAL bloquean)
+        uses: aquasecurity/trivy-action@v0.35.0
+        with:
+          scan-type: fs
+          scan-ref: app/gradle.lockfile
+          severity: CRITICAL,HIGH
+          exit-code: '1'
+
+      - name: SBOM (Syft, SPDX)
+        if: always()
+        uses: anchore/sbom-action@v0
+        with:
+          path: app
+          format: spdx-json
+          artifact-name: sbom-petmate-app-${{ github.sha }}.spdx.json
+
+  # ------------- Etapa 4 · Pruebas -------------
+  test-matrix-check:
+    name: "4 · Cada prueba tiene su job"
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Revisar que todas las clases de prueba esten en la matriz
+        run: bash scripts/ci/check-test-matrix.sh
+
+  # Una prueba por funcionalidad: cada valor de la matriz es un job independiente, todos al mismo nivel.
+  # Al agregar una clase de prueba nueva hay que agregarla aqui (lo exige el job anterior).
+  feature-tests:
+    name: "4 · Prueba · ${{ matrix.feature }}"
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - feature: login-pantalla
+            tests: 'mx.petmate.app.ui.auth.LoginViewModelTest'
+          - feature: validacion-credenciales
+            tests: 'mx.petmate.app.domain.usecase.ValidateCredentialsUseCaseTest'
+          - feature: conexion-backend-auth-perfil
+            tests: 'mx.petmate.app.data.repository.AuthRepositoryImplTest'
+          - feature: sesion-y-modo-demo
+            tests: 'mx.petmate.app.data.repository.FakeAuthRepositoryTest'
+          - feature: reglas-mascota-y-carnet
+            tests: 'mx.petmate.app.domain.usecase.PetRulesTest'
+          - feature: conexion-backend-mascotas-carnet-qr
+            tests: 'mx.petmate.app.data.repository.PetRepositoryImplTest'
+          - feature: mascotas-de-ejemplo-demo
+            tests: 'mx.petmate.app.data.repository.SamplePetRepositoryTest'
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: "Pruebas de ${{ matrix.feature }}"
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest --tests "${{ matrix.tests }}"
+
+      - name: Resumen
+        if: always()
+        run: python3 scripts/ci/test-summary.py "Prueba ${{ matrix.feature }}" app/build/test-results/testDebugUnitTest
+
+      - name: Resultados (JUnit XML)
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: junit-${{ matrix.feature }}
+          path: app/build/test-results/testDebugUnitTest
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # ------------- Etapa 5 · Puerta de calidad -------------
+  quality-gate:
+    name: "5 · Puerta de calidad"
+    # always(): resume el resultado de todas las etapas aunque alguna haya fallado, y despues falla si alguna bloqueante no paso.
+    if: always()
+    needs:
+      - secrets-scan
+      - build
+      - sast
+      - mobile-sast
+      - dependencies
+      - test-matrix-check
+      - feature-tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Resumen etapa -> resultado
+        env:
+          R_SECRETS: ${{ needs.secrets-scan.result }}
+          R_BUILD: ${{ needs.build.result }}
+          R_SAST: ${{ needs.sast.result }}
+          R_MOBILE: ${{ needs.mobile-sast.result }}
+          R_DEPENDENCIES: ${{ needs.dependencies.result }}
+          R_MATRIX: ${{ needs.test-matrix-check.result }}
+          R_FEATURES: ${{ needs.feature-tests.result }}
+        run: |
+          failed=0
+          {
+            echo "### Puerta de calidad"
+            echo
+            echo "| Etapa | Resultado | Tipo |"
+            echo "|---|---|---|"
+          } >> "$GITHUB_STEP_SUMMARY"
+          row() { # etapa resultado tipo(bloqueante|informativa)
+            local icon
+            case "$2" in
+              success) icon="✅ correcto" ;;
+              skipped) icon="⏭️ omitida" ;;
+              cancelled) icon="🚫 cancelada" ;;
+              *) icon="❌ $2" ;;
+            esac
+            echo "| $1 | $icon | $3 |" >> "$GITHUB_STEP_SUMMARY"
+            if [ "$3" = "bloqueante" ] && [ "$2" != "success" ]; then failed=1; fi
+          }
+          row "1 · Secretos (gitleaks)" "$R_SECRETS" bloqueante
+          row "2 · Compilacion y Android Lint" "$R_BUILD" bloqueante
+          row "3 · SAST (CodeQL)" "$R_SAST" informativa
+          row "3 · SAST movil (mobsfscan)" "$R_MOBILE" bloqueante
+          row "3 · Dependencias (Trivy) y SBOM" "$R_DEPENDENCIES" bloqueante
+          row "4 · Cada prueba tiene su job" "$R_MATRIX" bloqueante
+          row "4 · Pruebas por funcionalidad (matriz)" "$R_FEATURES" bloqueante
+          if [ "$failed" -ne 0 ]; then
+            echo "::error::La puerta de calidad fallo: hay etapas bloqueantes sin resultado correcto."
+            echo >> "$GITHUB_STEP_SUMMARY"; echo "**Resultado: FALLO**" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          echo >> "$GITHUB_STEP_SUMMARY"; echo "**Resultado: correcto**" >> "$GITHUB_STEP_SUMMARY"
+
+  # ------------- Etapa 6 · APK y AAB de release -------------
+  release-build:
+    name: "6 · APK y AAB de release"
+    needs: quality-gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      signed: ${{ steps.signing.outputs.signed }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Version (versionName de app/build.gradle.kts)
+        id: version
+        run: |
+          V=$(grep -Eo 'versionName = "[^"]+"' app/build.gradle.kts | cut -d'"' -f2)
+          C=$(grep -Eo 'versionCode = [0-9]+' app/build.gradle.kts | grep -Eo '[0-9]+')
+          if ! echo "$V" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then echo "::error::versionName no es SemVer: $V"; exit 1; fi
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          echo "code=$C" >> "$GITHUB_OUTPUT"
+
+      - name: URL del backend
+        run: |
+          if [ -z "$BASE_URL_RELEASE" ]; then
+            echo "::error::Falta la variable del repositorio API_BASE_URL (URL del backend que termina en /api/v1/)."; exit 1
+          fi
+          case "$BASE_URL_RELEASE" in
+            https://*/api/v1/) echo "Backend: $BASE_URL_RELEASE" ;;
+            *) echo "::error::API_BASE_URL debe ser https y terminar en /api/v1/"; exit 1 ;;
+          esac
+
+      # La llave de subida sale de secretos del repositorio; nunca se versiona (constitution.md P6).
+      # Sin esos secretos el APK y el AAB salen sin firmar (sirven para revisar, no para Play).
+      - name: Llave de firma
+        id: signing
+        env:
+          KEYSTORE_B64: ${{ secrets.PETMATE_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.PETMATE_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.PETMATE_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.PETMATE_KEY_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ] && [ -n "$STORE_PASSWORD" ] && [ -n "$KEY_ALIAS" ] && [ -n "$KEY_PASSWORD" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+            {
+              echo "PETMATE_STORE_FILE=$RUNNER_TEMP/upload.jks"
+              echo "PETMATE_STORE_PASSWORD=$STORE_PASSWORD"
+              echo "PETMATE_KEY_ALIAS=$KEY_ALIAS"
+              echo "PETMATE_KEY_PASSWORD=$KEY_PASSWORD"
+            } >> "$GITHUB_ENV"
+            echo "signed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning title=Release sin firmar::No estan los secretos PETMATE_KEYSTORE_BASE64 / PETMATE_STORE_PASSWORD / PETMATE_KEY_ALIAS / PETMATE_KEY_PASSWORD. El APK y el AAB salen sin firmar."
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Construir APK y AAB de release (R8 + recursos reducidos)
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleRelease :app:bundleRelease
+
+      - name: Huellas SHA-256
+        run: |
+          mkdir -p dist
+          cp app/build/outputs/apk/release/*.apk dist/
+          cp app/build/outputs/bundle/release/*.aab dist/
+          (cd dist && sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt)
+
+      - name: Artefactos de release
+        uses: actions/upload-artifact@v5
+        with:
+          name: petmate-app-${{ steps.version.outputs.version }}
+          path: dist
+          retention-days: 30
+
+      - name: Resumen
+        run: |
+          {
+            echo "### PetMate app ${{ steps.version.outputs.version }} (versionCode ${{ steps.version.outputs.code }})"
+            echo "- Firmado: ${{ steps.signing.outputs.signed }}"
+            echo "- Backend: $BASE_URL_RELEASE"
+            echo '```'; cat dist/SHA256SUMS.txt; echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ------------- Etapa 7 · Entrega (solo push a main) -------------
+  deliver:
+    name: "7 · Entrega (Release y Google Play)"
+    needs: [quality-gate, release-build]
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/download-artifact@v5
+        with:
+          name: petmate-app-${{ needs.release-build.outputs.version }}
+          path: dist
+
+      # La etiqueta y el Release son publicos y dificiles de revertir: NUNCA se crean por el solo hecho de hacer merge a main.
+      # Solo cuando una persona lanza el flujo a mano y marca "create_release" (esa casilla es la autorizacion expresa).
+      - name: GitHub Release app-vX.Y.Z (solo con autorizacion expresa)
+        if: github.event_name == 'workflow_dispatch' && inputs.create_release == true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.release-build.outputs.version }}
+        run: |
+          TAG="app-v${VERSION}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "El Release ${TAG} ya existe; no se modifica."
+            exit 0
+          fi
+          gh release create "$TAG" dist/* --target "$GITHUB_SHA" --title "PetMate app ${VERSION}" \
+            --notes "APK y AAB generados por el pipeline CI/CD DevSecOps (run ${GITHUB_RUN_NUMBER})."
+
+      # Pista interna de Google Play: solo con el AAB firmado y la cuenta de servicio de Play configurada.
+      - name: Revisar si se puede subir a Google Play
+        id: play
+        env:
+          PLAY_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          SIGNED: ${{ needs.release-build.outputs.signed }}
+        run: |
+          if [ -n "$PLAY_JSON" ] && [ "$SIGNED" = "true" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice title=Google Play omitido::Para subir a la pista interna hacen falta el secreto PLAY_SERVICE_ACCOUNT_JSON y la llave de firma."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Subir a Google Play (pista interna)
+        if: steps.play.outputs.ready == 'true'
+        uses: r0adkll/upload-google-play@v1.1.3
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: mx.petmate.app
+          releaseFiles: dist/*.aab
+          track: internal
+          status: completed
+
+      - name: Resumen
+        run: |
+          {
+            echo "### Entrega de PetMate app ${{ needs.release-build.outputs.version }}"
+            echo "- Artefacto: petmate-app-${{ needs.release-build.outputs.version }} (APK, AAB y SHA256SUMS)"
+            echo "- GitHub Release: $([ '${{ inputs.create_release }}' = 'true' ] && echo creado || echo 'no solicitado')"
+            echo "- Google Play (interna): ${{ steps.play.outputs.ready }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ------------- Etapa 8 · Prueba de humo -------------
+  smoke-test:
+    name: "8 · Prueba de humo (APK y backend)"
+    needs: [release-build, deliver]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          name: petmate-app-${{ needs.release-build.outputs.version }}
+          path: dist
+
+      - name: El APK de release no es depurable y trae la version correcta
+        run: |
+          APKANALYZER="$ANDROID_HOME/cmdline-tools/latest/bin/apkanalyzer"
+          APK=$(ls dist/*.apk | head -n1)
+          DEBUGGABLE=$("$APKANALYZER" manifest debuggable "$APK")
+          VERSION=$("$APKANALYZER" manifest version-name "$APK")
+          echo "debuggable=$DEBUGGABLE version=$VERSION"
+          [ "$DEBUGGABLE" = "false" ] || { echo "::error::El APK de release es depurable"; exit 1; }
+          [ "$VERSION" = "${{ needs.release-build.outputs.version }}" ] || { echo "::error::versionName distinto"; exit 1; }
+
+      - name: El backend que usa la app responde
+        run: |
+          ROOT="${BASE_URL_RELEASE%/api/v1/}"
+          for i in $(seq 1 24); do
+            CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$ROOT/api/v1/health/ready" || true)
+            echo "health/ready: $CODE"; [ "$CODE" = "200" ] && exit 0; sleep 10
+          done
+          echo "::error::El backend no respondio. En modo ahorro puede tardar en despertar."; exit 1
+
+      - name: Resumen
+        if: always()
+        run: |
+          {
+            echo "### Prueba de humo"
+            echo "- APK de release no depurable con la version ${{ needs.release-build.outputs.version }}"
+            echo "- Backend: $BASE_URL_RELEASE"
+          } >> "$GITHUB_STEP_SUMMARY"
