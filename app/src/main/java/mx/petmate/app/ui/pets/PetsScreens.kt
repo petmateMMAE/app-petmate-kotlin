@@ -91,8 +91,7 @@ fun PetsScreen(
                 icon = R.drawable.ic_pm_paw,
                 title = stringResource(R.string.pets_empty_title),
                 text = stringResource(R.string.pets_empty_text),
-                iconBackground = MaterialTheme.petMateColors.sunSoft,
-                iconTint = MaterialTheme.petMateColors.sunInk,
+                photo = R.drawable.pets_empty_puppy,
                 action = {
                     PetMateButton(
                         text = stringResource(R.string.pets_add_first),
@@ -165,7 +164,7 @@ private fun PetCard(summary: PetSummary, onClick: () -> Unit) {
             .clickable(onClick = onClick)
             .padding(12.dp),
     ) {
-        PetAvatar(name = pet.name, species = pet.species, size = 76.dp)
+        PetAvatar(name = pet.name, species = pet.species, size = 76.dp, petId = pet.id)
         Column(modifier = Modifier.weight(1f)) {
             Text(pet.name, style = MaterialTheme.typography.headlineSmall.copy(fontSize = 22.sp))
             val parts = listOfNotNull(speciesLabel(pet.species), pet.breed, ageText(pet.birthDate))
@@ -285,9 +284,24 @@ fun PetFormScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 18.dp),
         ) {
-            // Foto: llega con la carga de imagenes del backend (pm-079); mientras, el retrato con la inicial.
+            // Foto: la carga de imagenes llega con pm-079; mientras, la foto por defecto de la especie elegida
+            // (o el recuadro punteado de la maqueta si aun no se elige).
             Box(modifier = Modifier.fillMaxWidth().padding(top = 2.dp, bottom = 16.dp), contentAlignment = Alignment.Center) {
-                PetAvatar(name = state.name, species = state.species ?: PetSpecies.Dog, size = 116.dp, radius = 34.dp)
+                val species = state.species
+                if (species != null) {
+                    PetAvatar(name = state.name, species = species, size = 116.dp, radius = 34.dp)
+                } else {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .size(116.dp)
+                            .clip(RoundedCornerShape(34.dp))
+                            .background(MaterialTheme.petMateColors.surface2)
+                            .border(3.dp, MaterialTheme.petMateColors.line, RoundedCornerShape(34.dp)),
+                    ) {
+                        Icon(painterResource(R.drawable.ic_pm_paw), contentDescription = null, tint = MaterialTheme.petMateColors.ink3, modifier = Modifier.size(40.dp))
+                    }
+                }
             }
             PetFieldLabel(stringResource(R.string.pet_form_species), required = true)
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
