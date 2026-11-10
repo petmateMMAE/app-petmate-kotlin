@@ -55,7 +55,7 @@ jobs:
         # Imagen oficial de codigo abierto (la accion gitleaks-action exige licencia de pago en organizaciones).
         run: |
           docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.18.4 detect \
-            --source /repo --redact --no-banner \
+            --source /repo --config /repo/.gitleaks.toml --redact --no-banner \
             --report-format sarif --report-path /repo/gitleaks.sarif
 
       - name: Informe SARIF
