@@ -50,6 +50,7 @@ internal object MapSampleData {
         ),
         MapBusiness(
             id = "b4",
+            photo = R.drawable.sample_business_b4,
             name = "Hospital Veterinario Tula",
             type = BusinessType.Vet,
             latitude = 19.459600,
@@ -62,6 +63,7 @@ internal object MapSampleData {
         ),
         MapBusiness(
             id = "b5",
+            photo = R.drawable.sample_business_b5,
             name = "Guau Spa",
             type = BusinessType.Spa,
             latitude = 19.438000,
@@ -74,6 +76,7 @@ internal object MapSampleData {
         ),
         MapBusiness(
             id = "b6",
+            photo = R.drawable.sample_business_b6,
             name = "Mundo Mascota",
             type = BusinessType.Shop,
             latitude = 19.461400,
@@ -86,6 +89,7 @@ internal object MapSampleData {
         ),
         MapBusiness(
             id = "b7",
+            photo = R.drawable.sample_business_b7,
             name = "Clínica Huellitas",
             type = BusinessType.Vet,
             latitude = 19.369600,

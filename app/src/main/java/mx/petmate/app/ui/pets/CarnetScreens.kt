@@ -111,6 +111,7 @@ fun CarnetScreen(
                     PetAvatar(
                         name = pet.name,
                         species = pet.species,
+                        petId = pet.id,
                         size = 120.dp,
                         radius = 34.dp,
                         modifier = Modifier.border(4.dp, Color.White, RoundedCornerShape(34.dp)),
@@ -336,6 +337,7 @@ fun QrScreen(
                 PetAvatar(
                     name = pet.name,
                     species = pet.species,
+                    petId = pet.id,
                     size = 62.dp,
                     radius = 18.dp,
                     modifier = Modifier.border(4.dp, Color.White, RoundedCornerShape(18.dp)),
