@@ -23,6 +23,8 @@ import mx.petmate.app.ui.pets.AllergiesScreen
 import mx.petmate.app.ui.pets.AllergyFormScreen
 import mx.petmate.app.ui.pets.CarnetScreen
 import mx.petmate.app.ui.pets.CarnetSection
+import mx.petmate.app.ui.pets.ConsultationDetailScreen
+import mx.petmate.app.ui.pets.PetHistoryScreen
 import mx.petmate.app.ui.pets.DewormFormScreen
 import mx.petmate.app.ui.pets.DewormScreen
 import mx.petmate.app.ui.pets.PetCarnetViewModel
@@ -303,11 +305,26 @@ private fun NavGraphBuilder.petsGraph(
                         CarnetSection.Weight -> Route.weight(petId)
                         CarnetSection.Allergies -> Route.allergies(petId)
                         CarnetSection.Qr -> Route.qr(petId)
+                        CarnetSection.History -> Route.history(petId)
                     },
                 )
             },
             onNeedAccount = onNeedAccount,
         )
+    }
+    composable(Route.HISTORY, arguments = petArg) { entry ->
+        val pets: PetCarnetViewModel = hiltViewModel(entry)
+        val petState by pets.uiState.collectAsStateWithLifecycle()
+        LaunchedEffect(Unit) { pets.refresh() }
+        PetHistoryScreen(
+            petId = pets.petId,
+            petName = petState.pet?.name.orEmpty(),
+            onBackClick = back,
+            onConsultationClick = { navController.navigate(Route.consultation(it)) },
+        )
+    }
+    composable(Route.CONSULTATION, arguments = listOf(navArgument(Route.ARG_CONSULTATION_ID) { type = NavType.StringType })) { entry ->
+        ConsultationDetailScreen(consultationId = entry.arguments?.getString(Route.ARG_CONSULTATION_ID).orEmpty(), onBackClick = back)
     }
     composable(Route.QR, arguments = petArg) { entry ->
         QrScreen(

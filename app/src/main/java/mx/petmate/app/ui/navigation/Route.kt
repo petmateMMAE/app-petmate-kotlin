@@ -49,6 +49,12 @@ object Route {
     const val BIZ_SERVICES = "biz_services"
     const val BIZ_SERVICE_FORM = "biz_service_form?$ARG_SERVICE_ID={$ARG_SERVICE_ID}"
 
+    const val ARG_CONSULTATION_ID = "consultationId"
+    const val HISTORY = "history/{$ARG_PET_ID}"
+    const val CONSULTATION = "consultation/{$ARG_CONSULTATION_ID}"
+    fun history(petId: String) = "history/$petId"
+    fun consultation(id: String) = "consultation/$id"
+
     fun bizProfile(businessId: String) = "biz_profile/$businessId"
     fun share(petId: String) = "share/$petId"
     fun serviceForm(serviceId: String? = null) = if (serviceId == null) "biz_service_form" else "biz_service_form?$ARG_SERVICE_ID=$serviceId"
