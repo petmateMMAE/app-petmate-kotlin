@@ -15,5 +15,6 @@ sealed interface SessionState {
      * sin registro ni tokens. No se guarda: al reabrir la app vuelve a la bienvenida.
      */
     data object Guest : SessionState
-    data class SignedIn(val user: User) : SessionState
+    /** [businessMode]: la cuenta tiene negocio y el usuario eligio "Ir a mi negocio". */
+    data class SignedIn(val user: User, val businessMode: Boolean = false) : SessionState
 }

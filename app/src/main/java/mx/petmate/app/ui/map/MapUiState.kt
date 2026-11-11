@@ -28,6 +28,8 @@ data class MapBusiness(
     val hasWhatsApp: Boolean,
     /** Foto provisional desde recursos; con el backend sera una URL. */
     @DrawableRes val photo: Int? = null,
+    /** Numero de WhatsApp si es distinto del telefono. */
+    val whatsApp: String? = null,
 ) {
     /**
      * Posicion sobre el mapa ilustrado de la maqueta (800 × 1000 dp).

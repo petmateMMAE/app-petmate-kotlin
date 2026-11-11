@@ -11,6 +11,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,6 +58,7 @@ internal fun OsmMap(
     modifier: Modifier = Modifier,
     centerLatitude: Double = OsmMapConfig.DEFAULT_LATITUDE,
     centerLongitude: Double = OsmMapConfig.DEFAULT_LONGITUDE,
+    handle: OsmMapHandle? = null,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -83,25 +86,38 @@ internal fun OsmMap(
         }
     }
 
+    val currentBusinesses by rememberUpdatedState(businesses)
+    val currentCenter by rememberUpdatedState(GeoPoint(centerLatitude, centerLongitude))
+    val currentShowUser by rememberUpdatedState(showUserLocation)
+
     /** Traduce cada negocio a su posicion actual en pantalla. */
     fun recomputePositions() {
         val projection = mapView.projection
-        screenPositions = businesses.associate { business ->
+        screenPositions = currentBusinesses.associate { business ->
             val point = projection.toPixels(
                 GeoPoint(business.latitude, business.longitude),
                 null,
             )
             business.id to Offset(point.x.toFloat(), point.y.toFloat())
         }
-        userPosition = if (showUserLocation) {
+        userPosition = if (currentShowUser) {
             val point = projection.toPixels(
-                GeoPoint(centerLatitude, centerLongitude),
+                currentCenter,
                 null,
             )
             Offset(point.x.toFloat(), point.y.toFloat())
         } else {
             null
         }
+    }
+
+    // Cuando llega la ubicacion real, el mapa se centra ahi.
+    LaunchedEffect(centerLatitude, centerLongitude) {
+        mapView.controller.animateTo(GeoPoint(centerLatitude, centerLongitude))
+    }
+    DisposableEffect(handle) {
+        handle?.view = mapView
+        onDispose { handle?.view = null }
     }
 
     DisposableEffect(lifecycleOwner) {
@@ -121,10 +137,9 @@ internal fun OsmMap(
 
     Box(modifier = modifier.fillMaxSize()) {
         AndroidView(
-            factory = { mapView },
-            modifier = Modifier.fillMaxSize(),
-            update = { view ->
-                view.addMapListener(
+            factory = {
+                // Un solo oyente: lee siempre los datos mas recientes con rememberUpdatedState.
+                mapView.addMapListener(
                     object : MapListener {
                         override fun onScroll(event: ScrollEvent?): Boolean {
                             recomputePositions()
@@ -137,8 +152,10 @@ internal fun OsmMap(
                         }
                     },
                 )
-                view.post { recomputePositions() }
+                mapView
             },
+            modifier = Modifier.fillMaxSize(),
+            update = { view -> view.post { recomputePositions() } },
         )
 
         MapOverlays(
@@ -150,6 +167,26 @@ internal fun OsmMap(
         )
 
         OsmAttribution(modifier = Modifier.align(Alignment.BottomEnd))
+    }
+}
+
+/** Control del mapa desde fuera (botones de zoom y "mi ubicacion"). */
+class OsmMapHandle {
+    internal var view: MapView? = null
+
+    fun zoomIn() {
+        view?.controller?.zoomIn()
+    }
+
+    fun zoomOut() {
+        view?.controller?.zoomOut()
+    }
+
+    /** Punto que esta al centro de la pantalla (donde queda el pin al afiliar). */
+    fun center(): Pair<Double, Double>? = view?.mapCenter?.let { it.latitude to it.longitude }
+
+    fun centerOn(latitude: Double, longitude: Double) {
+        view?.controller?.animateTo(GeoPoint(latitude, longitude))
     }
 }
 

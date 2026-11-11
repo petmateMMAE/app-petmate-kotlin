@@ -70,9 +70,17 @@ data class UserDto(
     val email: String,
     val role: String = ROLE_OWNER,
     val displayName: String? = null,
+    /** pm-087: tipo del negocio afiliado de la cuenta o null. */
+    val business: BusinessSummaryDto? = null,
 ) {
     companion object {
         const val ROLE_OWNER = "Owner"
         const val ROLE_BUSINESS = "Business"
     }
 }
+
+/** `user.business` de la sesion (pm-087). */
+@Serializable
+data class BusinessSummaryDto(
+    val type: String,
+)

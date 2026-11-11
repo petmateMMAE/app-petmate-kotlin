@@ -47,4 +47,16 @@ interface AuthRepository {
 
     /** La sesion ya no es valida (ni el refresh token sirvio): se borra lo local y se vuelve al login. */
     fun expireSession()
+
+    /**
+     * Renueva la sesion para leer de nuevo los datos que calcula el servidor, como el tipo de negocio
+     * (pm-087: no cambia en un access token ya emitido; se lee al renovar).
+     */
+    suspend fun refreshSession(): AppResult<User>
+
+    /** Para una cuenta con negocio: "Ir a mi negocio" (true) o "Ir a mis mascotas" (false). Se recuerda. */
+    fun setBusinessMode(enabled: Boolean)
+
+    /** true si la cuenta tiene negocio y el usuario eligio verlo. */
+    fun isBusinessMode(): Boolean
 }

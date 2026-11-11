@@ -44,6 +44,9 @@ import mx.petmate.app.ui.home.HomeScreen
 import mx.petmate.app.ui.home.LegalScreen
 import mx.petmate.app.ui.home.ProfileActions
 import mx.petmate.app.ui.map.MapScreen
+import mx.petmate.app.ui.business.AffiliateScreen
+import mx.petmate.app.ui.business.BizProfileScreen
+import mx.petmate.app.ui.business.ShareScreen
 import mx.petmate.app.ui.splash.SplashScreen
 
 /**
@@ -86,7 +89,12 @@ fun PetMateNavHost(
             modifier = modifier,
         )
 
-        is SessionState.SignedIn -> MainGraph(user = state.user, onLeaveDemo = {}, modifier = modifier)
+        // Con negocio y en modo negocio se ve el grafo del vendedor (panel, escanear, atendidas).
+        is SessionState.SignedIn -> if (state.businessMode) {
+            BusinessGraph(user = state.user, onSwitchToOwner = { viewModel.setBusinessMode(false) }, modifier = modifier)
+        } else {
+            MainGraph(user = state.user, onLeaveDemo = {}, onSwitchToBusiness = { viewModel.setBusinessMode(true) }, modifier = modifier)
+        }
     }
 }
 
@@ -166,6 +174,7 @@ private fun MainGraph(
     user: User?,
     onLeaveDemo: (authRoute: String) -> Unit,
     modifier: Modifier = Modifier,
+    onSwitchToBusiness: () -> Unit = {},
 ) {
     val isGuest = user == null
     val navController = rememberNavController()
@@ -184,15 +193,14 @@ private fun MainGraph(
                     DemoStrip(onCreateAccountClick = createAccount)
                     MapScreen(
                         onTabSelected = { navController.openTab(it) },
-                        onBusinessDetailsClick = {},
+                        onBusinessDetailsClick = { createAccount() },
                         modifier = Modifier.weight(1f),
                     )
                 }
             } else {
                 MapScreen(
                     onTabSelected = { navController.openTab(it) },
-                    // La ficha del negocio llega con la spec 013.
-                    onBusinessDetailsClick = {},
+                    onBusinessDetailsClick = { navController.navigate(Route.bizProfile(it)) },
                 )
             }
         }
@@ -209,6 +217,8 @@ private fun MainGraph(
                     onExitDemoClick = { onLeaveDemo(Route.WELCOME) },
                     onPrivacyClick = { navController.navigate(Route.LEGAL) },
                     onDeleteAccountClick = { navController.navigate(Route.DELETE_ACCOUNT) },
+                    onAffiliateClick = { if (isGuest) createAccount() else navController.navigate(Route.AFFILIATE) },
+                    onSwitchModeClick = onSwitchToBusiness,
                 ),
             )
         }
@@ -224,6 +234,19 @@ private fun MainGraph(
         }
 
         petsGraph(navController = navController, user = user, isGuest = isGuest, onNeedAccount = createAccount)
+
+        composable(Route.AFFILIATE) {
+            AffiliateScreen(viewModel = hiltViewModel(), onBackClick = { navController.popBackStack() })
+        }
+        composable(Route.BIZ_PROFILE, arguments = listOf(navArgument(Route.ARG_BUSINESS_ID) { type = NavType.StringType })) {
+            BizProfileScreen(viewModel = hiltViewModel(), onBackClick = { navController.popBackStack() })
+        }
+        composable(Route.SHARE, arguments = listOf(navArgument(Route.ARG_PET_ID) { type = NavType.StringType })) { entry ->
+            val pets: PetCarnetViewModel = hiltViewModel(entry)
+            val petState by pets.uiState.collectAsStateWithLifecycle()
+            LaunchedEffect(Unit) { pets.refresh() }
+            ShareScreen(viewModel = hiltViewModel(entry), petName = petState.pet?.name.orEmpty(), onBackClick = { navController.popBackStack() })
+        }
     }
 }
 
@@ -287,7 +310,13 @@ private fun NavGraphBuilder.petsGraph(
         )
     }
     composable(Route.QR, arguments = petArg) { entry ->
-        QrScreen(hiltViewModel(entry), isGuest, onBackClick = back, onNeedAccount = onNeedAccount)
+        QrScreen(
+            hiltViewModel(entry),
+            isGuest,
+            onBackClick = back,
+            onNeedAccount = onNeedAccount,
+            onShareClick = { entry.arguments?.getString(Route.ARG_PET_ID)?.let { navController.navigate(Route.share(it)) } },
+        )
     }
     composable(Route.VACCINES, arguments = petArg) { entry ->
         val viewModel: PetCarnetViewModel = hiltViewModel(entry)

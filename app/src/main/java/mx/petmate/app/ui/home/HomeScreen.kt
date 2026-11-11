@@ -68,6 +68,8 @@ data class ProfileActions(
     val onPrivacyClick: () -> Unit = {},
     val onAffiliateClick: () -> Unit = {},
     val onDeleteAccountClick: () -> Unit = {},
+    /** Cambia entre el modo dueno y el modo negocio (solo cuentas con negocio). */
+    val onSwitchModeClick: () -> Unit = {},
 )
 
 /**
@@ -87,6 +89,8 @@ fun HomeScreen(
     isAffiliate: Boolean,
     actions: ProfileActions,
     modifier: Modifier = Modifier,
+    businessMode: Boolean = false,
+    bottomBar: (@Composable () -> Unit)? = null,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -101,6 +105,8 @@ fun HomeScreen(
         actions = actions,
         onConfirmLogout = viewModel::onLogoutClicked,
         modifier = modifier,
+        businessMode = businessMode,
+        bottomBar = bottomBar,
     )
 }
 
@@ -114,6 +120,8 @@ private fun ProfileContent(
     actions: ProfileActions,
     onConfirmLogout: () -> Unit,
     modifier: Modifier = Modifier,
+    businessMode: Boolean = false,
+    bottomBar: (@Composable () -> Unit)? = null,
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
 
@@ -143,8 +151,10 @@ private fun ProfileContent(
                 DemoCard(onCreateAccountClick = actions.onCreateAccountClick, onLoginClick = actions.onLoginClick)
             } else {
                 UserCard(name = name, email = email)
-                if (!isAffiliate) {
-                    Spacer(Modifier.height(14.dp))
+                Spacer(Modifier.height(14.dp))
+                if (isAffiliate) {
+                    ModeSwitchCard(businessMode = businessMode, onClick = actions.onSwitchModeClick)
+                } else {
                     AffiliateCard(onClick = actions.onAffiliateClick)
                 }
             }
@@ -207,7 +217,7 @@ private fun ProfileContent(
             )
         }
 
-        PetMateBottomBar(selected = OwnerTab.Profile, onTabSelected = actions.onTabSelected)
+        if (bottomBar != null) bottomBar() else PetMateBottomBar(selected = OwnerTab.Profile, onTabSelected = actions.onTabSelected)
     }
 
     if (showLogoutDialog) {
@@ -315,6 +325,48 @@ private fun UserCard(name: String, email: String) {
                     overflow = TextOverflow.Ellipsis,
                 )
             }
+        }
+    }
+}
+
+/** .scan-big morada: cambiar entre mis mascotas y mi negocio. */
+@Composable fun ModeSwitchCard(businessMode: Boolean, onClick: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    val shape = RoundedCornerShape(28.dp)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(8.dp, shape)
+            .background(colors.primary, shape)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 18.dp, vertical = 22.dp),
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.size(68.dp).background(colors.onPrimary, RoundedCornerShape(20.dp)),
+        ) {
+            Icon(
+                painterResource(if (businessMode) R.drawable.ic_pm_paw else R.drawable.ic_pm_store),
+                contentDescription = null,
+                tint = colors.primary,
+                modifier = Modifier.size(32.dp),
+            )
+        }
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = if (businessMode) "Ir a mis mascotas" else "Ir a mi negocio",
+                style = MaterialTheme.typography.headlineSmall.copy(fontSize = 20.sp, lineHeight = 24.sp),
+                color = colors.onPrimary,
+            )
+            Text(
+                text = if (businessMode) "Ver el carnet de tus mascotas" else "Escanear QR y ver tu panel",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = colors.onPrimary,
+                modifier = Modifier.alpha(0.85f),
+            )
         }
     }
 }

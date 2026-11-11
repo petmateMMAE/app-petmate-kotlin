@@ -14,5 +14,6 @@ fun UserDto.toDomain(localName: String? = null): User = User(
     id = id,
     name = localName?.takeIf { it.isNotBlank() } ?: email.substringBefore('@'),
     email = email,
-    isAffiliate = role == UserDto.ROLE_BUSINESS,
+    isAffiliate = business != null || role == UserDto.ROLE_BUSINESS,
+    businessType = business?.type,
 )

@@ -33,6 +33,26 @@ object Route {
     const val ALLERGIES = "allergies/{$ARG_PET_ID}"
     const val ALLERGY_FORM = "allergy_form/{$ARG_PET_ID}?$ARG_ALLERGY_ID={$ARG_ALLERGY_ID}"
 
+    // ---------- Negocios (specs 010 a 013; backend 0.4.0) ----------
+    const val ARG_BUSINESS_ID = "businessId"
+    const val ARG_SERVICE_ID = "serviceId"
+
+    const val AFFILIATE = "affiliate"
+    const val BIZ_PROFILE = "biz_profile/{$ARG_BUSINESS_ID}"
+    const val SHARE = "share/{$ARG_PET_ID}"
+    const val BIZ_PANEL = "biz_panel"
+    const val BIZ_SCANNER = "biz_scanner"
+    const val BIZ_ATTENDED = "biz_attended"
+    const val BIZ_PROFILE_TAB = "biz_profile_tab"
+    const val BIZ_EDIT = "biz_edit"
+    const val BIZ_LOCATION = "biz_location"
+    const val BIZ_SERVICES = "biz_services"
+    const val BIZ_SERVICE_FORM = "biz_service_form?$ARG_SERVICE_ID={$ARG_SERVICE_ID}"
+
+    fun bizProfile(businessId: String) = "biz_profile/$businessId"
+    fun share(petId: String) = "share/$petId"
+    fun serviceForm(serviceId: String? = null) = if (serviceId == null) "biz_service_form" else "biz_service_form?$ARG_SERVICE_ID=$serviceId"
+
     fun petForm(petId: String? = null) = if (petId == null) "pet_form" else "pet_form?$ARG_PET_ID=$petId"
     fun carnet(petId: String) = "carnet/$petId"
     fun qr(petId: String) = "qr/$petId"
