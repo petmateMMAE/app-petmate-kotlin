@@ -293,6 +293,7 @@ fun QrScreen(
     onBackClick: () -> Unit,
     onNeedAccount: () -> Unit,
     modifier: Modifier = Modifier,
+    onShareClick: () -> Unit = {},
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) {
@@ -353,6 +354,13 @@ fun QrScreen(
                 PetMateBadge(stringResource(R.string.qr_brightness), extra.sunSoft, extra.sunInk, icon = R.drawable.ic_pm_info)
                 PetMateBadge(stringResource(R.string.qr_only_yours), extra.okSoft, extra.ok, icon = R.drawable.ic_pm_shield)
             }
+            // Compartir historial (pm-123): el dueno decide con quien, que y por cuanto tiempo.
+            PetMateButton(
+                text = "Compartir historial",
+                onClick = { if (isGuest) onNeedAccount() else onShareClick() },
+                icon = R.drawable.ic_pm_shield,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+            )
             PetMateButton(
                 text = stringResource(R.string.qr_regenerate),
                 onClick = { if (isGuest) onNeedAccount() else confirm = true },

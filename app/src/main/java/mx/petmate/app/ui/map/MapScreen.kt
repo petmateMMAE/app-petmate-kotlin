@@ -27,6 +27,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -72,27 +78,36 @@ fun MapScreen(
     onTabSelected: (OwnerTab) -> Unit,
     onBusinessDetailsClick: (String) -> Unit,
     modifier: Modifier = Modifier,
+    viewModel: MapViewModel = hiltViewModel(),
 ) {
-    // TODO(spec 010): sustituir los datos de ejemplo por MapViewModel
-    //  (hiltViewModel + collectAsStateWithLifecycle) y conectar sus eventos.
+    val uiState by viewModel.state.collectAsStateWithLifecycle()
+    val center by viewModel.center.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val handle = remember { OsmMapHandle() }
+    val requestLocation = rememberLocationRequest { lat, lng -> viewModel.onLocation(lat, lng) }
+    LaunchedEffect(Unit) { requestLocation(false) }
+
     MapContent(
-        uiState = MapSampleData.state,
-        onQueryChange = {},
-        onTypeToggle = {},
-        onBusinessClick = {},
-        onDismissBusiness = {},
-        onCallClick = {},
-        onWhatsAppClick = {},
-        onDirectionsClick = {},
+        uiState = uiState,
+        onQueryChange = viewModel::onQueryChange,
+        onTypeToggle = viewModel::onTypeToggle,
+        onBusinessClick = viewModel::onBusinessClick,
+        onDismissBusiness = viewModel::onDismissBusiness,
+        onCallClick = { context.dial(it.phone) },
+        onWhatsAppClick = { context.openWhatsApp(it.whatsApp ?: it.phone) },
+        onDirectionsClick = { context.openDirections(it.latitude, it.longitude, it.name) },
         onBusinessDetailsClick = onBusinessDetailsClick,
-        onZoomInClick = {},
-        onZoomOutClick = {},
-        onMyLocationClick = {},
-        onEnableLocationClick = {},
-        onHelpClick = {},
-        onRetryClick = {},
+        onZoomInClick = handle::zoomIn,
+        onZoomOutClick = handle::zoomOut,
+        onMyLocationClick = { handle.centerOn(center.first, center.second) },
+        onEnableLocationClick = { requestLocation(true) },
+        onHelpClick = viewModel::onHelpClick,
+        onRetryClick = viewModel::retry,
         onTabSelected = onTabSelected,
         modifier = modifier,
+        centerLatitude = center.first,
+        centerLongitude = center.second,
+        mapHandle = handle,
     )
 }
 
@@ -117,6 +132,9 @@ private fun MapContent(
     modifier: Modifier = Modifier,
     /** true solo en las previsualizaciones, que no pueden cargar el mapa real. */
     useIllustratedMap: Boolean = false,
+    centerLatitude: Double = OsmMapConfig.DEFAULT_LATITUDE,
+    centerLongitude: Double = OsmMapConfig.DEFAULT_LONGITUDE,
+    mapHandle: OsmMapHandle? = null,
 ) {
     Column(
         modifier = modifier
@@ -146,6 +164,9 @@ private fun MapContent(
                     selectedBusinessId = uiState.selectedBusiness?.id,
                     showUserLocation = uiState.isLocationAvailable,
                     onBusinessClick = onBusinessClick,
+                    centerLatitude = centerLatitude,
+                    centerLongitude = centerLongitude,
+                    handle = mapHandle,
                 )
             }
 
@@ -630,11 +651,12 @@ private fun OpenStatus(business: MapBusiness) {
     val status = stringResource(if (business.isOpen) R.string.map_open_now else R.string.map_closed)
     val time = business.scheduleTime
     val schedule = when {
+        time == null && !business.isOpen -> null
         time == null -> stringResource(R.string.map_open_24h)
         business.isOpen -> stringResource(R.string.map_closes_at, time)
         else -> stringResource(R.string.map_opens_tomorrow_at, time)
     }
-    val scheduleText = stringResource(R.string.map_schedule_separator, schedule)
+    val scheduleText = schedule?.let { stringResource(R.string.map_schedule_separator, it) }.orEmpty()
     Text(
         text = buildAnnotatedString {
             withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = if (business.isOpen) extra.ok else extra.alert)) {

@@ -309,6 +309,10 @@ jobs:
             tests: 'mx.petmate.app.data.repository.PetRepositoryImplTest'
           - feature: mascotas-de-ejemplo-demo
             tests: 'mx.petmate.app.data.repository.SamplePetRepositoryTest'
+          - feature: conexion-backend-negocios-mapa-escaneo
+            tests: 'mx.petmate.app.data.repository.BusinessRepositoryImplTest'
+          - feature: formulario-negocio
+            tests: 'mx.petmate.app.ui.business.BusinessFormTest'
     steps:
       - uses: actions/checkout@v5
 

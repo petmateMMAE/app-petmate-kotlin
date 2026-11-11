@@ -140,6 +140,8 @@ dependencies {
 
     // Dibuja el QR de cada mascota (spec 009). Solo el codificador, sin camara.
     implementation(libs.zxing.core)
+    // Lector de QR con la camara del negocio (spec 012); trae su propia pantalla de captura.
+    implementation(libs.zxing.android.embedded)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

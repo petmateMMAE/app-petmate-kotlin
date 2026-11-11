@@ -48,6 +48,7 @@ class SessionStore @Inject constructor(
             ?.putString(KEY_NAME, user.name)
             ?.putString(KEY_EMAIL, user.email)
             ?.putBoolean(KEY_AFFILIATE, user.isAffiliate)
+            ?.putString(KEY_BUSINESS_TYPE, user.businessType)
             ?.putString(KEY_ACCESS_TOKEN, accessToken)
             ?.putString(KEY_REFRESH_TOKEN, refreshToken)
             ?.apply()
@@ -63,6 +64,7 @@ class SessionStore @Inject constructor(
             name = store.getString(KEY_NAME, "").orEmpty(),
             email = store.getString(KEY_EMAIL, "").orEmpty(),
             isAffiliate = store.getBoolean(KEY_AFFILIATE, false),
+            businessType = store.getString(KEY_BUSINESS_TYPE, null),
         )
     }
 
@@ -73,6 +75,7 @@ class SessionStore @Inject constructor(
             ?.putString(KEY_NAME, user.name)
             ?.putString(KEY_EMAIL, user.email)
             ?.putBoolean(KEY_AFFILIATE, user.isAffiliate)
+            ?.putString(KEY_BUSINESS_TYPE, user.businessType)
             ?.apply()
     }
 
@@ -107,6 +110,23 @@ class SessionStore @Inject constructor(
         return if (known == email.trim().lowercase()) store.getString(KEY_KNOWN_NAME, null) else null
     }
 
+    /**
+     * Copia local del negocio propio (JSON). El backend no tiene "ver mi negocio": se guarda al afiliarlo o editarlo
+     * para llenar el panel y el formulario de edicion.
+     */
+    fun saveBusinessJson(json: String?) {
+        prefs?.edit()?.putString(KEY_BUSINESS_JSON, json)?.apply()
+    }
+
+    fun readBusinessJson(): String? = prefs?.getString(KEY_BUSINESS_JSON, null)
+
+    /** Modo de la app para una cuenta con negocio: "owner" (mis mascotas) o "business" (mi negocio). */
+    fun saveMode(mode: String) {
+        prefs?.edit()?.putString(KEY_MODE, mode)?.apply()
+    }
+
+    fun readMode(): String? = prefs?.getString(KEY_MODE, null)
+
     /** Borra todo rastro de la sesion (tokens y usuario). Se llama siempre al cerrar sesion. */
     fun clear() {
         prefs?.edit()
@@ -114,6 +134,9 @@ class SessionStore @Inject constructor(
             ?.remove(KEY_NAME)
             ?.remove(KEY_EMAIL)
             ?.remove(KEY_AFFILIATE)
+            ?.remove(KEY_BUSINESS_TYPE)
+            ?.remove(KEY_BUSINESS_JSON)
+            ?.remove(KEY_MODE)
             ?.remove(KEY_ACCESS_TOKEN)
             ?.remove(KEY_REFRESH_TOKEN)
             ?.apply()
@@ -130,5 +153,8 @@ class SessionStore @Inject constructor(
         const val KEY_REFRESH_TOKEN = "refresh_token"
         const val KEY_KNOWN_EMAIL = "known_email"
         const val KEY_KNOWN_NAME = "known_name"
+        const val KEY_BUSINESS_TYPE = "business_type"
+        const val KEY_BUSINESS_JSON = "business_json"
+        const val KEY_MODE = "mode"
     }
 }

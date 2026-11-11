@@ -102,6 +102,20 @@ class FakeAuthRepository @Inject constructor(
         state.value = SessionState.SignedOut
     }
 
+    override suspend fun refreshSession(): AppResult<User> = withContext(dispatchers.io) {
+        val user = sessionStore.readUser() ?: return@withContext AppResult.Failure(AppError.Unauthorized)
+        state.value = SessionState.SignedIn(user, businessMode = isBusinessMode())
+        AppResult.Success(user)
+    }
+
+    override fun setBusinessMode(enabled: Boolean) {
+        sessionStore.saveMode(if (enabled) "business" else "owner")
+        sessionStore.readUser()?.let { state.value = SessionState.SignedIn(it, businessMode = isBusinessMode()) }
+    }
+
+    override fun isBusinessMode(): Boolean =
+        sessionStore.readUser()?.businessType != null && sessionStore.readMode() == "business"
+
     override suspend fun loadProfile(): AppResult<UserProfile> = withContext(dispatchers.io) {
         val user = sessionStore.readUser() ?: return@withContext AppResult.Failure(AppError.Unauthorized)
         AppResult.Success(user.toProfile())

@@ -38,6 +38,9 @@ class SessionViewModel @Inject constructor(
 
     fun exitGuestMode() = repository.exitGuestMode()
 
+    /** Cambia entre "mis mascotas" y "mi negocio" (solo cuentas con negocio). */
+    fun setBusinessMode(enabled: Boolean) = repository.setBusinessMode(enabled)
+
     private companion object {
         const val STOP_TIMEOUT_MS = 5_000L
     }

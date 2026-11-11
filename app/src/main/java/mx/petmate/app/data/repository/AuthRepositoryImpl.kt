@@ -50,7 +50,7 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun restoreSession() = withContext(dispatchers.io) {
         val saved = sessionStore.readUser()
-        state.value = if (saved != null) SessionState.SignedIn(saved) else SessionState.SignedOut
+        state.value = if (saved != null) signedIn(saved) else SessionState.SignedOut
     }
 
     override suspend fun register(data: RegisterData): AppResult<User> =
@@ -107,6 +107,31 @@ class AuthRepositoryImpl @Inject constructor(
 
     override fun expireSession() = endSession()
 
+    override suspend fun refreshSession(): AppResult<User> = withContext(dispatchers.io) {
+        val refresh = sessionStore.readRefreshToken()
+        if (refresh.isNullOrBlank()) {
+            endSession()
+            return@withContext AppResult.Failure(AppError.Unauthorized)
+        }
+        runCatching { requireData(api.refresh(RefreshRequestDto(refresh)).data) }.fold(
+            onSuccess = { auth -> signIn(auth, localName = auth.user.displayName ?: sessionStore.readUser()?.name) },
+            onFailure = {
+                val error = it.toAppError()
+                if (error == AppError.Unauthorized) endSession()
+                AppResult.Failure(error)
+            },
+        )
+    }
+
+    override fun setBusinessMode(enabled: Boolean) {
+        sessionStore.saveMode(if (enabled) MODE_BUSINESS else MODE_OWNER)
+        // Se vuelve a emitir el usuario para que la navegacion cambie de grafo.
+        sessionStore.readUser()?.let { state.value = signedIn(it) }
+    }
+
+    override fun isBusinessMode(): Boolean =
+        sessionStore.readUser()?.businessType != null && sessionStore.readMode() == MODE_BUSINESS
+
     override suspend fun loadProfile(): AppResult<UserProfile> = withContext(dispatchers.io) {
         authorized { access -> api.getProfile(bearer(access)).data }
     }
@@ -155,7 +180,7 @@ class AuthRepositoryImpl @Inject constructor(
         if (current != null && current.name != name) {
             val updated = current.copy(name = name)
             sessionStore.saveUser(updated)
-            state.value = SessionState.SignedIn(updated)
+            state.value = signedIn(updated)
         }
         return UserProfile(
             id = dto.id,
@@ -187,7 +212,7 @@ class AuthRepositoryImpl @Inject constructor(
     private fun signIn(data: AuthDataDto, localName: String?): AppResult<User> {
         val user = data.user.toDomain(localName)
         sessionStore.save(user, data.accessToken, data.refreshToken)
-        state.value = SessionState.SignedIn(user)
+        state.value = signedIn(user)
         return AppResult.Success(user)
     }
 
@@ -204,7 +229,12 @@ class AuthRepositoryImpl @Inject constructor(
 
     private fun bearer(token: String) = "Bearer $token"
 
+    private fun signedIn(user: User) =
+        SessionState.SignedIn(user, businessMode = user.businessType != null && sessionStore.readMode() == MODE_BUSINESS)
+
     private companion object {
         const val TAG = "AuthRepository"
+        const val MODE_BUSINESS = "business"
+        const val MODE_OWNER = "owner"
     }
 }
