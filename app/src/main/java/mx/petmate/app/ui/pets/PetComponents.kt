@@ -2,6 +2,7 @@ package mx.petmate.app.ui.pets
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -39,10 +41,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -58,6 +62,7 @@ import com.google.zxing.qrcode.QRCodeWriter
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import mx.petmate.app.R
 import mx.petmate.app.core.ui.UiText
+import mx.petmate.app.data.repository.SamplePetRepository
 import mx.petmate.app.domain.model.PetSpecies
 import mx.petmate.app.domain.usecase.PetDates
 import mx.petmate.app.ui.components.PetMateIconButton
@@ -122,33 +127,34 @@ fun PetScaffoldColumn(
     }
 }
 
-/** Retrato de la mascota: aun no hay fotos (pm-079), asi que se usa su inicial sobre el color de su especie. */
+/**
+ * Foto de la mascota, como petArt() de la maqueta. El backend aun no guarda fotos (pm-079), asi que se usan
+ * las imagenes de la maqueta: las mascotas de ejemplo tienen la suya y las demas la foto por defecto de su especie.
+ */
+@DrawableRes
+fun petPhoto(species: PetSpecies, petId: String? = null): Int = when (petId) {
+    SamplePetRepository.FIRULAIS_ID -> R.drawable.splash_firulais
+    SamplePetRepository.MICHI_ID -> R.drawable.splash_michi
+    else -> if (species == PetSpecies.Cat) R.drawable.pet_default_cat else R.drawable.pet_default_dog
+}
+
 @Composable
-fun PetAvatar(name: String, species: PetSpecies, size: Dp, modifier: Modifier = Modifier, radius: Dp = 20.dp) {
-    val extra = MaterialTheme.petMateColors
-    val (bg, fg) = when (species) {
-        PetSpecies.Dog -> extra.sunSoft to extra.sunInk
-        PetSpecies.Cat -> extra.spaSoft to extra.spa
-    }
-    Box(
-        contentAlignment = Alignment.Center,
+fun PetAvatar(
+    name: String,
+    species: PetSpecies,
+    size: Dp,
+    modifier: Modifier = Modifier,
+    radius: Dp = 20.dp,
+    petId: String? = null,
+) {
+    Image(
+        painter = painterResource(petPhoto(species, petId)),
+        contentDescription = name.ifBlank { null },
+        contentScale = ContentScale.Crop,
         modifier = modifier
             .size(size)
-            .clip(RoundedCornerShape(radius))
-            .background(bg),
-    ) {
-        Icon(
-            painterResource(R.drawable.ic_pm_paw),
-            contentDescription = null,
-            tint = fg.copy(alpha = 0.18f),
-            modifier = Modifier.size(size * 0.8f),
-        )
-        Text(
-            text = name.trim().take(1).uppercase().ifEmpty { "?" },
-            style = MaterialTheme.typography.headlineSmall.copy(fontSize = (size.value * 0.42f).sp, fontWeight = FontWeight.ExtraBold),
-            color = fg,
-        )
-    }
+            .clip(RoundedCornerShape(radius)),
+    )
 }
 
 /** Fondo del encabezado del carnet segun la especie (.hero). */
@@ -167,6 +173,7 @@ fun PetEmptyState(
     modifier: Modifier = Modifier,
     iconBackground: Color = MaterialTheme.petMateColors.brandSoft,
     iconTint: Color = MaterialTheme.colorScheme.primary,
+    @DrawableRes photo: Int? = null,
     action: @Composable () -> Unit = {},
 ) {
     Column(
@@ -175,11 +182,38 @@ fun PetEmptyState(
             .fillMaxWidth()
             .padding(start = 8.dp, end = 8.dp, top = 26.dp, bottom = 8.dp),
     ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.size(84.dp).background(iconBackground, RoundedCornerShape(26.dp)),
-        ) {
-            Icon(painterResource(icon), contentDescription = null, tint = iconTint, modifier = Modifier.size(40.dp))
+        if (photo != null) {
+            // petsEmpty de la maqueta: foto redonda de 176 con el "+" amarillo.
+            Box(modifier = Modifier.size(176.dp)) {
+                Image(
+                    painter = painterResource(photo),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(176.dp)
+                        .shadow(14.dp, CircleShape)
+                        .clip(CircleShape),
+                )
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(end = 4.dp, bottom = 8.dp)
+                        .size(52.dp)
+                        .background(MaterialTheme.colorScheme.background, RoundedCornerShape(18.dp))
+                        .padding(4.dp)
+                        .background(MaterialTheme.petMateColors.sun, RoundedCornerShape(14.dp)),
+                ) {
+                    Icon(painterResource(R.drawable.ic_pm_plus), contentDescription = null, tint = MaterialTheme.petMateColors.onSun, modifier = Modifier.size(26.dp))
+                }
+            }
+        } else {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.size(84.dp).background(iconBackground, RoundedCornerShape(26.dp)),
+            ) {
+                Icon(painterResource(icon), contentDescription = null, tint = iconTint, modifier = Modifier.size(40.dp))
+            }
         }
         Text(
             text = title,

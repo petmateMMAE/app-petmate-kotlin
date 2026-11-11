@@ -156,8 +156,8 @@ class SamplePetRepository : PetRepository {
     )
 
     private fun seed() {
-        val michi = Pet("ejemplo-michi", "Michi", PetSpecies.Cat, "Siamés", "2022-03-14", PetSex.Female)
-        val firulais = Pet("ejemplo-firulais", "Firulais", PetSpecies.Dog, "Beagle", "2020-05-01", PetSex.Male)
+        val michi = Pet(MICHI_ID, "Michi", PetSpecies.Cat, "Siamés", "2022-03-14", PetSex.Female)
+        val firulais = Pet(FIRULAIS_ID, "Firulais", PetSpecies.Dog, "Beagle", "2020-05-01", PetSex.Male)
         pets[michi.id] = michi
         pets[firulais.id] = firulais
         qrs[firulais.id] = PetQr(firulais.id, "ejemplo-token-firulais-no-funciona-en-negocios", "PM7K3QXA")
@@ -186,8 +186,12 @@ class SamplePetRepository : PetRepository {
         )
     }
 
-    private companion object {
+    companion object {
+        /** Ids de las mascotas de ejemplo: la interfaz les pone su foto de la maqueta. */
+        const val FIRULAIS_ID = "ejemplo-firulais"
+        const val MICHI_ID = "ejemplo-michi"
+
         /** Sin simbolos ambiguos (0/O, 1/I), como el codigo corto del backend. */
-        const val CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+        private const val CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
     }
 }
