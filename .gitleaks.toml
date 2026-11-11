@@ -2,6 +2,8 @@
 # Se usan las reglas por defecto y solo se excluyen los falsos positivos revisados, archivo por archivo (no carpetas completas):
 #   - ValidateCredentialsUseCaseTest.kt: contrasenas ficticias de pruebas unitarias ("petmate-segura-2026") que nunca
 #     fueron credenciales reales.
+#   - ScanViewModelTest.kt: token ficticio de 43 caracteres que imita el del QR de una mascota (pm-125); es una cadena
+#     inventada para probar que el codigo se manda tal cual, nunca un token real.
 # Cualquier archivo nuevo que dispare una regla debe revisarse; solo si es un falso positivo se agrega aqui con su motivo.
 # Las llaves reales (firma, Google Play) se guardan en GitHub Secrets y nunca en el repositorio.
 title = "PetMate app gitleaks"
@@ -13,4 +15,5 @@ useDefault = true
 description = "Falsos positivos revisados (valores ficticios de pruebas)"
 paths = [
   '''app/src/test/java/mx/petmate/app/domain/usecase/ValidateCredentialsUseCaseTest\.kt''',
+  '''app/src/test/java/mx/petmate/app/ui/business/ScanViewModelTest\.kt''',
 ]
