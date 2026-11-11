@@ -351,6 +351,7 @@ data class ScanUiState(
     val error: String? = null,
     val ficha: ScanFicha? = null,
     val isVet: Boolean = false,
+    val lastCode: String? = null,
 )
 
 @HiltViewModel
@@ -370,13 +371,13 @@ class ScanViewModel @Inject constructor(
         val trimmed = raw.trim().substringAfterLast('/')
         val code = if (trimmed.length == 43) trimmed else trimmed.filter { it.isLetterOrDigit() }.uppercase()
         if (code.length != 8 && code.length != 43) return _state.update { it.copy(error = "El código tiene 8 caracteres (o escanea el QR).") }
-        _state.update { it.copy(resolving = true, error = null) }
+        _state.update { it.copy(resolving = true, error = null, lastCode = code) }
         viewModelScope.launch {
             when (val r = repository.resolveScan(code)) {
                 is AppResult.Success -> {
                     val isVet = (auth.sessionState.first() as? SessionState.SignedIn)?.user?.businessType.let(BusinessKind::fromApi) == BusinessKind.Veterinary
                     _state.update {
-                        it.copy(resolving = false, ficha = r.data, code = "", isVet = isVet)
+                        it.copy(resolving = false, ficha = r.data, code = "", isVet = isVet, lastCode = code)
                     }
                 }
                 is AppResult.Failure -> _state.update {
@@ -394,6 +395,10 @@ class ScanViewModel @Inject constructor(
     }
 
     fun closeFicha() = _state.update { ScanUiState() }
+
+    fun refreshFicha() {
+        _state.value.lastCode?.let { resolve(it) }
+    }
 }
 
 data class AttendedUiState(val period: String = "day", val loading: Boolean = true, val items: List<AttendedPet> = emptyList(), val error: String? = null)

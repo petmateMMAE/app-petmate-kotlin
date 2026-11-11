@@ -315,6 +315,10 @@ jobs:
             tests: 'mx.petmate.app.ui.business.BusinessFormTest'
           - feature: escaneo-negocio
             tests: 'mx.petmate.app.ui.business.ScanViewModelTest'
+          - feature: conexion-backend-consultas-historial
+            tests: 'mx.petmate.app.data.repository.VeterinaryRepositoryImplTest'
+          - feature: formularios-veterinaria
+            tests: 'mx.petmate.app.ui.business.VeterinaryActionViewModelTest'
     steps:
       - uses: actions/checkout@v5
 

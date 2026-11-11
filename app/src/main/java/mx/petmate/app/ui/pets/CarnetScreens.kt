@@ -67,7 +67,7 @@ fun ShowMessages(message: UiText?, onShown: () -> Unit) {
 // =====================================================================================================
 
 /** Secciones del carnet a las que se puede ir desde el resumen. */
-enum class CarnetSection { Vaccines, Deworm, Weight, Allergies, Qr }
+enum class CarnetSection { Vaccines, Deworm, Weight, Allergies, Qr, History }
 
 @Composable
 fun CarnetScreen(
@@ -197,7 +197,7 @@ fun CarnetScreen(
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             SectionButton(R.drawable.ic_pm_alert, stringResource(R.string.carnet_allergies), c.allergies.size, extra.alertSoft, extra.alert, Modifier.weight(1f)) { onOpen(CarnetSection.Allergies) }
                             SectionButton(R.drawable.ic_pm_qr, stringResource(R.string.carnet_qr), null, extra.sunSoft, extra.sunInk, Modifier.weight(1f)) { onOpen(CarnetSection.Qr) }
-                            Box(Modifier.weight(1f))
+                            SectionButton(R.drawable.ic_pm_calendar, "Historial", null, extra.brandSoft, MaterialTheme.colorScheme.primary, Modifier.weight(1f)) { onOpen(CarnetSection.History) }
                         }
                     }
                     VSpace(24.dp)

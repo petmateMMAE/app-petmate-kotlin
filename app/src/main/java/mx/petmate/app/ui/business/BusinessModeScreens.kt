@@ -381,7 +381,13 @@ fun ScannerScreen(viewModel: ScanViewModel, bottomBar: @Composable () -> Unit, m
     val state by viewModel.state.collectAsStateWithLifecycle()
     val ficha = state.ficha
     if (ficha != null) {
-        FichaScreen(ficha = ficha, isVet = state.isVet, onClose = viewModel::closeFicha, modifier = modifier)
+        FichaScreen(
+            ficha = ficha,
+            isVet = state.isVet,
+            onClose = viewModel::closeFicha,
+            onRefresh = viewModel::refreshFicha,
+            modifier = modifier,
+        )
         return
     }
     val extra = MaterialTheme.petMateColors
@@ -438,8 +444,67 @@ fun ScannerScreen(viewModel: ScanViewModel, bottomBar: @Composable () -> Unit, m
     }
 }
 
+enum class FichaAction { None, Consult, Vaccine, Deworm }
+
 @Composable
-fun FichaScreen(ficha: ScanFicha, isVet: Boolean, onClose: () -> Unit, modifier: Modifier = Modifier) {
+fun FichaScreen(
+    ficha: ScanFicha,
+    isVet: Boolean,
+    onClose: () -> Unit,
+    onRefresh: () -> Unit = {},
+    modifier: Modifier = Modifier,
+) {
+    var action by rememberSaveable { mutableStateOf(FichaAction.None) }
+
+    when (action) {
+        FichaAction.Consult -> {
+            ficha.petId?.let { petId ->
+                ConsultationFormScreen(
+                    petId = petId,
+                    petName = ficha.name,
+                    onBackClick = { action = FichaAction.None },
+                    onSaved = {
+                        action = FichaAction.None
+                        onRefresh()
+                    },
+                    modifier = modifier,
+                )
+                return
+            }
+        }
+        FichaAction.Vaccine -> {
+            ficha.petId?.let { petId ->
+                VaccineByBusinessScreen(
+                    petId = petId,
+                    petName = ficha.name,
+                    onBackClick = { action = FichaAction.None },
+                    onSaved = {
+                        action = FichaAction.None
+                        onRefresh()
+                    },
+                    modifier = modifier,
+                )
+                return
+            }
+        }
+        FichaAction.Deworm -> {
+            ficha.petId?.let { petId ->
+                DewormByBusinessScreen(
+                    petId = petId,
+                    petName = ficha.name,
+                    onBackClick = { action = FichaAction.None },
+                    onSaved = {
+                        action = FichaAction.None
+                        onRefresh()
+                    },
+                    modifier = modifier,
+                )
+                return
+            }
+        }
+        FichaAction.None -> Unit
+    }
+
     val extra = MaterialTheme.petMateColors
     androidx.activity.compose.BackHandler(onBack = onClose)
     PetScaffoldColumn(
@@ -448,6 +513,38 @@ fun FichaScreen(ficha: ScanFicha, isVet: Boolean, onClose: () -> Unit, modifier:
         bottom = { PetBottomAction { PetMateButton("Terminar y salir", onClose, style = PetMateButtonStyle.Ghost, icon = R.drawable.ic_pm_logout, modifier = Modifier.fillMaxWidth()) } },
     ) {
         Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 18.dp)) {
+            if (isVet && ficha.petId != null) {
+                BizCard {
+                    Column {
+                        Text("Acciones clínicas", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.primary)
+                        VSpace(8.dp)
+                        PetMateButton(
+                            text = "Registrar consulta y receta",
+                            onClick = { action = FichaAction.Consult },
+                            icon = R.drawable.ic_pm_edit,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                        VSpace(8.dp)
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            PetMateButton(
+                                text = "Vacunar",
+                                onClick = { action = FichaAction.Vaccine },
+                                icon = R.drawable.ic_pm_syringe,
+                                style = PetMateButtonStyle.Outline,
+                                modifier = Modifier.weight(1f),
+                            )
+                            PetMateButton(
+                                text = "Desparasitar",
+                                onClick = { action = FichaAction.Deworm },
+                                icon = R.drawable.ic_pm_pill,
+                                style = PetMateButtonStyle.Outline,
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
+                    }
+                }
+                VSpace(12.dp)
+            }
             BizCard {
                 Column {
                     Text(ficha.name, style = MaterialTheme.typography.headlineSmall.copy(fontSize = 24.sp, fontWeight = FontWeight.ExtraBold))
