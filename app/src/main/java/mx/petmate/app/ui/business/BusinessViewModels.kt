@@ -373,8 +373,11 @@ class ScanViewModel @Inject constructor(
         _state.update { it.copy(resolving = true, error = null) }
         viewModelScope.launch {
             when (val r = repository.resolveScan(code)) {
-                is AppResult.Success -> _state.update {
-                    it.copy(resolving = false, ficha = r.data, code = "", isVet = r.data.vaccines != null || r.data.consultations != null || r.data.petId != null)
+                is AppResult.Success -> {
+                    val isVet = (auth.sessionState.first() as? SessionState.SignedIn)?.user?.businessType.let(BusinessKind::fromApi) == BusinessKind.Veterinary
+                    _state.update {
+                        it.copy(resolving = false, ficha = r.data, code = "", isVet = isVet)
+                    }
                 }
                 is AppResult.Failure -> _state.update {
                     it.copy(
