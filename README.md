@@ -49,23 +49,37 @@ configurarlo, Gradle truena con un mensaje inútil:
 
 Eso es todo lo que dice. No menciona Java ni el JDK.
 
-**Desde Android Studio** no pasa: usa su JDK incluido y funciona sin tocar nada.
+La causa exacta, por si te topas con ella en otro proyecto: el compilador de
+Kotlin 2.2 trae una copia de `JavaVersion` de IntelliJ que no sabe leer el
+formato `"25.0.2"` y lanza `IllegalArgumentException` mientras Gradle configura
+el build. Revienta en el **demonio de Gradle**, antes de compilar nada.
 
-**Desde la terminal** hay que apuntarle al JDK de Android Studio:
+**Desde Android Studio** no pasa: usa su propio JDK 21 y funciona sin tocar nada.
 
-```bash
-# Git Bash
-JAVA_HOME="C:/Program Files/Android/Android Studio/jbr" ./gradlew testDebugUnitTest
+**Desde la terminal**, la solución buena es un `gradle.properties` en tu carpeta
+de usuario — fuera del repositorio, así no afecta a nadie más ni al CI:
+
+```
+C:\Users\TU_USUARIO\.gradle\gradle.properties
 ```
 
-```powershell
-# PowerShell
-$env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
-./gradlew testDebugUnitTest
+Con esta línea:
+
+```properties
+org.gradle.java.home=C:/Program Files/Android/Android Studio/jbr
 ```
 
-Si tu Android Studio está en otra carpeta, ajusta la ruta. Para no repetirlo
-cada vez, puedes dejar `JAVA_HOME` fijo en las variables de entorno de Windows.
+Usa **barras normales** (`/`), no `\`: con barras invertidas Gradle se come los
+separadores y la ruta queda inservible. Si tu Android Studio está en otra
+carpeta, ajústala.
+
+> **Lo que NO funciona:** poner `jvmToolchain(17)` en `app/build.gradle.kts`. El
+> toolchain decide con qué JDK se *compila*, pero el demonio ya arrancó en el
+> JDK 25 y el fallo ocurre antes, al configurar. Lo probamos y sigue fallando.
+>
+> Tampoco va `org.gradle.java.home` en el `gradle.properties` del proyecto: ese
+> archivo sí se versiona, y una ruta de Windows rompería el CI y las máquinas de
+> los demás.
 
 ### 4. Compilar y probar
 
