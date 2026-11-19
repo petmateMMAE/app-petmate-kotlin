@@ -63,6 +63,7 @@ import mx.petmate.app.ui.pets.PetSectionTitle
 import mx.petmate.app.ui.pets.PetTopBar
 import mx.petmate.app.ui.pets.VSpace
 import mx.petmate.app.ui.pets.formatDate
+import mx.petmate.app.ui.seguimiento.FollowUpScreen
 import mx.petmate.app.ui.theme.petMateColors
 
 /* Modo negocio: panel, mi negocio, servicios, escanear, ficha y atendidas (PetMate_App.html). */
@@ -471,6 +472,22 @@ fun FichaScreen(
     modifier: Modifier = Modifier,
 ) {
     var action by rememberSaveable { mutableStateOf(FichaAction.None) }
+    // Consulta recien guardada cuyo seguimiento se ofrece abrir (spec 015, R-01).
+    var followUpFor by rememberSaveable { mutableStateOf<String?>(null) }
+
+    followUpFor?.let { consultationId ->
+        FollowUpScreen(
+            consultationId = consultationId,
+            petName = ficha.name,
+            onClose = {
+                followUpFor = null
+                onRefresh()
+            },
+            modifier = modifier,
+        )
+        return
+    }
+
     when (action) {
         FichaAction.Consult -> {
             ficha.petId?.let { petId ->
@@ -482,6 +499,7 @@ fun FichaScreen(
                         action = FichaAction.None
                         onRefresh()
                     },
+                    onSavedWithId = { followUpFor = it },
                     modifier = modifier,
                 )
                 return
