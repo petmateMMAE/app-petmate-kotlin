@@ -1,17 +1,13 @@
 package mx.petmate.app.ui.map
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
 import android.os.CancellationSignal
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -19,34 +15,41 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
+import mx.petmate.app.domain.permissions.PermissionStatus
+import mx.petmate.app.domain.permissions.PermissionType
+import mx.petmate.app.ui.components.permissions.permissionStatus
+import mx.petmate.app.ui.components.permissions.rememberPermissionRequest
 
 /* Acciones del mapa que abren otras apps o leen la ubicacion del telefono. */
 
 /**
  * Devuelve una funcion que lee la ubicacion. Con `ask = true` pide el permiso si falta;
  * con `false` solo la lee si ya se concedio. Sin permiso o sin lectura, avisa con null.
+ *
+ * El pedido pasa por `rememberPermissionRequest` (spec 003): explicacion previa, a la segunda negativa los
+ * ajustes de la app, y al volver de ajustes con permiso se lee la ubicacion sin reiniciar.
  */
 @Composable
 fun rememberLocationRequest(onResult: (Double?, Double?) -> Unit): (ask: Boolean) -> Unit {
     val context = LocalContext.current
     val callback by rememberUpdatedState(onResult)
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { granted ->
-        if (granted.values.any { it }) readLocation(context) { callback(it?.latitude, it?.longitude) } else callback(null, null)
-    }
-    return remember(context) {
+    val request = rememberPermissionRequest(
+        type = PermissionType.Location,
+        onGranted = { readLocation(context) { callback(it?.latitude, it?.longitude) } },
+        onDenied = { callback(null, null) },
+    )
+    return remember(context, request) {
         { ask ->
             when {
                 context.hasLocationPermission() -> readLocation(context) { callback(it?.latitude, it?.longitude) }
-                ask -> launcher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
+                ask -> request()
                 else -> callback(null, null)
             }
         }
     }
 }
 
-private fun Context.hasLocationPermission(): Boolean =
-    ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-        ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+private fun Context.hasLocationPermission(): Boolean = permissionStatus(PermissionType.Location) == PermissionStatus.Granted
 
 @SuppressLint("MissingPermission") // Se llama solo con el permiso concedido.
 private fun readLocation(context: Context, onLocation: (Location?) -> Unit) {
