@@ -43,10 +43,12 @@ import mx.petmate.app.R
 import mx.petmate.app.core.ui.UiText
 import mx.petmate.app.domain.usecase.PetDates
 import mx.petmate.app.ui.components.DemoStrip
+import mx.petmate.app.ui.components.DueColors
 import mx.petmate.app.ui.components.PetMateBadge
 import mx.petmate.app.ui.components.PetMateButton
 import mx.petmate.app.ui.components.PetMateButtonStyle
 import mx.petmate.app.ui.components.PetMateIconButton
+import mx.petmate.app.ui.components.dueColors
 import mx.petmate.app.ui.theme.petMateColors
 
 /** Muestra los avisos de una sola vez del ViewModel como Toast. */
@@ -152,7 +154,11 @@ fun CarnetScreen(
                                 label = stringResource(R.string.carnet_next_vaccine),
                                 value = nextVaccine?.second?.let { formatDate(it) } ?: stringResource(R.string.carnet_none),
                                 sub = nextVaccine?.let { "${it.first.name} · ${whenText(it.second)}" } ?: stringResource(R.string.carnet_all_ok),
-                                background = if (nextVaccine != null && (PetDates.daysBetween(today, nextVaccine.second) ?: 99) <= 30) extra.sunSoft else MaterialTheme.colorScheme.surface,
+                                background = dueColors(
+                                    date = nextVaccine?.second,
+                                    neutral = DueColors(MaterialTheme.colorScheme.surface, extra.ink2),
+                                    today = today,
+                                ).container,
                                 modifier = Modifier.weight(1f),
                                 onClick = { onOpen(CarnetSection.Vaccines) },
                             )

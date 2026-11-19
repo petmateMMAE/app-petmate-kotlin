@@ -64,6 +64,7 @@ import mx.petmate.app.ui.components.PetMateBadge
 import mx.petmate.app.ui.components.PetMateButton
 import mx.petmate.app.ui.components.PetMateButtonStyle
 import mx.petmate.app.ui.components.PetMateTextField
+import mx.petmate.app.ui.components.dueColors
 import mx.petmate.app.ui.theme.petMateColors
 
 /** Estructura comun de las listas del carnet: barra, franja demo, contenido y boton al pie. */
@@ -123,11 +124,11 @@ private fun RecordCard(
                 Text(subtitle, color = extra.ink2, fontSize = 13.sp, modifier = Modifier.padding(top = 2.dp))
             }
             if (next != null) {
-                val days = PetDates.daysBetween(PetDates.today(), next) ?: 99
+                val due = dueColors(next)
                 PetMateBadge(
                     stringResource(R.string.record_next, formatDate(next)),
-                    if (days in 0..30) extra.sunSoft else extra.surface2,
-                    if (days in 0..30) extra.sunInk else extra.ink2,
+                    due.container,
+                    due.content,
                     icon = R.drawable.ic_pm_calendar,
                 )
             }
