@@ -13,7 +13,7 @@
 se ejecutan después, con autorización explícita del humano. Un agente que
 implemente estas tareas sin aprobación viola la constitución §4.
 
-Progreso: **0 / 11 tareas** · Fases completadas: **0 / 5**
+Progreso: **5 / 11 tareas** (implementadas, por verificar al 17/11/2026) · Fases completadas: **0 / 5**
 
 ---
 
@@ -38,7 +38,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F1 — Dominio
 
-- [ ] **T-001** — Modelo de compartición y casos de uso
+- [x] **T-001** — Modelo de compartición y casos de uso _(implementada, por verificar · 17/11/2026)_
   - Depende de: 008/T-001, 001/T-018
   - Aceptación: existen `ShareSelection`, `ShareDuration` (30 min, 1 día,
     7 días), `ShareToken` y `ShareState`; los casos de uso emiten, regeneran y
@@ -67,7 +67,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F2 — Red y directorio
 
-- [ ] **T-003** — Cliente de emisión y resolución del QR
+- [x] **T-003** — Cliente de emisión y resolución del QR _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-001, 001/T-012 · Bloqueada por: **Q-01, Q-02, Q-03**
   - Aceptación: el cliente emite un token y resuelve su contenido; el QR solo
     lleva el token; la expiración viene del servidor; hay pruebas de
@@ -78,7 +78,7 @@ Puerta de calidad de toda tarea que toque código:
     `data/sharing/remote/ShareRemoteDataSource.kt`,
     `test/.../data/sharing/remote/ShareContractTest.kt`
 
-- [ ] **T-004** — Directorio de negocios y opción "cualquier veterinaria"
+- [x] **T-004** — Directorio de negocios y opción "cualquier veterinaria" _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-001, 001/T-012 · Bloqueada por: **Q-07, Q-08**
   - Aceptación: el selector muestra los negocios del directorio con nombre y
     tipo, más la opción "cualquier veterinaria"; no permite crear ni editar
@@ -110,7 +110,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F4 — QR y pantalla
 
-- [ ] **T-006** — Generación del QR y caché del vigente
+- [x] **T-006** — Generación del QR y caché del vigente _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-005 · Requiere autorización si se agrega librería de QR
   - Aceptación: el QR se dibuja a partir del token; no contiene datos clínicos
     ni personales; un QR vigente se conserva en caché y se muestra sin red; al
@@ -127,7 +127,7 @@ Puerta de calidad de toda tarea que toque código:
   - Archivos: `domain/sharing/RegenerateShareUseCase.kt`,
     `test/.../domain/sharing/RegenerateShareTest.kt`
 
-- [ ] **T-008** — Pantalla de compartir
+- [x] **T-008** — Pantalla de compartir _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-002, T-004, T-005, T-006
   - Aceptación: el flujo permite elegir mascota, negocio, secciones y duración;
     muestra el QR y la cuenta regresiva; sin red explica que no se puede emitir

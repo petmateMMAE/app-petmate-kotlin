@@ -10,7 +10,7 @@
 Ninguna tarea se ejecuta sin autorización explícita del humano
 (`constitution.md` §4).
 
-Progreso: **0 / 15 tareas**
+Progreso: **8 / 15 tareas** (implementadas, por verificar al 17/11/2026)
 
 ---
 
@@ -52,7 +52,7 @@ Progreso: **0 / 15 tareas**
 
 ## Fase F2 — Dominio
 
-- [ ] **T-003** — Modelos de la consulta y la receta
+- [x] **T-003** — Modelos de la consulta y la receta _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-001
   - Aceptación: `Consultation` (motivo, diagnóstico, peso, receta, renglones,
     forma de pago), `Prescription` con varios `PrescriptionItem`
@@ -71,7 +71,7 @@ Progreso: **0 / 15 tareas**
   - Archivos: `domain/model/ConsultationDraft.kt`,
     `domain/repository/ConsultationRepository.kt`
 
-- [ ] **T-005** — Validación y guardado
+- [x] **T-005** — Validación y guardado _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-004, T-002 · Bloqueada por: **Q-04** (formas de pago)
   - Aceptación: `ValidateConsultationUseCase` rechaza guardar sin forma de
     pago y sin renglones de cobro; `SaveConsultationUseCase` guarda la
@@ -88,7 +88,7 @@ Progreso: **0 / 15 tareas**
 
 ## Fase F3 — Datos
 
-- [ ] **T-006** — DTOs, servicio remoto y mappers
+- [x] **T-006** — DTOs, servicio remoto y mappers _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-003 · Bloqueada por: **Q-01, Q-05**
   - Aceptación: DTOs de consulta, receta y renglones con su serialización;
     `ConsultationApiService` declara crear consulta y crear servicio; mappers
@@ -117,7 +117,7 @@ Progreso: **0 / 15 tareas**
 
 ## Fase F4 — Repositorio
 
-- [ ] **T-008** — `ConsultationRepositoryImpl`
+- [x] **T-008** — `ConsultationRepositoryImpl` _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-006, T-007 · Bloqueada por: **Q-02**
   - Aceptación: guarda la consulta enviando el token del escaneo de 013; un
     permiso expirado se traduce a un error claro y **no se guarda** (D-06);
@@ -146,7 +146,7 @@ Progreso: **0 / 15 tareas**
 
 ## Fase F5 — Sección clínica
 
-- [ ] **T-010** — ViewModel de la consulta
+- [x] **T-010** — ViewModel de la consulta _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-005, T-008
   - Aceptación: `ConsultationViewModel` expone un `StateFlow` con la parte
     clínica, la receta, los renglones y el resumen; recalcula el resumen con
@@ -158,7 +158,7 @@ Progreso: **0 / 15 tareas**
     `ui/consulta/ConsultationUiState.kt`,
     `test/.../ui/consulta/ConsultationViewModelTest.kt`
 
-- [ ] **T-011** — Motivo, diagnóstico y peso
+- [x] **T-011** — Motivo, diagnóstico y peso _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-010
   - Aceptación: captura motivo, diagnóstico y peso en kilogramos; valida que
     el peso sea un número positivo razonable; los textos salen de
@@ -167,7 +167,7 @@ Progreso: **0 / 15 tareas**
   - Archivos: `ui/consulta/ClinicalSection.kt`,
     `androidTest/.../ui/consulta/ClinicalSectionTest.kt`
 
-- [ ] **T-012** — Receta con varios medicamentos
+- [x] **T-012** — Receta con varios medicamentos _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-011 · Bloqueada por: **Q-05** (catálogo de medicamentos)
   - Aceptación: agrega, edita y elimina renglones de receta, cada uno con
     medicamento, dosis, frecuencia y duración; permite al menos tres sin
@@ -203,7 +203,7 @@ Progreso: **0 / 15 tareas**
   - Archivos: `ui/consulta/NewServiceDialog.kt`,
     `androidTest/.../ui/consulta/NewServiceDialogTest.kt`
 
-- [ ] **T-015** — Guardado, seguimiento opcional y cierre
+- [x] **T-015** — Guardado, seguimiento opcional y cierre _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-014
   - Aceptación: al guardar se ofrece abrir un seguimiento (015) y la consulta
     se guarda igual si se declina; si 015 no existe, el ofrecimiento apunta a

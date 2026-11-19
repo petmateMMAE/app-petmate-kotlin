@@ -13,7 +13,7 @@
 se ejecutan después, con autorización explícita del humano. Un agente que
 implemente estas tareas sin aprobación viola la constitución §4.
 
-Progreso: **0 / 12 tareas** · Fases completadas: **0 / 5**
+Progreso: **1 / 12 tareas** (verificada el 19/11/2026) · Fases completadas: **0 / 5**
 
 ---
 
@@ -40,7 +40,7 @@ Los componentes de 001 se citan como `001/K-xx` y los de 002 como `002/ID-xx`.
 
 ## Fase F1 — Contrato
 
-- [ ] **T-001** — Modelos y contrato de moderación
+- [x] **T-001** — Modelos y contrato de moderación
   - Depende de: 001/T-030, 001/T-007
   - Aceptación: existen `ModerationContentType`, `ModerationRequest`,
     `ModerationVerdict` (aprobado, rechazado, no validado) y

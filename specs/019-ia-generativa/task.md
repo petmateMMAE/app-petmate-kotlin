@@ -10,13 +10,13 @@
 Ninguna tarea se ejecuta sin autorización explícita del humano
 (`constitution.md` §4).
 
-Progreso: **0 / 10 tareas**
+Progreso: **3 / 10 tareas** (2 verificadas el 19/11/2026; 1 implementada, por verificar en dispositivo)
 
 ---
 
 ## Fase F1 — Dominio
 
-- [ ] **T-001** — Modelos de generación
+- [x] **T-001** — Modelos de generación
   - Depende de: —
   - Aceptación: `GeneratedText` (texto, origen marcado como IA, fecha y huella
     del contenido original), `GenerationRequest` (explicar receta o resumir
@@ -27,7 +27,7 @@ Progreso: **0 / 10 tareas**
     `domain/model/GenerationRequest.kt`,
     `domain/model/GenerationResult.kt`
 
-- [ ] **T-002** — Contrato del repositorio
+- [x] **T-002** — Contrato del repositorio
   - Depende de: T-001
   - Aceptación: `AiRepository` declara pedir explicación y resumen, con la
     opción de forzar regeneración; **no declara ninguna llamada a un proveedor
@@ -52,7 +52,7 @@ Progreso: **0 / 10 tareas**
     `data/remote/AiApiService.kt`, `data/mapper/GenerationMapper.kt`,
     `test/.../data/mapper/GenerationMapperTest.kt`
 
-- [ ] **T-004** — Caché por huella del contenido
+- [x] **T-004** — Caché por huella del contenido _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-001
   - Aceptación: `GeneratedTextEntity` y su DAO guardan el texto generado
     asociado al identificador **y a una huella del contenido original**

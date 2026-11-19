@@ -10,7 +10,7 @@
 Ninguna tarea se ejecuta sin autorización explícita del humano
 (`constitution.md` §4).
 
-Progreso: **0 / 12 tareas**
+Progreso: **10 / 12 tareas** (implementadas, por verificar al 17/11/2026)
 
 > **Antes de empezar esta unidad hay que resolver Q-02.** Si el backend no
 > filtra por tipo de negocio, la unidad no se puede implementar con seguridad
@@ -20,7 +20,7 @@ Progreso: **0 / 12 tareas**
 
 ## Fase F1 — Dominio
 
-- [ ] **T-001** — Modelos de la ficha y del token
+- [x] **T-001** — Modelos de la ficha y del token _(implementada, por verificar · 17/11/2026)_
   - Depende de: —
   - Aceptación: `ScannedPetCard` (básicos, alergias y secciones autorizadas),
     `ScanToken` y `ScanError` (expirado, inválido, revocado, sin red, no
@@ -31,7 +31,7 @@ Progreso: **0 / 12 tareas**
   - Archivos: `domain/model/ScannedPetCard.kt`, `domain/model/ScanToken.kt`,
     `domain/model/ScanError.kt`, `test/.../domain/model/ScanTokenTest.kt`
 
-- [ ] **T-002** — Contrato del repositorio de escaneo
+- [x] **T-002** — Contrato del repositorio de escaneo _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-001
   - Aceptación: `ScanRepository` declara canjear un token por una ficha y
     devuelve `AppResult<ScannedPetCard>`; **no declara ninguna operación de
@@ -39,7 +39,7 @@ Progreso: **0 / 12 tareas**
   - Verificación: `./gradlew test` con doble del contrato.
   - Archivos: `domain/repository/ScanRepository.kt`
 
-- [ ] **T-003** — Canje del token y traducción de errores
+- [x] **T-003** — Canje del token y traducción de errores _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-002 · Bloqueada por: **Q-01, Q-03**
   - Aceptación: `RedeemScanTokenUseCase` canjea el token y traduce cada
     respuesta de error a su `ScanError` concreto; ninguna excepción sale del
@@ -55,7 +55,7 @@ Progreso: **0 / 12 tareas**
 
 ## Fase F2 — Datos
 
-- [ ] **T-004** — DTO, servicio remoto y mapper
+- [x] **T-004** — DTO, servicio remoto y mapper _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-002 · Bloqueada por: **Q-01, Q-02**
   - Aceptación: `ScannedPetCardDto` y su mapper; `ScanApiService` declara el
     canje enviando el token y la credencial de sesión; el interceptor de
@@ -66,7 +66,7 @@ Progreso: **0 / 12 tareas**
     `data/remote/ScanApiService.kt`, `data/mapper/ScanMapper.kt`,
     `test/.../data/remote/ScanApiServiceTest.kt`
 
-- [ ] **T-005** — `ScanRepositoryImpl` sin persistencia
+- [x] **T-005** — `ScanRepositoryImpl` sin persistencia _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-004
   - Aceptación: canjea el token y devuelve la ficha; **no escribe en Room ni
     en ningún almacenamiento**; sin red devuelve el error correspondiente sin
@@ -95,7 +95,7 @@ Progreso: **0 / 12 tareas**
 
 ## Fase F3 — Escáner
 
-- [ ] **T-007** — Interfaz de lectura y su implementación
+- [x] **T-007** — Interfaz de lectura y su implementación _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-003 · Bloqueada por: **Q-06** (librería)
   - Aceptación: `QrCodeReader` se declara en el dominio como interfaz; su
     implementación concreta vive en `data` y se inyecta; cambiar de librería
@@ -106,7 +106,7 @@ Progreso: **0 / 12 tareas**
   - Nota: agregar la librería requiere autorización (skill
     `agregar-dependencia`).
 
-- [ ] **T-008** — Pantalla del escáner
+- [x] **T-008** — Pantalla del escáner _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-007
   - Aceptación: abre la cámara pidiendo el permiso según 003; muestra guía
     visual y linterna; al leer un QR válido navega a la ficha; **libera la
@@ -124,7 +124,7 @@ Progreso: **0 / 12 tareas**
 
 ## Fase F4 — Entrada manual
 
-- [ ] **T-009** — Código corto escrito a mano
+- [x] **T-009** — Código corto escrito a mano _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-008 · Bloqueada por: **Q-04** (formato del código)
   - Aceptación: campo de entrada con el formato del código corto y validación
     de longitud; un código válido abre la ficha igual que el escaneo; un
@@ -140,7 +140,7 @@ Progreso: **0 / 12 tareas**
 
 ## Fase F5 — Ficha
 
-- [ ] **T-010** — Alergias destacadas
+- [x] **T-010** — Alergias destacadas _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-006
   - Aceptación: `AllergyBanner` se pinta por encima del resto de la ficha y
     **es independiente de las secciones autorizadas**; aparece tanto para
@@ -151,7 +151,7 @@ Progreso: **0 / 12 tareas**
   - Archivos: `ui/ficha/AllergyBanner.kt`,
     `androidTest/.../ui/ficha/AllergyBannerTest.kt`
 
-- [ ] **T-011** — Pantalla de la ficha
+- [x] **T-011** — Pantalla de la ficha _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-010
   - Aceptación: muestra los básicos de la mascota y las secciones que llegaron
     autorizadas; es de solo lectura; una veterinaria ve la entrada a registrar
