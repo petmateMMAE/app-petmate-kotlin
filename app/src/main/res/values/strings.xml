@@ -380,6 +380,65 @@
     <string name="allergy_state">Estado</string>
     <string name="allergy_save">Guardar</string>
 
+    <!-- Sincronizacion offline (spec 005, T-008) -->
+    <string name="sync_status_pending">Pendiente</string>
+    <string name="sync_status_syncing">Sincronizando</string>
+    <string name="sync_status_error">No se guardó</string>
+    <string name="sync_status_retry">Reintentar</string>
+
+    <!-- Permisos (spec 003): explicacion previa, ajustes y alternativas -->
+    <string name="permission_location_title">¿Usamos tu ubicación?</string>
+    <string name="permission_location_body">La usamos para ordenar las veterinarias, tiendas y estéticas por cercanía y centrar el mapa donde estás. No la guardamos ni la compartimos.</string>
+    <string name="permission_camera_title">¿Abrimos la cámara?</string>
+    <string name="permission_camera_body">La cámara solo se usa para leer el QR de la mascota o tomarle una foto. No grabamos nada más.</string>
+    <string name="permission_photos_title">Elige una foto</string>
+    <string name="permission_photos_body">Solo vemos la foto que elijas; el resto de tu galería sigue siendo privada.</string>
+    <string name="permission_notifications_title">¿Te avisamos?</string>
+    <string name="permission_notifications_body">Te avisamos de vacunas próximas, tratamientos y mensajes de tu veterinaria. Puedes apagarlo cuando quieras.</string>
+    <string name="permission_continue">Continuar</string>
+    <string name="permission_not_now">Ahora no</string>
+    <string name="permission_settings_title">Actívalo en ajustes</string>
+    <string name="permission_settings_body">Ya no te volveremos a preguntar. Si cambias de opinión, entra a los ajustes de PetMate, toca Permisos y actívalo.</string>
+    <string name="permission_open_settings">Abrir ajustes</string>
+    <string name="permission_fallback_location_title">Sin tu ubicación</string>
+    <string name="permission_fallback_location_body">El mapa abre en una zona por defecto. Puedes moverte, buscar por nombre o ver la lista.</string>
+    <string name="permission_fallback_location_action">Usar mi ubicación</string>
+    <string name="permission_fallback_camera_title">Sin cámara</string>
+    <string name="permission_fallback_camera_body">Escribe abajo el código de 8 caracteres que aparece debajo del QR.</string>
+    <string name="permission_fallback_camera_action">Intentar con la cámara</string>
+    <string name="permission_fallback_photo_body">Sin foto, mostramos sus iniciales.</string>
+    <string name="permission_fallback_photo_action">Elegir foto</string>
+    <string name="permission_fallback_notifications_title">Avisos dentro de la app</string>
+    <string name="permission_fallback_notifications_body">Las notificaciones están apagadas. Tus recordatorios te esperan en la pantalla de inicio.</string>
+    <string name="permission_fallback_notifications_action">Activar notificaciones</string>
+    <string name="permission_harness_title">Matriz de permisos (prueba)</string>
+
+    <!-- Seguimiento de tratamiento (spec 015) -->
+    <string name="followup_title">Seguimiento de %1$s</string>
+    <string name="followup_status_treating">En tratamiento</string>
+    <string name="followup_status_improving">Mejorando</string>
+    <string name="followup_status_discharged">Dado de alta</string>
+    <string name="followup_status_unknown">Estado desconocido</string>
+    <string name="followup_none">Esta consulta todavía no tiene seguimiento.</string>
+    <string name="followup_open">Abrir seguimiento</string>
+    <string name="followup_skip">Ahora no</string>
+    <string name="followup_review_days">Próxima revisión en días</string>
+    <string name="followup_review_days_hint">Opcional. De 1 a 365 días.</string>
+    <string name="followup_change_to">Cambiar a</string>
+    <string name="followup_closed">Dado de alta: el seguimiento está cerrado.</string>
+    <string name="followup_note">Nota de evolución</string>
+    <string name="followup_note_hint">¿Cómo sigue? El dueño la verá en su historial.</string>
+    <string name="followup_add_note">Agregar nota</string>
+    <string name="followup_timeline">Bitácora</string>
+    <string name="followup_timeline_empty">Sin notas todavía.</string>
+    <string name="followup_review_on">Revisión: %1$s</string>
+    <string name="followup_review_overdue">Revisión atrasada: %1$s</string>
+    <string name="followup_error_transition">Ese cambio de estado no está permitido.</string>
+    <string name="followup_error_days">Los días de revisión van de 1 a 365.</string>
+    <string name="followup_error_note">Escribe la nota (máximo 500 caracteres).</string>
+    <string name="followup_error_network">No se pudo guardar. Revisa tu conexión e inténtalo de nuevo.</string>
+    <string name="followup_done">Listo</string>
+
     <plurals name="pets_age_years">
         <item quantity="one">%1$d año</item>
         <item quantity="many">%1$d años</item>
