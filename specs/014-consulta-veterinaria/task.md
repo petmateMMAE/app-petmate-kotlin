@@ -10,7 +10,7 @@
 Ninguna tarea se ejecuta sin autorización explícita del humano
 (`constitution.md` §4).
 
-Progreso: **8 / 15 tareas** (implementadas, por verificar al 17/11/2026)
+Progreso: **6 / 15 tareas** (1 verificada; 5 implementadas, por verificar; 2 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026)
 
 ---
 
@@ -52,7 +52,7 @@ Progreso: **8 / 15 tareas** (implementadas, por verificar al 17/11/2026)
 
 ## Fase F2 — Dominio
 
-- [x] **T-003** — Modelos de la consulta y la receta _(implementada, por verificar · 17/11/2026)_
+- [x] **T-003** — Modelos de la consulta y la receta
   - Depende de: T-001
   - Aceptación: `Consultation` (motivo, diagnóstico, peso, receta, renglones,
     forma de pago), `Prescription` con varios `PrescriptionItem`
@@ -158,7 +158,7 @@ Progreso: **8 / 15 tareas** (implementadas, por verificar al 17/11/2026)
     `ui/consulta/ConsultationUiState.kt`,
     `test/.../ui/consulta/ConsultationViewModelTest.kt`
 
-- [x] **T-011** — Motivo, diagnóstico y peso _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-011** — Motivo, diagnóstico y peso _(implementada, falta prueba instrumentada)_
   - Depende de: T-010
   - Aceptación: captura motivo, diagnóstico y peso en kilogramos; valida que
     el peso sea un número positivo razonable; los textos salen de
@@ -167,7 +167,7 @@ Progreso: **8 / 15 tareas** (implementadas, por verificar al 17/11/2026)
   - Archivos: `ui/consulta/ClinicalSection.kt`,
     `androidTest/.../ui/consulta/ClinicalSectionTest.kt`
 
-- [x] **T-012** — Receta con varios medicamentos _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-012** — Receta con varios medicamentos _(implementada, falta prueba instrumentada)_
   - Depende de: T-011 · Bloqueada por: **Q-05** (catálogo de medicamentos)
   - Aceptación: agrega, edita y elimina renglones de receta, cada uno con
     medicamento, dosis, frecuencia y duración; permite al menos tres sin

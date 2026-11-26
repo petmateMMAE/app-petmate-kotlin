@@ -10,7 +10,7 @@
 Ninguna tarea se ejecuta sin autorización explícita del humano
 (`constitution.md` §4).
 
-Progreso: **7 / 11 tareas** (4 verificadas el 19/11/2026; 3 implementadas, por verificar en dispositivo)
+Progreso: **4 / 11 tareas** (4 verificadas; 3 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026)
 
 ---
 
@@ -90,7 +90,7 @@ Progreso: **7 / 11 tareas** (4 verificadas el 19/11/2026; 3 implementadas, por v
     `data/remote/FollowUpApiService.kt`, `data/mapper/FollowUpMapper.kt`,
     `test/.../data/mapper/FollowUpMapperTest.kt`
 
-- [x] **T-007** — Persistencia para lectura sin conexión _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-007** — Persistencia para lectura sin conexión _(implementada, falta prueba instrumentada)_
   - Depende de: T-001
   - Aceptación: entidad y DAO guardan estado, fechas, autor y notas; **no
     guardan diagnóstico ni receta** (D-06); el DAO expone `Flow`.
@@ -126,7 +126,7 @@ Progreso: **7 / 11 tareas** (4 verificadas el 19/11/2026; 3 implementadas, por v
 
 ## Fase F5 — Presentación
 
-- [x] **T-009** — ViewModel y pantalla con permisos por rol _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-009** — ViewModel y pantalla con permisos por rol _(implementada, falta prueba instrumentada)_
   - Depende de: T-008
   - Aceptación: `FollowUpViewModel` expone un `StateFlow` con el seguimiento,
     la bitácora y si el usuario puede editar; **el dueño no ve los controles
@@ -140,7 +140,7 @@ Progreso: **7 / 11 tareas** (4 verificadas el 19/11/2026; 3 implementadas, por v
     `ui/seguimiento/FollowUpScreen.kt`,
     `test/.../ui/seguimiento/FollowUpViewModelTest.kt`
 
-- [x] **T-010** — Bitácora y distintivo de la fecha de revisión _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-010** — Bitácora y distintivo de la fecha de revisión _(implementada, falta prueba instrumentada)_
   - Depende de: T-009
   - Aceptación: `StatusTimeline` muestra los cambios en orden, el más reciente
     arriba, con fecha, autor y nota; `ReviewDateBadge` pinta la fecha con el

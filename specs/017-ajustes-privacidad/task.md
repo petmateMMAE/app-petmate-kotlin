@@ -10,7 +10,7 @@
 Ninguna tarea se ejecuta sin autorización explícita del humano
 (`constitution.md` §4).
 
-Progreso: **2 / 12 tareas** (1 verificada el 19/11/2026; 1 implementada, por verificar en dispositivo)
+Progreso: **1 / 12 tareas** (1 verificada; 1 sin marcar: implementada, falta prueba instrumentada, al 26/11/2026)
 
 ---
 
@@ -116,7 +116,7 @@ Progreso: **2 / 12 tareas** (1 verificada el 19/11/2026; 1 implementada, por ver
 
 > Esta fase es la irreversible. Se construye y se prueba por separado.
 
-- [x] **T-009** — Limpieza local verificable _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-009** — Limpieza local verificable _(implementada, falta prueba instrumentada)_
   - Depende de: T-002
   - Aceptación: `WipeLocalDataUseCase` borra **todas** las tablas de Room, las
     preferencias de DataStore y las credenciales cifradas, en una sola

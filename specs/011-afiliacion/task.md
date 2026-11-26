@@ -10,7 +10,7 @@
 Ninguna tarea se ejecuta sin autorización explícita del humano
 (`constitution.md` §4).
 
-Progreso: **9 / 14 tareas** (implementadas, por verificar al 17/11/2026)
+Progreso: **5 / 14 tareas** (1 verificada; 4 implementadas, por verificar; 4 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026)
 
 ---
 
@@ -62,7 +62,7 @@ Progreso: **9 / 14 tareas** (implementadas, por verificar al 17/11/2026)
 
 ## Fase F2 — Datos
 
-- [x] **T-005** — DTOs, servicio remoto y mappers _(implementada, por verificar · 17/11/2026)_
+- [x] **T-005** — DTOs, servicio remoto y mappers
   - Depende de: T-002 · Bloqueada por: **Q-01**
   - Aceptación: `BusinessDto` y `ServiceDto` con su serialización;
     `BusinessApiService` declara crear y consultar negocio; los mappers
@@ -124,7 +124,7 @@ Progreso: **9 / 14 tareas** (implementadas, por verificar al 17/11/2026)
     `ui/afiliacion/AffiliationUiState.kt`,
     `test/.../ui/afiliacion/AffiliationFlowViewModelTest.kt`
 
-- [x] **T-010** — Paso 1: datos y tipos _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-010** — Paso 1: datos y tipos _(implementada, falta prueba instrumentada)_
   - Depende de: T-009
   - Aceptación: captura nombre, descripción, teléfono y horario; permite
     seleccionar uno o varios tipos; no avanza sin nombre ni tipo; los textos
@@ -134,7 +134,7 @@ Progreso: **9 / 14 tareas** (implementadas, por verificar al 17/11/2026)
   - Archivos: `ui/afiliacion/AffiliationStep1Screen.kt`,
     `androidTest/.../ui/afiliacion/AffiliationStep1Test.kt`
 
-- [x] **T-011** — Paso 2: servicios con precio _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-011** — Paso 2: servicios con precio _(implementada, falta prueba instrumentada)_
   - Depende de: T-010
   - Aceptación: agrega, edita y elimina servicios antes de confirmar; exige al
     menos uno; valida el precio con `Money`; muestra el total capturado.
@@ -149,7 +149,7 @@ Progreso: **9 / 14 tareas** (implementadas, por verificar al 17/11/2026)
 
 ## Fase F5 — Paso 3
 
-- [x] **T-012** — Paso 3: pin en el mapa _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-012** — Paso 3: pin en el mapa _(implementada, falta prueba instrumentada)_
   - Depende de: T-011 · Bloqueada por: **010 Q-07** (proveedor de mapas)
   - Aceptación: monta el componente de mapa de 010 en modo selección; pide el
     permiso de ubicación según 003 y funciona sin él con centro por defecto;
@@ -165,7 +165,7 @@ Progreso: **9 / 14 tareas** (implementadas, por verificar al 17/11/2026)
 
 ## Fase F6 — Modos y cierre
 
-- [x] **T-013** — Alternancia entre modo dueño y modo negocio _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-013** — Alternancia entre modo dueño y modo negocio _(implementada, falta prueba instrumentada)_
   - Depende de: T-012
   - Aceptación: al completar la afiliación el usuario entra al panel (012) o a
     su destino provisional si 012 no existe; puede volver a "Mis mascotas" sin

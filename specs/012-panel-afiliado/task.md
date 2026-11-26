@@ -10,13 +10,13 @@
 Ninguna tarea se ejecuta sin autorización explícita del humano
 (`constitution.md` §4).
 
-Progreso: **6 / 13 tareas** (implementadas, por verificar al 17/11/2026)
+Progreso: **4 / 13 tareas** (1 verificada; 3 implementadas, por verificar; 2 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026)
 
 ---
 
 ## Fase F1 — Dominio
 
-- [x] **T-001** — Modelos del panel _(implementada, por verificar · 17/11/2026)_
+- [x] **T-001** — Modelos del panel
   - Depende de: —
   - Aceptación: `BusinessDashboard`, `FollowUpAlert`, `AttendedPet`,
     `AlertSeverity` y `DayFilter` existen en `domain/model`, en Kotlin puro,
@@ -129,7 +129,7 @@ Progreso: **6 / 13 tareas** (implementadas, por verificar al 17/11/2026)
     `ui/panel/DashboardScreen.kt`,
     `test/.../ui/panel/DashboardViewModelTest.kt`
 
-- [x] **T-010** — Portada del negocio y resumen _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-010** — Portada del negocio y resumen _(implementada, falta prueba instrumentada)_
   - Depende de: T-009
   - Aceptación: muestra nombre, tipos y foto del negocio, y los contadores de
     atrasadas, próximas y mensajes sin leer; los textos salen de
@@ -155,7 +155,7 @@ Progreso: **6 / 13 tareas** (implementadas, por verificar al 17/11/2026)
   - Archivos: `ui/panel/AlertList.kt`,
     `androidTest/.../ui/panel/AlertListTest.kt`
 
-- [x] **T-012** — Mascotas atendidas con filtro por día _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-012** — Mascotas atendidas con filtro por día _(implementada, falta prueba instrumentada)_
   - Depende de: T-011 · Bloqueada por: **Q-03** (tamaño de página)
   - Aceptación: lista paginada con filtro Hoy, Ayer, Semana y selección de
     fecha; tocar una mascota navega a su consulta o a un destino provisional

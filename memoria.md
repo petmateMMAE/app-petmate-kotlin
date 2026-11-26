@@ -3,7 +3,7 @@
 > Memoria viva del repositorio. Los agentes la leen al empezar y la actualizan
 > al terminar cada tarea. Si algo se decidió, está aquí.
 >
-> Última actualización: 19/11/2026
+> Última actualización: 26/11/2026
 
 ---
 
@@ -425,23 +425,47 @@ Ramas: `main` (estable) y `develop`.
 - **Qué se hizo:** los `task.md` no se habían actualizado. Se marcó `[x]` cada tarea cuyo código ya existe, con la nota _(implementada, por verificar · 17/11/2026)_, y se actualizó el contador «Progreso» de cada spec. **Nadie ha corrido todavía la verificación de esas tareas**: Adrián (las suyas) y la sesión de Claude Code (las de Eduardo) deben confirmarlas y quitar la nota, o desmarcarlas si no pasan.
 - **Criterio:** se marcó solo si el título completo de la tarea está hecho; una tarea a medias quedó sin marcar (ej. 007/T-004: lee de Room pero no encola sin red).
 
+Marcadas `[x]` al 26/11/2026 (antes de la revisión del 26/11 eran 134 / 280):
+
 | Spec | Marcadas | Spec | Marcadas |
 |---|---|---|---|
-| 001 Arquitectura | 23 / 42 | 011 Afiliación | 9 / 14 |
-| 002 Identidad | 11 / 18 | 012 Panel | 6 / 13 |
-| 003 Permisos | 9 / 10 | 013 Escáner | 10 / 12 |
-| 004 Moderación | 1 / 12 | 014 Consulta | 8 / 15 |
-| 005 Offline | 4 / 12 | 015 Seguimiento | 7 / 11 |
-| 006 Push | 3 / 11 | 016 Chat | 2 / 13 |
-| 007 Mascotas | 9 / 13 | 017 Privacidad | 2 / 12 |
-| 008 Carnet | 8 / 14 | 018 ML | 1 / 9 |
-| 009 Compartir | 5 / 11 | 019 IA | 3 / 10 |
-| 010 Mapa e inicio | 9 / 14 | 020 Play | 4 / 14 |
-| **Total** | **134 / 280 (48 %)** | | |
+| 001 Arquitectura | 18 / 42 | 011 Afiliación | 5 / 14 |
+| 002 Identidad | 6 / 18 | 012 Panel | 4 / 13 |
+| 003 Permisos | 1 / 10 | 013 Escáner | 6 / 12 |
+| 004 Moderación | 1 / 12 | 014 Consulta | 6 / 15 |
+| 005 Offline | 2 / 12 | 015 Seguimiento | 4 / 11 |
+| 006 Push | 1 / 11 | 016 Chat | 2 / 13 |
+| 007 Mascotas | 3 / 13 | 017 Privacidad | 1 / 12 |
+| 008 Carnet | 2 / 14 | 018 ML | 1 / 9 |
+| 009 Compartir | 3 / 11 | 019 IA | 2 / 10 |
+| 010 Mapa e inicio | 5 / 14 | 020 Play | 4 / 14 |
+| **Total** | **77 / 280 (27.5 %)** | | |
+
+De esas 77, 36 están verificadas y 41 siguen con la nota "por verificar". Aparte hay 57 tareas implementadas, sin marcar, a las que les falta la prueba instrumentada. Detalle en la sección del 26/11/2026.
 
 - **No existe en el código (por eso no se marcó):** verificación de correo y recuperación de contraseña (002), cobro de la consulta y borradores persistentes (011, 014), caché del directorio (010), línea de tiempo y comprobante del carnet (008), tarjeta «lo más próximo» del inicio (010/R-07), cuenta regresiva de la compartición (009), ktlint/detekt aplicados al build (001/T-004), matriz de versionamiento (001/T-001), `ConnectivityObserver` (001/T-035) y la base de push con FCM (001/T-039).
 - **020:** solo se marcó lo que Eduardo confirmó (cuenta, nombre de paquete, testers, prueba cerrada). Él debe revisar el resto.
 - **Verificación del 19/11/2026 (Claude Code, unidades de Eduardo y las del 17/11):** 15 tareas verificadas, sin la nota; 3 desmarcadas (015/T-006, 015/T-008 y 017/T-002, motivos en sus secciones); el resto de lo de 17/11 pide instrumentadas y sigue con la nota, porque no había dispositivo. Las de Adrián no se tocaron. Totales en la tabla: 137 → 134.
 - **Puerta de calidad incompleta:** `ktlintCheck` y `detekt` no existen en el build (001/T-004 sin hacer), así que de `ktlintCheck detekt test` solo corre `test`.
 - **Para compilar en Windows:** el lanzador `gradlew.bat` necesita `JAVA_HOME`. El JBR de Android Studio es JDK 25 y AGP no lo acepta; se usa el JDK 21 que ya apunta `org.gradle.java.home` (`%USERPROFILE%\.gradle\jdks\eclipse_adoptium-21-amd64-windows.2`).
+
+## Correcciones de la verificación (19/11/2026)
+
+La sesión del 19/11 tuvo que corregir el build antes de verificar. Sale de su registro y de los commits; los cambios quedaron dentro de los commits `6cf26c2` y `3deec96`, no hay un diff aparte.
+
+- **El problema:** `kspDebugKotlin` fallaba con `unexpected jvm signature V`. Room 2.6.1 no es compatible con KSP2 (`ksp` 2.2.10-2.0.2) y estos fueron los primeros DAOs del proyecto.
+- **Primer intento, deshecho:** se cambiaron a `Int` (filas afectadas) los `@Query` de escritura que devolvían `Unit`, en `HealthDao`, `PetDao` y `SyncOperationDao`. Para que compilaran, también se cambiaron los dobles de prueba en `SyncOutboxTest` y `OfflineFirstPetRepositoryTest`. El build siguió fallando, así que **los cinco archivos se regresaron a como estaban el 17/11**. En el código de hoy esas funciones devuelven `Unit` (solo `PetDao.count` y `SyncOperationDao.moveAll` devuelven `Int`, y así eran desde el inicio).
+- **Corrección que quedó:** Room 2.6.1 → 2.7.2 en `gradle/libs.versions.toml`, autorizada por Eduardo (detalle en «Base local y cola offline»). Es el único cambio de código de esa sesión.
+- **`SyncOutbox` y `FollowUpViewModel`:** el registro de esa sesión no tiene ninguna edición a estos dos archivos; se escribieron así el 17/11.
+
+## Revisión de tareas y estado de pruebas (26/11/2026)
+
+- **Pruebas:** `:app:testDebugUnitTest --rerun` dio 212 / 212 en 32 clases (0 fallos, 0 omitidas). `:app:lintDebug` dio 0 errores y 104 warnings. `scripts/ci/check-test-matrix.sh` pasó, y `pipeline.yml` trae las entradas de `politica-sincronizacion` a `chat-modelos`.
+- **Instrumentadas: no corrieron.** No había teléfono conectado. El AVD `Medium_Phone_API_37.0` se arrancó dos veces: la primera se quedó `offline` más de 6 minutos y se cerró; la segunda el proceso murió antes de aparecer en `adb`. `connectedDebugAndroidTest` sigue pendiente.
+- **Criterio aplicado a las 119 tareas con la nota del 17/11** (de Eduardo y de Adrián):
+  - **21 verificadas, sin la nota:** su verificación es JVM y existe la prueba que piden, o el `grep` que piden sale limpio. Son 001/T-008, T-009, T-015, T-016; 002/T-001, T-002, T-005, T-006, T-009; 007/T-001, T-003; 008/T-001, T-004; 009/T-001, T-003; 010/T-001, T-002, T-003; 011/T-005; 012/T-001 y 014/T-003. Los `grep` de imports prohibidos se corrieron sobre todo `domain/`, porque `domain/identity`, `domain/pets`, `domain/health`, `domain/sharing` y `domain/business` no existen: los modelos viven en `domain/model`.
+  - **57 desmarcadas, con la nota _(implementada, falta prueba instrumentada)_:** su verificación pide `connectedAndroidTest`, prueba instrumentada, de interfaz o de navegación. Están en 001, 002, 003, 005, 006, 007, 008, 009, 010, 011, 012, 013, 014, 015, 017 y 019.
+  - **26 siguen `[x]` con la nota "por verificar"**, porque la prueba JVM que pide su verificación no existe: 001/T-007 (`AppResultTest`), T-012 (`ApiServiceTest`), T-013 (`ErrorMapperTest`), T-017 (falta la prueba de concurrencia, y la tarea dice que no se cierra sin ella), T-019 (casos de caché vigente y vencida); 002/T-008 (concurrencia); 007/T-012 (`PetsMatrixTest`); 010/T-005 (caché del directorio), T-012 (doble que cuente escrituras); 011/T-001 (suma de `Money`), T-003 (pin, cero servicios, precio negativo), T-007 (doble de moderación), T-009 (Turbine del flujo); 012/T-002, T-005, T-009 (panel); 013/T-001, T-002, T-003, T-004, T-005, T-007 (escaneo); 014/T-005, T-006, T-008, T-010 (consulta).
+  - **15 siguen `[x]` con la nota porque su verificación no es una prueba:** 001/T-002, T-003, T-005, T-006, T-010, T-020, T-028, T-029, T-031 (build, revisión, GitHub Actions); 009/T-006; 014/T-015 (pide `ktlintCheck detekt`, que no existen); 020/T-001, T-003, T-009, T-011 (consola de Play).
+- **Defecto encontrado, no corregido (fuera de la tarea):** la UI importa de `data` en dos archivos, contra P3: `ui/business/OwnerBusinessScreens.kt` (`data.repository.label`) y `ui/pets/PetComponents.kt` (`data.repository.SamplePetRepository`). Vienen del commit `a50d07c` del 11/11.
 

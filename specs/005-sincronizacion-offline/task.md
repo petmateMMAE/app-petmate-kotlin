@@ -13,7 +13,7 @@
 se ejecutan después, con autorización explícita del humano. Un agente que
 implemente estas tareas sin aprobación viola la constitución §4.
 
-Progreso: **4 / 12 tareas** (2 verificadas el 19/11/2026; 2 implementadas, por verificar en dispositivo) · Fases completadas: **0 / 5**
+Progreso: **2 / 12 tareas** (2 verificadas; 2 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026) · Fases completadas: **0 / 5**
 
 ---
 
@@ -51,7 +51,7 @@ Puerta de calidad de toda tarea que toque código:
     `domain/sync/SyncOperation.kt`,
     `test/.../domain/sync/SyncPolicyTest.kt`
 
-- [x] **T-002** — Extensión del outbox de 001 _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-002** — Extensión del outbox de 001 _(implementada, falta prueba instrumentada)_
   - Depende de: T-001, 001/T-029
   - Aceptación: la cola de 001 guarda estado por operación (pendiente,
     enviando, error permanente), dependencia y clave de idempotencia; sobrevive
@@ -126,7 +126,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F4 — Visibilidad
 
-- [x] **T-008** — Estado observable por elemento _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-008** — Estado observable por elemento _(implementada, falta prueba instrumentada)_
   - Depende de: T-002, 001/T-020
   - Aceptación: el outbox expone `Flow<SyncStatus>` por operación; existe un
     indicador visual con pendiente, sincronizando y error, y un botón de

@@ -13,7 +13,7 @@
 se ejecutan después, con autorización explícita del humano. Un agente que
 implemente estas tareas sin aprobación viola la constitución §4.
 
-Progreso: **9 / 10 tareas** (1 verificada el 19/11/2026; 8 implementadas, por verificar en dispositivo) · Fases completadas: **0 / 4**
+Progreso: **1 / 10 tareas** (1 verificada; 8 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026) · Fases completadas: **0 / 4**
 
 ---
 
@@ -55,7 +55,7 @@ Los componentes de 001 se citan como `001/K-xx` y las tareas como `001/T-xx`.
     `domain/permissions/PermissionCatalog.kt`,
     `test/.../domain/permissions/PermissionCatalogTest.kt`
 
-- [x] **T-002** — Implementación Android del gateway _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-002** — Implementación Android del gateway _(implementada, falta prueba instrumentada)_
   - Depende de: T-001 · Requiere autorización para tocar el manifiesto
   - Aceptación: `AndroidPermissionGateway` implementa el contrato con las APIs
     del sistema; el manifiesto declara solo los permisos del catálogo; la
@@ -66,7 +66,7 @@ Los componentes de 001 se citan como `001/K-xx` y las tareas como `001/T-xx`.
     `di/PermissionsModule.kt`, `AndroidManifest.xml`,
     `androidTest/.../core/permissions/AndroidPermissionGatewayTest.kt`
 
-- [x] **T-003** — Justificación previa reutilizable _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-003** — Justificación previa reutilizable _(implementada, falta prueba instrumentada)_
   - Depende de: T-001, 001/T-020
   - Aceptación: existe un componente que muestra el motivo antes del diálogo
     del sistema; los textos salen de `strings.xml`; si el permiso ya está
@@ -84,7 +84,7 @@ Los componentes de 001 se citan como `001/K-xx` y las tareas como `001/T-xx`.
 
 ## Fase F2 — Flujo y ajustes
 
-- [x] **T-004** — Flujo de negativa y negativa permanente _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-004** — Flujo de negativa y negativa permanente _(implementada, falta prueba instrumentada)_
   - Depende de: T-002, T-003
   - Aceptación: el flujo cuenta negativas por permiso, distingue la negativa
     permanente y a la segunda negativa ofrece ajustes en vez de un tercer
@@ -97,7 +97,7 @@ Los componentes de 001 se citan como `001/K-xx` y las tareas como `001/T-xx`.
     `test/.../core/permissions/PermissionFlowTest.kt`,
     `androidTest/.../core/permissions/PermissionFlowRotationTest.kt`
 
-- [x] **T-005** — Lanzador de ajustes y retorno _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-005** — Lanzador de ajustes y retorno _(implementada, falta prueba instrumentada)_
   - Depende de: T-004
   - Aceptación: se abre la pantalla de ajustes de la app y, al volver, se
     vuelve a consultar el permiso y la función se activa sin reiniciar; si el
@@ -113,7 +113,7 @@ Los componentes de 001 se citan como `001/K-xx` y las tareas como `001/T-xx`.
 
 ## Fase F3 — Degradación
 
-- [x] **T-006** — Degradación de ubicación _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-006** — Degradación de ubicación _(implementada, falta prueba instrumentada)_
   - Depende de: T-004, 001/T-020
   - Aceptación: existe un componente que, sin ubicación, ofrece centro por
     defecto, lista y búsqueda manual, con texto explicativo; no bloquea la
@@ -123,7 +123,7 @@ Los componentes de 001 se citan como `001/K-xx` y las tareas como `001/T-xx`.
     `res/values/strings.xml`,
     `test/.../ui/components/permissions/LocationFallbackTest.kt`
 
-- [x] **T-007** — Degradación de cámara y fotos _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-007** — Degradación de cámara y fotos _(implementada, falta prueba instrumentada)_
   - Depende de: T-004, 001/T-020
   - Aceptación: sin cámara se ofrece la entrada manual del código; sin fotos
     se muestran las iniciales y se permite reintentar; ambos estados explican
@@ -135,7 +135,7 @@ Los componentes de 001 se citan como `001/K-xx` y las tareas como `001/T-xx`.
     `res/values/strings.xml`,
     `test/.../ui/components/permissions/CameraPhotoFallbackTest.kt`
 
-- [x] **T-008** — Degradación de notificaciones y aviso in-app _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-008** — Degradación de notificaciones y aviso in-app _(implementada, falta prueba instrumentada)_
   - Depende de: T-004, 001/T-020
   - Aceptación: sin permiso de notificaciones la app sigue usable y muestra un
     aviso dentro de la interfaz; el permiso se pide solo cuando la pantalla
@@ -145,7 +145,7 @@ Los componentes de 001 se citan como `001/K-xx` y las tareas como `001/T-xx`.
     `ui/components/permissions/InAppNotice.kt`,
     `test/.../ui/components/permissions/NotificationFallbackTest.kt`
 
-- [x] **T-009** — Pantalla de prueba de la matriz de permisos _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-009** — Pantalla de prueba de la matriz de permisos _(implementada, falta prueba instrumentada)_
   - Depende de: T-006, T-007, T-008
   - Aceptación: una pantalla de prueba permite alternar los cuatro permisos
     entre concedido y denegado y muestra cada degradación; **no** se registra

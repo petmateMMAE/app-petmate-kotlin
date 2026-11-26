@@ -10,7 +10,7 @@
 Ninguna tarea se ejecuta sin autorización explícita del humano
 (`constitution.md` §4).
 
-Progreso: **10 / 12 tareas** (implementadas, por verificar al 17/11/2026)
+Progreso: **6 / 12 tareas** (6 implementadas, por verificar; 4 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026)
 
 > **Antes de empezar esta unidad hay que resolver Q-02.** Si el backend no
 > filtra por tipo de negocio, la unidad no se puede implementar con seguridad
@@ -106,7 +106,7 @@ Progreso: **10 / 12 tareas** (implementadas, por verificar al 17/11/2026)
   - Nota: agregar la librería requiere autorización (skill
     `agregar-dependencia`).
 
-- [x] **T-008** — Pantalla del escáner _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-008** — Pantalla del escáner _(implementada, falta prueba instrumentada)_
   - Depende de: T-007
   - Aceptación: abre la cámara pidiendo el permiso según 003; muestra guía
     visual y linterna; al leer un QR válido navega a la ficha; **libera la
@@ -124,7 +124,7 @@ Progreso: **10 / 12 tareas** (implementadas, por verificar al 17/11/2026)
 
 ## Fase F4 — Entrada manual
 
-- [x] **T-009** — Código corto escrito a mano _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-009** — Código corto escrito a mano _(implementada, falta prueba instrumentada)_
   - Depende de: T-008 · Bloqueada por: **Q-04** (formato del código)
   - Aceptación: campo de entrada con el formato del código corto y validación
     de longitud; un código válido abre la ficha igual que el escaneo; un
@@ -140,7 +140,7 @@ Progreso: **10 / 12 tareas** (implementadas, por verificar al 17/11/2026)
 
 ## Fase F5 — Ficha
 
-- [x] **T-010** — Alergias destacadas _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-010** — Alergias destacadas _(implementada, falta prueba instrumentada)_
   - Depende de: T-006
   - Aceptación: `AllergyBanner` se pinta por encima del resto de la ficha y
     **es independiente de las secciones autorizadas**; aparece tanto para
@@ -151,7 +151,7 @@ Progreso: **10 / 12 tareas** (implementadas, por verificar al 17/11/2026)
   - Archivos: `ui/ficha/AllergyBanner.kt`,
     `androidTest/.../ui/ficha/AllergyBannerTest.kt`
 
-- [x] **T-011** — Pantalla de la ficha _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-011** — Pantalla de la ficha _(implementada, falta prueba instrumentada)_
   - Depende de: T-010
   - Aceptación: muestra los básicos de la mascota y las secciones que llegaron
     autorizadas; es de solo lectura; una veterinaria ve la entrada a registrar

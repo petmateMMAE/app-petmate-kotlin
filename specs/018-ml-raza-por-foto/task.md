@@ -10,7 +10,7 @@
 Ninguna tarea se ejecuta sin autorización explícita del humano
 (`constitution.md` §4).
 
-Progreso: **1 / 9 tareas** (verificada el 19/11/2026)
+Progreso: **1 / 9 tareas** (1 verificada, al 26/11/2026)
 
 ---
 

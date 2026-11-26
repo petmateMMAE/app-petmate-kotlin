@@ -13,7 +13,7 @@
 se ejecutan después, con autorización explícita del humano. Un agente que
 implemente estas tareas sin aprobación viola la constitución §4.
 
-Progreso: **1 / 12 tareas** (verificada el 19/11/2026) · Fases completadas: **0 / 5**
+Progreso: **1 / 12 tareas** (1 verificada, al 26/11/2026) · Fases completadas: **0 / 5**
 
 ---
 

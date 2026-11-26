@@ -15,7 +15,7 @@ después. Un agente que implemente estas tareas sin autorización viola la
 constitución §4 ("Nunca: ejecutar tareas de `task.md` sin aprobación explícita
 del humano").
 
-Progreso: **23 / 42 tareas** (implementadas, por verificar al 17/11/2026) · Fases completadas: **0 / 9**
+Progreso: **18 / 42 tareas** (4 verificadas; 14 implementadas, por verificar; 5 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026) · Fases completadas: **0 / 9**
 
 ---
 
@@ -115,7 +115,7 @@ Puerta de calidad de toda tarea que toque código:
   - Archivos: `core/result/AppResult.kt`, `core/result/AppError.kt`,
     `test/.../core/result/AppResultTest.kt`
 
-- [x] **T-008** — `UiText` _(implementada, por verificar · 17/11/2026)_
+- [x] **T-008** — `UiText`
   - Depende de: T-007
   - Aceptación: `UiText` sellada con `Resource(id, args)` y `Dynamic(value)`,
     y un `asString()` que se resuelve en el Composable; ningún `ViewModel`
@@ -123,7 +123,7 @@ Puerta de calidad de toda tarea que toque código:
   - Verificación: `./gradlew test`
   - Archivos: `core/ui/UiText.kt`, `test/.../core/ui/UiTextTest.kt`
 
-- [x] **T-009** — `Logger` y `DispatcherProvider` _(implementada, por verificar · 17/11/2026)_
+- [x] **T-009** — `Logger` y `DispatcherProvider`
   - Depende de: T-007
   - Aceptación: interfaz `Logger` con implementación que registra en `debug` y
     queda silenciosa o remota en `release`, y que **nunca** registra tokens ni
@@ -152,7 +152,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F3 — Datos
 
-- [x] **T-011** — Base de datos Room _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-011** — Base de datos Room _(implementada, falta prueba instrumentada)_
   - Depende de: T-010
   - Aceptación: `PetMateDatabase` con una entidad de prueba desechable, su DAO
     exponiendo `Flow`, conversores de tipo para fechas, y provista por Hilt en
@@ -192,7 +192,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F4 — Sesión
 
-- [x] **T-014** — `SessionStore` cifrado _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-014** — `SessionStore` cifrado _(implementada, falta prueba instrumentada)_
   - Depende de: T-010
   - Aceptación: los tokens se guardan en `EncryptedSharedPreferences`; existen
     operaciones de guardar, leer y borrar; si la inicialización del cifrado
@@ -202,7 +202,7 @@ Puerta de calidad de toda tarea que toque código:
   - Archivos: `data/session/SessionStore.kt`, `di/SessionModule.kt`,
     `androidTest/.../data/session/SessionStoreTest.kt`
 
-- [x] **T-015** — Interfaz y repositorio de sesión _(implementada, por verificar · 17/11/2026)_
+- [x] **T-015** — Interfaz y repositorio de sesión
   - Depende de: T-014, T-013
   - Aceptación: `SessionRepository` declarada en `domain/repository/` y
     `SessionRepositoryImpl` en `data/repository/`; expone el estado de sesión
@@ -214,7 +214,7 @@ Puerta de calidad de toda tarea que toque código:
     `data/repository/SessionRepositoryImpl.kt`,
     `test/.../data/repository/SessionRepositoryImplTest.kt`
 
-- [x] **T-016** — `AuthInterceptor` _(implementada, por verificar · 17/11/2026)_
+- [x] **T-016** — `AuthInterceptor`
   - Depende de: T-015
   - Aceptación: agrega la cabecera `Authorization` cuando hay token y la omite
     en las rutas públicas; **no** intenta renovar nada.
@@ -287,7 +287,7 @@ Puerta de calidad de toda tarea que toque código:
   - Verificación: `@Preview` en claro y oscuro; revisión visual (C-14).
   - Archivos: `ui/theme/Color.kt`, `ui/theme/Theme.kt`, `ui/theme/Type.kt`
 
-- [x] **T-021** — Componentes base reutilizables _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-021** — Componentes base reutilizables _(implementada, falta prueba instrumentada)_
   - Depende de: T-020, T-008
   - Aceptación: existen los componentes de estado de carga, estado vacío,
     estado de error con reintento, botón primario y campo de texto; todos sin
@@ -297,7 +297,7 @@ Puerta de calidad de toda tarea que toque código:
     del componente de error y su reintento.
   - Archivos: `ui/components/`, `androidTest/.../ui/components/`
 
-- [x] **T-022** — Navegación con rutas tipadas _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-022** — Navegación con rutas tipadas _(implementada, falta prueba instrumentada)_
   - Depende de: T-021
   - Aceptación: un solo `NavHost`; rutas tipadas (sin cadenas concatenadas);
     ningún Composable recibe el `NavController`, la navegación sube como
@@ -442,7 +442,7 @@ Puerta de calidad de toda tarea que toque código:
     `test/.../data/remote/RetryInterceptorTest.kt`
   - Nota: no se usa pinning; el balanceador rota certificados (G-09).
 
-- [x] **T-034** — `PermissionController` (permisos en el momento de uso) _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-034** — `PermissionController` (permisos en el momento de uso) _(implementada, falta prueba instrumentada)_
   - Depende de: T-010, T-008
   - Aceptación: existe el ciclo explicar → pedir → resultado para ubicación,
     cámara, fotos y notificaciones; la justificación es `UiText`; si el usuario
