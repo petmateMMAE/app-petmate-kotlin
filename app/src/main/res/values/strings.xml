@@ -464,4 +464,20 @@
         <item quantity="many">%1$d alergias</item>
         <item quantity="other">%1$d alergias</item>
     </plurals>
+    <!-- Ajustes (spec 017) -->
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_notifications_header">Notificaciones</string>
+    <string name="settings_category_health">Salud de mis mascotas</string>
+    <string name="settings_category_followup">Seguimiento de tratamientos</string>
+    <string name="settings_category_chat">Mensajes de la veterinaria</string>
+    <string name="settings_category_news">Novedades y promociones</string>
+    <string name="settings_category_security">Seguridad de la cuenta</string>
+    <string name="settings_category_security_locked">Siempre activa: te avisa de accesos nuevos a tu cuenta</string>
+    <string name="settings_legal_header">Legal</string>
+    <string name="settings_legal_privacy">Aviso de privacidad</string>
+    <string name="settings_legal_terms">Términos y condiciones</string>
+    <string name="settings_legal_pending">Los enlaces legales estarán disponibles pronto</string>
+    <string name="settings_session_header">Sesión</string>
+    <string name="settings_log_out">Cerrar sesión</string>
+    <string name="settings_error_logout">No se pudo cerrar la sesión. Inténtalo de nuevo.</string>
 </resources>
