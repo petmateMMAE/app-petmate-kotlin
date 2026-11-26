@@ -13,7 +13,7 @@
 se ejecutan después, con autorización explícita del humano. Un agente que
 implemente estas tareas sin aprobación viola la constitución §4.
 
-Progreso: **0 / 14 tareas** · Fases completadas: **0 / 5**
+Progreso: **5 / 14 tareas** (3 verificadas; 2 implementadas, por verificar; 4 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026) · Fases completadas: **0 / 5**
 
 ---
 
@@ -38,7 +38,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F1 — Dominio
 
-- [ ] **T-001** — Modelo de negocio, tipo y contrato del directorio
+- [x] **T-001** — Modelo de negocio, tipo y contrato del directorio
   - Depende de: 001/T-007
   - Aceptación: existen `Business`, `BusinessType` (veterinaria, tienda,
     estética y genérico para desconocidos), `Coordinates` y
@@ -51,7 +51,7 @@ Puerta de calidad de toda tarea que toque código:
     `domain/business/BusinessRepository.kt`,
     `test/.../domain/business/BusinessTypeTest.kt`
 
-- [ ] **T-002** — Próximo evento de salud y umbrales de color
+- [x] **T-002** — Próximo evento de salud y umbrales de color
   - Depende de: 008/T-001, 001/T-018
   - Aceptación: `NextHealthEvent` toma la próxima dosis de 008, elige la de
     menos días y clasifica rojo con 3 días o menos, amarillo con 14 o menos y
@@ -69,7 +69,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F2 — Datos
 
-- [ ] **T-003** — Cliente y DTOs del directorio
+- [x] **T-003** — Cliente y DTOs del directorio
   - Depende de: T-001, 001/T-012 · Bloqueada por: **Q-02**
   - Aceptación: el cliente pide el directorio y mapea los negocios con nombre,
     tipo, coordenadas y datos de tarjeta; los campos salen del contrato
@@ -90,7 +90,7 @@ Puerta de calidad de toda tarea que toque código:
     `data/business/CachedBusiness.kt`,
     `test/.../data/business/BusinessCacheTest.kt`
 
-- [ ] **T-005** — Repositorio del directorio
+- [x] **T-005** — Repositorio del directorio _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-003, T-004
   - Aceptación: el repositorio devuelve caché primero y refresca; expone
     `Flow` con el estado (datos, desactualizado, error); no filtra DTOs a
@@ -117,7 +117,7 @@ Puerta de calidad de toda tarea que toque código:
     `ui/map/FakeMapView.kt`,
     `test/.../ui/map/FakeMapViewTest.kt`
 
-- [ ] **T-007** — Adaptador del proveedor de mapas
+- [ ] **T-007** — Adaptador del proveedor de mapas _(implementada, falta prueba instrumentada)_
   - Depende de: T-006 · Bloqueada por: **Q-01** · Requiere autorización de
     dependencia y de llave
   - Aceptación: el adaptador implementa el contrato con el SDK elegido; la
@@ -137,7 +137,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F4 — Pantalla de inicio
 
-- [ ] **T-008** — Pantalla de inicio con mapa y filtros
+- [ ] **T-008** — Pantalla de inicio con mapa y filtros _(implementada, falta prueba instrumentada)_
   - Depende de: T-005, T-006, 001/T-020 · Bloqueada por: **Q-03**
   - Aceptación: tras el login la pantalla de inicio es el mapa; cada negocio
     aparece con el icono de su tipo; los filtros por tipo muestran solo los
@@ -147,7 +147,7 @@ Puerta de calidad de toda tarea que toque código:
     `ui/home/HomeUiState.kt`, `ui/home/BusinessTypeFilter.kt`,
     `test/.../ui/home/HomeScreenTest.kt`
 
-- [ ] **T-009** — Carrusel y tarjeta resumida del negocio
+- [ ] **T-009** — Carrusel y tarjeta resumida del negocio _(implementada, falta prueba instrumentada)_
   - Depende de: T-008 · Bloqueada por: **Q-04**
   - Aceptación: tocar un marcador abre la tarjeta resumida; el carrusel y el
     mapa comparten una sola selección y se sincronizan en ambos sentidos; la
@@ -172,7 +172,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F5 — Ubicación, demo y cierre
 
-- [ ] **T-011** — Ubicación, "cerca de mí" y degradación
+- [ ] **T-011** — Ubicación, "cerca de mí" y degradación _(implementada, falta prueba instrumentada)_
   - Depende de: T-008, 003/T-006 · Bloqueada por: **Q-08, Q-09**
   - Aceptación: el mapa abre con centro por defecto sin pedir permisos; "cerca
     de mí" usa el flujo de 003; si se niega, se mantiene el centro por defecto
@@ -182,7 +182,7 @@ Puerta de calidad de toda tarea que toque código:
   - Archivos: `ui/home/HomeLocation.kt`,
     `test/.../ui/home/HomeLocationTest.kt`
 
-- [ ] **T-012** — Modo demo con datos locales
+- [x] **T-012** — Modo demo con datos locales _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-008, T-010 · Bloqueada por: **Q-07**
   - Aceptación: con el modo demo activo, mapa, mascota y carnet se alimentan de
     datos locales; ninguna operación de escritura sale hacia el backend; el

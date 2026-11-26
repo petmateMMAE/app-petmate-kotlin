@@ -21,6 +21,8 @@ data class VeterinaryActionUiState(
     val isSubmitting: Boolean = false,
     val error: String? = null,
     val fieldErrors: Map<String, String> = emptyMap(),
+    /** Id de la ultima consulta creada, para ofrecer abrir su seguimiento (spec 015, R-01). */
+    val lastConsultationId: String? = null,
 )
 
 @HiltViewModel
@@ -86,7 +88,7 @@ class VeterinaryActionViewModel @Inject constructor(
             )
             when (val r = repository.createConsultation(draft)) {
                 is AppResult.Success -> {
-                    _state.update { it.copy(isSubmitting = false) }
+                    _state.update { it.copy(isSubmitting = false, lastConsultationId = r.data.id) }
                     onSuccess()
                 }
                 is AppResult.Failure -> handleFailure(r.error)

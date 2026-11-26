@@ -13,7 +13,7 @@
 se ejecutan después, con autorización explícita del humano. Un agente que
 implemente estas tareas sin aprobación viola la constitución §4.
 
-Progreso: **0 / 14 tareas** · Fases completadas: **0 / 5**
+Progreso: **2 / 14 tareas** (2 verificadas; 6 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026) · Fases completadas: **0 / 5**
 
 ---
 
@@ -38,7 +38,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F1 — Dominio
 
-- [ ] **T-001** — Modelos del carnet y casos de uso
+- [x] **T-001** — Modelos del carnet y casos de uso
   - Depende de: 007/T-001, 001/T-018
   - Aceptación: existen `Vaccine`, `Deworming`, `WeightEntry`, `Allergy`,
     `Condition` y `MedicalRecord`, con `HealthEvent` como vista unificada;
@@ -51,7 +51,7 @@ Puerta de calidad de toda tarea que toque código:
     `domain/health/WeightEntry.kt`,
     `test/.../domain/health/HealthEventTest.kt`
 
-- [ ] **T-002** — Entidades, DAOs y migración
+- [ ] **T-002** — Entidades, DAOs y migración _(implementada, falta prueba instrumentada)_
   - Depende de: T-001, 001/T-011 · Requiere autorización de esquema
   - Aceptación: las seis secciones tienen entidad y DAO; los `Flow` filtran por
     mascota y por activo; la migración desde la versión anterior se prueba; el
@@ -78,7 +78,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F2 — Datos
 
-- [ ] **T-004** — DTOs, mapeo y cliente del carnet
+- [x] **T-004** — DTOs, mapeo y cliente del carnet
   - Depende de: T-001, 001/T-012 · Bloqueada por: **Q-01**
   - Aceptación: el cliente cubre las seis secciones; los campos salen del
     contrato acordado; el mapeo se prueba con servidor local; el origen viaja
@@ -122,7 +122,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F4 — Pantallas
 
-- [ ] **T-007** — Pantalla del carnet y secciones
+- [ ] **T-007** — Pantalla del carnet y secciones _(implementada, falta prueba instrumentada)_
   - Depende de: T-005, T-006, 001/T-020
   - Aceptación: la pantalla muestra la línea de tiempo, las seis secciones y
     las alergias con distintivo crítico; el origen se ve en cada evento; hay
@@ -132,7 +132,7 @@ Puerta de calidad de toda tarea que toque código:
     `ui/health/CarnetUiState.kt`, `ui/health/HealthEventCard.kt`,
     `test/.../ui/health/CarnetScreenTest.kt`
 
-- [ ] **T-008** — Formulario de vacuna
+- [ ] **T-008** — Formulario de vacuna _(implementada, falta prueba instrumentada)_
   - Depende de: T-001, T-007 · Bloqueada por: **Q-02, Q-06, Q-08, Q-10**
   - Aceptación: registra nombre, fecha, dosis, próxima dosis y lugar; valida lo
     mínimo; guarda la próxima dosis como fecha; funciona sin conexión según
@@ -142,7 +142,7 @@ Puerta de calidad de toda tarea que toque código:
     `ui/health/VaccineFormViewModel.kt`,
     `test/.../ui/health/VaccineFormTest.kt`
 
-- [ ] **T-009** — Formularios de desparasitación y peso
+- [ ] **T-009** — Formularios de desparasitación y peso _(implementada, falta prueba instrumentada)_
   - Depende de: T-001, T-007 · Bloqueada por: **Q-02, Q-03**
   - Aceptación: la desparasitación distingue interna y externa con producto y
     fecha; el peso se registra en kilogramos con fecha y se muestra en orden
@@ -152,7 +152,7 @@ Puerta de calidad de toda tarea que toque código:
     `ui/health/WeightFormScreen.kt`,
     `test/.../ui/health/HealthFormsTest.kt`
 
-- [ ] **T-010** — Formularios de alergia y condición
+- [ ] **T-010** — Formularios de alergia y condición _(implementada, falta prueba instrumentada)_
   - Depende de: T-001, T-007 · Bloqueada por: **Q-05**
   - Aceptación: la alergia se marca como crítica y se muestra siempre; la
     condición indica si es crónica y desde cuándo; ambas se pueden editar y
@@ -162,7 +162,7 @@ Puerta de calidad de toda tarea que toque código:
     `ui/health/ConditionFormScreen.kt`,
     `test/.../ui/health/AllergyConditionTest.kt`
 
-- [ ] **T-011** — Inmutabilidad y etiqueta de origen
+- [ ] **T-011** — Inmutabilidad y etiqueta de origen _(implementada, falta prueba instrumentada)_
   - Depende de: T-003, T-007
   - Aceptación: un registro veterinario no muestra acciones de editar ni
     borrar; uno del dueño sí, con confirmación; la etiqueta de origen es

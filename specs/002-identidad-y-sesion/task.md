@@ -13,7 +13,7 @@
 se ejecutan después, con autorización explícita del humano. Un agente que
 implemente estas tareas sin aprobación viola la constitución §4.
 
-Progreso: **0 / 18 tareas** · Fases completadas: **0 / 6**
+Progreso: **6 / 18 tareas** (5 verificadas; 1 implementada, por verificar; 5 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026) · Fases completadas: **0 / 6**
 
 ---
 
@@ -41,7 +41,7 @@ tareas de esta unidad.
 
 ## Fase F1 — Dominio
 
-- [ ] **T-001** — Modelos de identidad y estado de sesión
+- [x] **T-001** — Modelos de identidad y estado de sesión
   - Depende de: 001/T-007, 001/T-008
   - Aceptación: existen `Account`, `AuthTokens`, `VerificationChallenge`,
     `IdentityError` y `SessionState` como modelos inmutables de Kotlin puro;
@@ -56,7 +56,7 @@ tareas de esta unidad.
     `domain/identity/model/IdentityError.kt`,
     `domain/identity/model/SessionState.kt`
 
-- [ ] **T-002** — Contratos de repositorio de identidad y sesión
+- [x] **T-002** — Contratos de repositorio de identidad y sesión
   - Depende de: T-001, 001/T-015
   - Aceptación: `IdentityRepository`, `SessionRepository` y `TokenRefresher`
     declaran las operaciones de alta, verificación, reenvío, login,
@@ -96,7 +96,7 @@ tareas de esta unidad.
 
 ## Fase F2 — Red y errores
 
-- [ ] **T-005** — Cliente remoto y DTOs de identidad
+- [x] **T-005** — Cliente remoto y DTOs de identidad
   - Depende de: T-001, 001/T-012, 001/T-013 · Bloqueada por: **Q-01**
   - Aceptación: existe una interfaz de API para registro, verificación,
     reenvío, login, renovación, logout y recuperación; los DTOs son
@@ -112,7 +112,7 @@ tareas de esta unidad.
   - Nota: **no se inventan rutas ni campos**. Si Q-01 sigue abierta, la tarea
     no se ejecuta.
 
-- [ ] **T-006** — Errores y textos de identidad
+- [x] **T-006** — Errores y textos de identidad
   - Depende de: T-001, 001/T-008, 001/T-013 · Bloqueada por: **Q-10**
   - Aceptación: cada falla del backend se traduce a un `IdentityError` del
     conjunto cerrado y a un `UiText` propio; credenciales inválidas y correo
@@ -130,7 +130,7 @@ tareas de esta unidad.
 
 ## Fase F3 — Sesión
 
-- [ ] **T-007** — Estado de sesión observable
+- [ ] **T-007** — Estado de sesión observable _(implementada, falta prueba instrumentada)_
   - Depende de: T-001, T-002, 001/T-014, 001/T-015
   - Aceptación: la sesión se expone como `Flow<SessionState>` con los cuatro
     estados; se guarda cifrada y se restaura al arrancar; el cierre la deja
@@ -142,7 +142,7 @@ tareas de esta unidad.
     `data/session/SessionRepositoryImpl.kt`, `di/SessionModule.kt`,
     `test/.../data/session/SessionRepositoryTest.kt`
 
-- [ ] **T-008** — Renovación single-flight
+- [x] **T-008** — Renovación single-flight _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-007, 001/T-017 · Bloqueada por: **Q-05**
   - Aceptación: la renovación se serializa; diez peticiones simultáneas con el
     token expirado producen una sola renovación; cada petición original se
@@ -161,7 +161,7 @@ tareas de esta unidad.
 
 ## Fase F4 — Repositorio
 
-- [ ] **T-009** — Repositorio de identidad
+- [x] **T-009** — Repositorio de identidad
   - Depende de: T-003, T-004, T-005, T-006, T-007
   - Aceptación: `IdentityRepositoryImpl` implementa los contratos y orquesta
     red, sesión y errores; guarda la sesión solo después de un login o una
@@ -191,7 +191,7 @@ tareas de esta unidad.
 
 ## Fase F5 — Presentación
 
-- [ ] **T-011** — Bienvenida y grafo de identidad
+- [ ] **T-011** — Bienvenida y grafo de identidad _(implementada, falta prueba instrumentada)_
   - Depende de: T-004, T-009, 001/T-022
   - Aceptación: la bienvenida ofrece iniciar sesión y crear cuenta, y **no**
     muestra "probar demo"; las rutas son tipadas y llevan a alta, verificación,
@@ -203,7 +203,7 @@ tareas de esta unidad.
     `ui/navigation/IdentityNavGraph.kt`, `ui/navigation/AppNavHost.kt`,
     `test/.../ui/identity/WelcomeTest.kt`
 
-- [ ] **T-012** — Pantalla de alta
+- [ ] **T-012** — Pantalla de alta _(implementada, falta prueba instrumentada)_
   - Depende de: T-003, T-006, T-011 · Bloqueada por: **Q-02, Q-07, Q-09**
   - Aceptación: pide correo y contraseña, exige aceptar el aviso de privacidad
     y muestra su enlace; no continúa sin aceptación; con un servidor lento
@@ -225,7 +225,7 @@ tareas de esta unidad.
     `ui/identity/verification/VerificationViewModel.kt`,
     `test/.../ui/identity/VerificationTest.kt`
 
-- [ ] **T-014** — Pantalla de login
+- [ ] **T-014** — Pantalla de login _(implementada, falta prueba instrumentada)_
   - Depende de: T-004, T-006, T-011 · Bloqueada por: **Q-04, Q-10**
   - Aceptación: autentica con correo y contraseña; credenciales inválidas y
     correo inexistente muestran el mismo mensaje; con servidor lento muestra
@@ -246,7 +246,7 @@ tareas de esta unidad.
     `ui/identity/recovery/RecoveryViewModel.kt`,
     `test/.../ui/identity/RecoveryTest.kt`
 
-- [ ] **T-016** — Guardas de navegación y restauración de sesión
+- [ ] **T-016** — Guardas de navegación y restauración de sesión _(implementada, falta prueba instrumentada)_
   - Depende de: T-007, T-011, T-014
   - Aceptación: al arrancar se restaura la sesión antes de pintar la primera
     pantalla; no se ve el login y luego un salto; una sesión válida entra al

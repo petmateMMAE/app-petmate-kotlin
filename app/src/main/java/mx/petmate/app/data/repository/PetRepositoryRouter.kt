@@ -33,4 +33,10 @@ private class DelegatingPetRepository(private val target: () -> PetRepository) :
     override suspend fun addWeight(petId: String, measuredOn: String, kilograms: Double) = target().addWeight(petId, measuredOn, kilograms)
     override suspend fun addAllergy(petId: String, draft: mx.petmate.app.domain.model.AllergyDraft) = target().addAllergy(petId, draft)
     override suspend fun updateAllergy(id: String, draft: mx.petmate.app.domain.model.AllergyDraft) = target().updateAllergy(id, draft)
+
+    // Offline-first (specs 007/T-004 y 008/T-005): sin estas lineas se usarian los valores por defecto del contrato.
+    override fun observePets() = target().observePets()
+    override fun observeCarnet(petId: String) = target().observeCarnet(petId)
+    override suspend fun refreshPets() = target().refreshPets()
+    override suspend fun refreshCarnet(petId: String) = target().refreshCarnet(petId)
 }

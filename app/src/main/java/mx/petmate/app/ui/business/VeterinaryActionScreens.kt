@@ -64,6 +64,8 @@ fun ConsultationFormScreen(
     petName: String,
     onBackClick: () -> Unit,
     onSaved: () -> Unit,
+    /** Recibe el id de la consulta recien creada, antes de [onSaved] (spec 015, T-011). */
+    onSavedWithId: (String) -> Unit = {},
     viewModel: VeterinaryActionViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
 ) {
@@ -96,7 +98,10 @@ fun ConsultationFormScreen(
                             diagnosis = diagnosis,
                             weightKgText = weightKg,
                             medications = medications.toList(),
-                            onSuccess = onSaved,
+                            onSuccess = {
+                                viewModel.state.value.lastConsultationId?.let(onSavedWithId)
+                                onSaved()
+                            },
                         )
                     },
                     enabled = !state.isSubmitting,

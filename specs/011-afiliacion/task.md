@@ -10,13 +10,13 @@
 Ninguna tarea se ejecuta sin autorización explícita del humano
 (`constitution.md` §4).
 
-Progreso: **0 / 14 tareas**
+Progreso: **5 / 14 tareas** (1 verificada; 4 implementadas, por verificar; 4 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026)
 
 ---
 
 ## Fase F1 — Dominio
 
-- [ ] **T-001** — Modelos de negocio, tipo y servicio
+- [x] **T-001** — Modelos de negocio, tipo y servicio _(implementada, por verificar · 17/11/2026)_
   - Depende de: —
   - Aceptación: `Business`, `BusinessType` (enumeración con veterinaria,
     tienda y estética), `Service` y `Money` existen en `domain/model`, en
@@ -37,7 +37,7 @@ Progreso: **0 / 14 tareas**
   - Archivos: `domain/model/AffiliationDraft.kt`,
     `domain/repository/BusinessRepository.kt`
 
-- [ ] **T-003** — Validación por paso
+- [x] **T-003** — Validación por paso _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-002
   - Aceptación: `ValidateAffiliationStepUseCase` rechaza paso 1 sin nombre o
     sin tipo, paso 2 con cero servicios o con precio vacío, negativo o no
@@ -62,7 +62,7 @@ Progreso: **0 / 14 tareas**
 
 ## Fase F2 — Datos
 
-- [ ] **T-005** — DTOs, servicio remoto y mappers
+- [x] **T-005** — DTOs, servicio remoto y mappers
   - Depende de: T-002 · Bloqueada por: **Q-01**
   - Aceptación: `BusinessDto` y `ServiceDto` con su serialización;
     `BusinessApiService` declara crear y consultar negocio; los mappers
@@ -89,7 +89,7 @@ Progreso: **0 / 14 tareas**
 
 ## Fase F3 — Repositorio
 
-- [ ] **T-007** — `BusinessRepositoryImpl`
+- [x] **T-007** — `BusinessRepositoryImpl` _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-005, T-006
   - Aceptación: implementa el contrato; guarda y lee borrador local; al enviar,
     modera textos e imagen por el punto de 004 antes de llamar al backend; un
@@ -114,7 +114,7 @@ Progreso: **0 / 14 tareas**
 
 ## Fase F4 — Pasos 1 y 2
 
-- [ ] **T-009** — ViewModel del flujo y entrada desde el perfil
+- [x] **T-009** — ViewModel del flujo y entrada desde el perfil _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-004, T-007
   - Aceptación: `AffiliationFlowViewModel` expone un `StateFlow` con el paso
     activo, el borrador y los errores; el perfil muestra la entrada solo si el
@@ -124,7 +124,7 @@ Progreso: **0 / 14 tareas**
     `ui/afiliacion/AffiliationUiState.kt`,
     `test/.../ui/afiliacion/AffiliationFlowViewModelTest.kt`
 
-- [ ] **T-010** — Paso 1: datos y tipos
+- [ ] **T-010** — Paso 1: datos y tipos _(implementada, falta prueba instrumentada)_
   - Depende de: T-009
   - Aceptación: captura nombre, descripción, teléfono y horario; permite
     seleccionar uno o varios tipos; no avanza sin nombre ni tipo; los textos
@@ -134,7 +134,7 @@ Progreso: **0 / 14 tareas**
   - Archivos: `ui/afiliacion/AffiliationStep1Screen.kt`,
     `androidTest/.../ui/afiliacion/AffiliationStep1Test.kt`
 
-- [ ] **T-011** — Paso 2: servicios con precio
+- [ ] **T-011** — Paso 2: servicios con precio _(implementada, falta prueba instrumentada)_
   - Depende de: T-010
   - Aceptación: agrega, edita y elimina servicios antes de confirmar; exige al
     menos uno; valida el precio con `Money`; muestra el total capturado.
@@ -149,7 +149,7 @@ Progreso: **0 / 14 tareas**
 
 ## Fase F5 — Paso 3
 
-- [ ] **T-012** — Paso 3: pin en el mapa
+- [ ] **T-012** — Paso 3: pin en el mapa _(implementada, falta prueba instrumentada)_
   - Depende de: T-011 · Bloqueada por: **010 Q-07** (proveedor de mapas)
   - Aceptación: monta el componente de mapa de 010 en modo selección; pide el
     permiso de ubicación según 003 y funciona sin él con centro por defecto;
@@ -165,7 +165,7 @@ Progreso: **0 / 14 tareas**
 
 ## Fase F6 — Modos y cierre
 
-- [ ] **T-013** — Alternancia entre modo dueño y modo negocio
+- [ ] **T-013** — Alternancia entre modo dueño y modo negocio _(implementada, falta prueba instrumentada)_
   - Depende de: T-012
   - Aceptación: al completar la afiliación el usuario entra al panel (012) o a
     su destino provisional si 012 no existe; puede volver a "Mis mascotas" sin

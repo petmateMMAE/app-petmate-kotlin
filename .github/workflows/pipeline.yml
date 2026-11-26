@@ -319,6 +319,46 @@ jobs:
             tests: 'mx.petmate.app.data.repository.VeterinaryRepositoryImplTest'
           - feature: formularios-veterinaria
             tests: 'mx.petmate.app.ui.business.VeterinaryActionViewModelTest'
+          - feature: politica-sincronizacion
+            tests: 'mx.petmate.app.domain.sync.SyncPolicyTest'
+          - feature: cola-offline
+            tests: 'mx.petmate.app.data.sync.SyncOutboxTest'
+          - feature: grafo-sincronizacion
+            tests: 'mx.petmate.app.data.sync.SyncGraphTest'
+          - feature: planificador-sincronizacion
+            tests: 'mx.petmate.app.data.sync.SyncSchedulerTest'
+          - feature: estado-sincronizacion
+            tests: 'mx.petmate.app.data.sync.SyncStatusRepositoryImplTest'
+          - feature: catalogo-permisos
+            tests: 'mx.petmate.app.domain.permissions.PermissionCatalogTest'
+          - feature: flujo-permisos
+            tests: 'mx.petmate.app.core.permissions.PermissionFlowTest'
+          - feature: alternativa-foto
+            tests: 'mx.petmate.app.ui.components.permissions.PhotoFallbackInitialsTest'
+          - feature: transiciones-seguimiento
+            tests: 'mx.petmate.app.domain.usecase.FollowUpTransitionTest'
+          - feature: fecha-revision-seguimiento
+            tests: 'mx.petmate.app.domain.usecase.ClassifyReviewDateUseCaseTest'
+          - feature: cambio-estado-seguimiento
+            tests: 'mx.petmate.app.domain.usecase.ChangeFollowUpStatusUseCaseTest'
+          - feature: pantalla-seguimiento
+            tests: 'mx.petmate.app.ui.seguimiento.FollowUpViewModelTest'
+          - feature: mascotas-carnet-sin-red
+            tests: 'mx.petmate.app.data.repository.OfflineFirstPetRepositoryTest'
+          - feature: seguimiento-sin-red
+            tests: 'mx.petmate.app.data.repository.OfflineFirstFollowUpRepositoryTest'
+          - feature: categorias-notificaciones
+            tests: 'mx.petmate.app.domain.push.NotificationPreferencesTest'
+          - feature: preferencias-notificaciones
+            tests: 'mx.petmate.app.data.push.NotificationPreferencesStoreTest'
+          - feature: contrato-clasificador-razas
+            tests: 'mx.petmate.app.domain.classifier.BreedClassifierModelsTest'
+          - feature: contrato-ia-generativa
+            tests: 'mx.petmate.app.domain.ai.GenerationModelsTest'
+          - feature: moderacion-modelos
+            tests: 'mx.petmate.app.domain.moderation.ModerationVerdictTest'
+          - feature: chat-modelos
+            tests: 'mx.petmate.app.domain.chat.ChatModelsTest'
     steps:
       - uses: actions/checkout@v5
 

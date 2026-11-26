@@ -10,13 +10,13 @@
 Ninguna tarea se ejecuta sin autorización explícita del humano
 (`constitution.md` §4).
 
-Progreso: **0 / 13 tareas**
+Progreso: **4 / 13 tareas** (1 verificada; 3 implementadas, por verificar; 2 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026)
 
 ---
 
 ## Fase F1 — Dominio
 
-- [ ] **T-001** — Modelos del panel
+- [x] **T-001** — Modelos del panel
   - Depende de: —
   - Aceptación: `BusinessDashboard`, `FollowUpAlert`, `AttendedPet`,
     `AlertSeverity` y `DayFilter` existen en `domain/model`, en Kotlin puro,
@@ -27,7 +27,7 @@ Progreso: **0 / 13 tareas**
     `domain/model/FollowUpAlert.kt`, `domain/model/AttendedPet.kt`,
     `domain/model/DayFilter.kt`
 
-- [ ] **T-002** — Contrato del repositorio del panel
+- [x] **T-002** — Contrato del repositorio del panel _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-001
   - Aceptación: `DashboardRepository` declara observar el panel, refrescarlo y
     consultar mascotas atendidas por rango; devuelve `Flow` y `AppResult`.
@@ -63,7 +63,7 @@ Progreso: **0 / 13 tareas**
 
 ## Fase F2 — Datos
 
-- [ ] **T-005** — DTOs, servicio remoto y mappers
+- [x] **T-005** — DTOs, servicio remoto y mappers _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-002 · Bloqueada por: **Q-01, Q-05**
   - Aceptación: DTOs del resumen, de las alertas y de las mascotas atendidas,
     con su serialización; `DashboardApiService` declara las llamadas; los
@@ -118,7 +118,7 @@ Progreso: **0 / 13 tareas**
 
 ## Fase F4 — Presentación
 
-- [ ] **T-009** — ViewModel y pantalla del panel
+- [x] **T-009** — ViewModel y pantalla del panel _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-004, T-007
   - Aceptación: `DashboardViewModel` expone un `StateFlow` con **un estado por
     bloque** (portada, alertas, atendidas), no un `isLoading` global (D-03);
@@ -129,7 +129,7 @@ Progreso: **0 / 13 tareas**
     `ui/panel/DashboardScreen.kt`,
     `test/.../ui/panel/DashboardViewModelTest.kt`
 
-- [ ] **T-010** — Portada del negocio y resumen
+- [ ] **T-010** — Portada del negocio y resumen _(implementada, falta prueba instrumentada)_
   - Depende de: T-009
   - Aceptación: muestra nombre, tipos y foto del negocio, y los contadores de
     atrasadas, próximas y mensajes sin leer; los textos salen de
@@ -155,7 +155,7 @@ Progreso: **0 / 13 tareas**
   - Archivos: `ui/panel/AlertList.kt`,
     `androidTest/.../ui/panel/AlertListTest.kt`
 
-- [ ] **T-012** — Mascotas atendidas con filtro por día
+- [ ] **T-012** — Mascotas atendidas con filtro por día _(implementada, falta prueba instrumentada)_
   - Depende de: T-011 · Bloqueada por: **Q-03** (tamaño de página)
   - Aceptación: lista paginada con filtro Hoy, Ayer, Semana y selección de
     fecha; tocar una mascota navega a su consulta o a un destino provisional

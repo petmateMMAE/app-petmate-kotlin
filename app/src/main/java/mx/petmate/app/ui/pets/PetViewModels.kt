@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -59,28 +60,42 @@ class PetsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(PetsUiState())
     val uiState: StateFlow<PetsUiState> = _uiState.asStateFlow()
 
+    /**
+     * Offline-first (spec 007, T-004; P4): primero lo guardado en el telefono, que abre al instante y sin red;
+     * luego lo nuevo del servidor. Sin red y con datos guardados, se quedan los guardados sin mostrar error.
+     */
     fun refresh() {
         _uiState.update { it.copy(isLoading = it.pets.isEmpty(), error = null) }
         viewModelScope.launch {
+            repository.getPets().getOrNull()?.takeIf { it.isNotEmpty() }?.let { show(it) }
+            val refreshed = repository.refreshPets()
+            if (refreshed is AppResult.Failure && _uiState.value.pets.isEmpty()) {
+                _uiState.update { it.copy(isLoading = false, error = refreshed.error.toPetUiText()) }
+                return@launch
+            }
             when (val result = repository.getPets()) {
                 is AppResult.Failure -> _uiState.update { it.copy(isLoading = false, error = result.error.toPetUiText()) }
-                is AppResult.Success -> {
-                    val today = PetDates.today()
-                    // El carnet de cada mascota alimenta su etiqueta ("Vacuna en 3 dias", "1 alergia").
-                    val summaries = result.data.map { pet ->
-                        async {
-                            val carnet = repository.getCarnet(pet.id).getOrNull()
-                            PetSummary(
-                                pet = pet,
-                                next = carnet?.nextEvent(today),
-                                activeAllergies = carnet?.allergies?.count { it.active } ?: 0,
-                            )
-                        }
-                    }.awaitAll()
-                    _uiState.update { PetsUiState(isLoading = false, pets = summaries) }
-                }
+                is AppResult.Success -> show(result.data)
             }
         }
+    }
+
+    private suspend fun show(pets: List<Pet>) {
+        val today = PetDates.today()
+        // El carnet de cada mascota alimenta su etiqueta ("Vacuna en 3 dias", "1 alergia").
+        val summaries = coroutineScope {
+            pets.map { pet ->
+                async {
+                    val carnet = repository.getCarnet(pet.id).getOrNull()
+                    PetSummary(
+                        pet = pet,
+                        next = carnet?.nextEvent(today),
+                        activeAllergies = carnet?.allergies?.count { it.active } ?: 0,
+                    )
+                }
+            }.awaitAll()
+        }
+        _uiState.update { PetsUiState(isLoading = false, pets = summaries) }
     }
 }
 
@@ -206,20 +221,37 @@ class PetCarnetViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(CarnetUiState())
     val uiState: StateFlow<CarnetUiState> = _uiState.asStateFlow()
 
-    /** Mascota y carnet completos. Se llama cada vez que la pantalla aparece. */
+    /**
+     * Mascota y carnet completos. Se llama cada vez que la pantalla aparece.
+     *
+     * Offline-first (spec 008, T-005; P4): primero lo guardado en el telefono, luego lo nuevo del servidor. Sin red
+     * y con el carnet ya guardado, se queda el guardado y no se muestra error (C-01).
+     */
     fun refresh() {
         _uiState.update { it.copy(isLoading = it.pet == null, error = null) }
         viewModelScope.launch {
-            val pet = async { repository.getPet(petId) }
-            val carnet = async { repository.getCarnet(petId) }
-            val petResult = pet.await()
-            val carnetResult = carnet.await()
-            _uiState.update {
-                when {
-                    petResult is AppResult.Failure -> it.copy(isLoading = false, error = petResult.error.toPetUiText())
-                    carnetResult is AppResult.Failure -> it.copy(isLoading = false, pet = petResult.getOrNull(), error = carnetResult.error.toPetUiText())
-                    else -> it.copy(isLoading = false, pet = petResult.getOrNull(), carnet = carnetResult.getOrNull() ?: Carnet())
-                }
+            val (cachedPet, cachedCarnet) = readPetAndCarnet()
+            val hadCache = cachedPet is AppResult.Success && cachedCarnet is AppResult.Success
+            if (hadCache) show(cachedPet, cachedCarnet)
+            val refreshed = repository.refreshCarnet(petId)
+            if (refreshed is AppResult.Failure && hadCache) return@launch
+            val (petResult, carnetResult) = readPetAndCarnet()
+            show(petResult, carnetResult)
+        }
+    }
+
+    private suspend fun readPetAndCarnet(): Pair<AppResult<Pet>, AppResult<Carnet>> = coroutineScope {
+        val pet = async { repository.getPet(petId) }
+        val carnet = async { repository.getCarnet(petId) }
+        pet.await() to carnet.await()
+    }
+
+    private fun show(petResult: AppResult<Pet>, carnetResult: AppResult<Carnet>) {
+        _uiState.update {
+            when {
+                petResult is AppResult.Failure -> it.copy(isLoading = false, error = petResult.error.toPetUiText())
+                carnetResult is AppResult.Failure -> it.copy(isLoading = false, pet = petResult.getOrNull(), error = carnetResult.error.toPetUiText())
+                else -> it.copy(isLoading = false, pet = petResult.getOrNull(), carnet = carnetResult.getOrNull() ?: Carnet())
             }
         }
     }

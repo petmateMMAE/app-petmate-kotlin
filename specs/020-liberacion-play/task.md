@@ -10,7 +10,7 @@
 Ninguna tarea se ejecuta sin autorización explícita del humano
 (`constitution.md` §4).
 
-Progreso: **0 / 14 tareas**
+Progreso: **4 / 14 tareas** (4 implementadas, por verificar, al 26/11/2026)
 
 ---
 
@@ -26,7 +26,7 @@ llega a la evaluación del 02/12/2026 con la app publicada.
 
 ## Fase F1 — Cuenta y firma · límite 29/10/2026
 
-- [ ] **T-001** — Crear la cuenta de desarrollador y verificar identidad
+- [x] **T-001** — Crear la cuenta de desarrollador y verificar identidad _(implementada, por verificar · 17/11/2026)_
   - Depende de: — · Bloqueada por: **Q-02** (quién paga la cuota)
   - Aceptación: la cuenta existe, se pagó la cuota y la verificación de
     identidad está enviada; se confirman los requisitos vigentes de prueba
@@ -46,7 +46,7 @@ llega a la evaluación del 02/12/2026 con la app publicada.
   - Archivos: `.gitignore`, `memoria.md`
   - Nota: perder esta llave es el único error irreversible del proyecto.
 
-- [ ] **T-003** — Verificar el nombre y reservar la ficha
+- [x] **T-003** — Verificar el nombre y reservar la ficha _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-001 · Bloqueada por: **Q-05** (disponibilidad del nombre)
   - Aceptación: el nombre está disponible y la aplicación está creada en la
     consola con su identificador definitivo, el mismo del `applicationId` de
@@ -123,7 +123,7 @@ llega a la evaluación del 02/12/2026 con la app publicada.
 
 ## Fase F4 — Prueba cerrada · **límite 08/11/2026**
 
-- [ ] **T-009** — Reclutar testers
+- [x] **T-009** — Reclutar testers _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-003 · Bloqueada por: **Q-03** (quiénes son)
   - Aceptación: lista de **al menos 15 personas** con cuenta de Google que
     aceptaron participar, para cubrir el mínimo de 12 con margen (D-06).
@@ -141,7 +141,7 @@ llega a la evaluación del 02/12/2026 con la app publicada.
     recorrido básico.
   - Archivos: `docs/bitacora-versiones.md`
 
-- [ ] **T-011** — **Iniciar la prueba cerrada**
+- [x] **T-011** — **Iniciar la prueba cerrada** _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-009, T-010, T-006
   - Aceptación: el track de prueba cerrada está activo con los 12 o más
     testers inscritos, que recibieron la invitación e instalaron la app; la

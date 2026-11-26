@@ -42,7 +42,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import mx.petmate.app.R
 import mx.petmate.app.domain.model.PetSex
 import mx.petmate.app.domain.model.PetSpecies
-import mx.petmate.app.domain.usecase.PetDates
 import mx.petmate.app.domain.usecase.PetRules
 import mx.petmate.app.ui.components.DemoStrip
 import mx.petmate.app.ui.components.OwnerTab
@@ -51,6 +50,7 @@ import mx.petmate.app.ui.components.PetMateBottomBar
 import mx.petmate.app.ui.components.PetMateButton
 import mx.petmate.app.ui.components.PetMateButtonStyle
 import mx.petmate.app.ui.components.PetMateTextField
+import mx.petmate.app.ui.components.dueColors
 import mx.petmate.app.ui.theme.petMateColors
 
 // =====================================================================================================
@@ -172,11 +172,12 @@ private fun PetCard(summary: PetSummary, onClick: () -> Unit) {
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 val next = summary.next
                 if (next != null) {
-                    val soon = (PetDates.daysBetween(PetDates.today(), next.date) ?: 99) <= 7
+                    // Umbrales unicos de la app (DueThresholds): rojo <= 3 dias, amarillo <= 14.
+                    val due = dueColors(next.date)
                     PetMateBadge(
                         text = "${stringResource(if (next.isVaccine) R.string.pets_badge_vaccine else R.string.pets_badge_deworm)} ${whenText(next.date)}",
-                        container = if (soon) extra.sunSoft else extra.surface2,
-                        content = if (soon) extra.sunInk else extra.ink2,
+                        container = due.container,
+                        content = due.content,
                         icon = if (next.isVaccine) R.drawable.ic_pm_syringe else R.drawable.ic_pm_pill,
                     )
                 } else {

@@ -13,7 +13,7 @@
 se ejecutan después, con autorización explícita del humano. Un agente que
 implemente estas tareas sin aprobación viola la constitución §4.
 
-Progreso: **0 / 13 tareas** · Fases completadas: **0 / 5**
+Progreso: **3 / 13 tareas** (2 verificadas; 1 implementada, por verificar; 6 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026) · Fases completadas: **0 / 5**
 
 ---
 
@@ -38,7 +38,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F1 — Dominio
 
-- [ ] **T-001** — Modelo de mascota y casos de uso
+- [x] **T-001** — Modelo de mascota y casos de uso
   - Depende de: 001/T-007, 001/T-018
   - Aceptación: existen `Pet` con los campos de la spec y `Pet.age(today)`;
     `ObservePetsUseCase`, `CreatePetUseCase`, `UpdatePetUseCase` y
@@ -51,7 +51,7 @@ Puerta de calidad de toda tarea que toque código:
     `domain/pets/usecase/SavePetUseCase.kt`,
     `test/.../domain/pets/PetAgeTest.kt`
 
-- [ ] **T-002** — Entidad, DAO y migración de Room
+- [ ] **T-002** — Entidad, DAO y migración de Room _(implementada, falta prueba instrumentada)_
   - Depende de: T-001, 001/T-011 · Requiere autorización de esquema
   - Aceptación: existe `PetEntity` con su DAO; el `Flow` de la lista filtra por
     usuario y por activo; la migración se prueba desde la versión anterior; el
@@ -67,7 +67,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F2 — Datos
 
-- [ ] **T-003** — DTOs, mapeo y cliente de mascotas
+- [x] **T-003** — DTOs, mapeo y cliente de mascotas
   - Depende de: T-001, 001/T-012 · Bloqueada por: **Q-01**
   - Aceptación: el cliente y los DTOs cubren listar, crear, editar y borrar;
     los campos salen del contrato acordado; el mapeo DTO ↔ entidad ↔ dominio
@@ -121,7 +121,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F4 — Presentación
 
-- [ ] **T-007** — Pantalla de lista y tarjeta
+- [ ] **T-007** — Pantalla de lista y tarjeta _(implementada, falta prueba instrumentada)_
   - Depende de: T-004, 001/T-020
   - Aceptación: la lista muestra tarjetas con foto o iniciales, nombre, edad,
     especie y raza; el espacio de la próxima vacuna queda reservado; hay estado
@@ -131,7 +131,7 @@ Puerta de calidad de toda tarea que toque código:
     `ui/pets/PetsUiState.kt`, `ui/pets/PetCard.kt`,
     `test/.../ui/pets/PetsScreenTest.kt`
 
-- [ ] **T-008** — Formulario de alta y edición
+- [ ] **T-008** — Formulario de alta y edición _(implementada, falta prueba instrumentada)_
   - Depende de: T-001, T-005
   - Aceptación: un solo formulario sirve para alta y edición; valida los campos
     obligatorios confirmados; conserva el estado al rotar; muestra errores
@@ -141,7 +141,7 @@ Puerta de calidad de toda tarea que toque código:
     `ui/pets/PetFormUiState.kt`,
     `test/.../ui/pets/PetFormTest.kt`
 
-- [ ] **T-009** — Borrado con confirmación
+- [ ] **T-009** — Borrado con confirmación _(implementada, falta prueba instrumentada)_
   - Depende de: T-004, T-007
   - Aceptación: borrar pide confirmación explícita; al confirmar, la mascota
     desaparece de la lista y la operación se encola; cancelar no cambia nada.
@@ -149,7 +149,7 @@ Puerta de calidad de toda tarea que toque código:
   - Archivos: `ui/pets/DeletePetDialog.kt`,
     `test/.../ui/pets/DeletePetTest.kt`
 
-- [ ] **T-010** — Navegación y retiro de la pantalla de verificación
+- [ ] **T-010** — Navegación y retiro de la pantalla de verificación _(implementada, falta prueba instrumentada)_
   - Depende de: T-007, T-008, 001/T-022
   - Aceptación: las rutas de lista, alta y edición son tipadas; la lista es el
     destino tras autenticarse; la pantalla y la ruta de verificación de 001 ya
@@ -165,7 +165,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F5 — Cierre
 
-- [ ] **T-011** — Estados de carga, error y vacío
+- [ ] **T-011** — Estados de carga, error y vacío _(implementada, falta prueba instrumentada)_
   - Depende de: T-007, T-008
   - Aceptación: la lista y el formulario muestran carga, error y vacío con
     textos propios; un error de red no cierra la app; el reintento funciona.
@@ -173,7 +173,7 @@ Puerta de calidad de toda tarea que toque código:
   - Archivos: `ui/pets/PetsErrorState.kt`,
     `test/.../ui/pets/PetsStatesTest.kt`
 
-- [ ] **T-012** — Pruebas de aislamiento, edad y persistencia
+- [x] **T-012** — Pruebas de aislamiento, edad y persistencia _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-004, T-007, T-008
   - Aceptación: una suite cubre dos sesiones, edad con reloj fijo, rotación,
     modo avión y borrado lógico; el doble de API cuenta las peticiones.

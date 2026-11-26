@@ -46,10 +46,13 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import mx.petmate.app.R
 import mx.petmate.app.domain.model.BusinessKind
 import mx.petmate.app.domain.model.ScanFicha
+import mx.petmate.app.domain.permissions.PermissionType
 import mx.petmate.app.ui.components.ErrorNotice
 import mx.petmate.app.ui.components.PetMateButton
 import mx.petmate.app.ui.components.PetMateButtonStyle
 import mx.petmate.app.ui.components.PetMateTextField
+import mx.petmate.app.ui.components.permissions.CameraFallback
+import mx.petmate.app.ui.components.permissions.rememberPermissionRequest
 import mx.petmate.app.ui.map.OsmMapHandle
 import mx.petmate.app.ui.pets.PetBottomAction
 import mx.petmate.app.ui.pets.PetConfirmDialog
@@ -60,6 +63,7 @@ import mx.petmate.app.ui.pets.PetSectionTitle
 import mx.petmate.app.ui.pets.PetTopBar
 import mx.petmate.app.ui.pets.VSpace
 import mx.petmate.app.ui.pets.formatDate
+import mx.petmate.app.ui.seguimiento.FollowUpScreen
 import mx.petmate.app.ui.theme.petMateColors
 
 /* Modo negocio: panel, mi negocio, servicios, escanear, ficha y atendidas (PetMate_App.html). */
@@ -392,7 +396,7 @@ fun ScannerScreen(viewModel: ScanViewModel, bottomBar: @Composable () -> Unit, m
     }
     val extra = MaterialTheme.petMateColors
     val launcher = rememberLauncherForActivityResult(ScanContract()) { result -> result.contents?.let { viewModel.resolve(it) } }
-    val openCamera = {
+    val launchScanner = {
         launcher.launch(
             ScanOptions()
                 .setDesiredBarcodeFormats(ScanOptions.QR_CODE)
@@ -401,6 +405,16 @@ fun ScannerScreen(viewModel: ScanViewModel, bottomBar: @Composable () -> Unit, m
                 .setOrientationLocked(false),
         )
     }
+    // La camara pasa por la explicacion previa y, si se niega, queda el codigo manual (spec 003, R-02, R-06).
+    var cameraDenied by rememberSaveable { mutableStateOf(false) }
+    val openCamera = rememberPermissionRequest(
+        type = PermissionType.Camera,
+        onGranted = {
+            cameraDenied = false
+            launchScanner()
+        },
+        onDenied = { cameraDenied = true },
+    )
     Column(modifier = modifier.fillMaxSize().background(Color(0xFF15131C))) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -431,6 +445,9 @@ fun ScannerScreen(viewModel: ScanViewModel, bottomBar: @Composable () -> Unit, m
             )
             PetMateButton("Abrir cámara", openCamera, icon = R.drawable.ic_pm_qr, loading = state.resolving, modifier = Modifier.fillMaxWidth())
             VSpace(18.dp)
+            if (cameraDenied) {
+                CameraFallback(onRetry = openCamera, modifier = Modifier.padding(bottom = 12.dp))
+            }
             Box(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp)).padding(14.dp)) {
                 Column {
                     PetMateTextField(state.code, viewModel::onCode, "O escribe el código", placeholder = "8 caracteres, por ejemplo K7Q2M9XA")
@@ -455,6 +472,21 @@ fun FichaScreen(
     modifier: Modifier = Modifier,
 ) {
     var action by rememberSaveable { mutableStateOf(FichaAction.None) }
+    // Consulta recien guardada cuyo seguimiento se ofrece abrir (spec 015, R-01).
+    var followUpFor by rememberSaveable { mutableStateOf<String?>(null) }
+
+    followUpFor?.let { consultationId ->
+        FollowUpScreen(
+            consultationId = consultationId,
+            petName = ficha.name,
+            onClose = {
+                followUpFor = null
+                onRefresh()
+            },
+            modifier = modifier,
+        )
+        return
+    }
 
     when (action) {
         FichaAction.Consult -> {
@@ -467,6 +499,7 @@ fun FichaScreen(
                         action = FichaAction.None
                         onRefresh()
                     },
+                    onSavedWithId = { followUpFor = it },
                     modifier = modifier,
                 )
                 return

@@ -13,7 +13,7 @@
 se ejecutan después, con autorización explícita del humano. Un agente que
 implemente estas tareas sin aprobación viola la constitución §4.
 
-Progreso: **0 / 11 tareas** · Fases completadas: **0 / 5**
+Progreso: **1 / 11 tareas** (1 verificada; 2 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026) · Fases completadas: **0 / 5**
 
 ---
 
@@ -38,7 +38,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F1 — Modelo
 
-- [ ] **T-001** — Categorías y modelo de preferencias
+- [x] **T-001** — Categorías y modelo de preferencias
   - Depende de: 001/T-039, 001/T-007
   - Aceptación: `NotificationCategory` es un conjunto cerrado con salud,
     seguimiento, chat, novedades y seguridad; `NotificationPreferences` define
@@ -115,7 +115,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F4 — Preferencias
 
-- [ ] **T-007** — Persistencia local de preferencias
+- [ ] **T-007** — Persistencia local de preferencias _(implementada, falta prueba instrumentada)_
   - Depende de: T-001
   - Aceptación: el interruptor cambia de inmediato y sobrevive al cierre de la
     app; la preferencia de seguridad no se puede apagar; hay prueba de
@@ -133,7 +133,7 @@ Puerta de calidad de toda tarea que toque código:
   - Archivos: `data/push/PreferencesSync.kt`,
     `test/.../data/push/PreferencesSyncTest.kt`
 
-- [ ] **T-009** — Permiso al activar una categoría
+- [ ] **T-009** — Permiso al activar una categoría _(implementada, falta prueba instrumentada)_
   - Depende de: T-007, 003/T-004
   - Aceptación: al encender la primera categoría se usa el flujo de 003; si se
     niega, la categoría queda activa y la app avisa dentro de la interfaz; el

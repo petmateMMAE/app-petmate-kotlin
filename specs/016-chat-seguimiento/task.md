@@ -10,13 +10,13 @@
 Ninguna tarea se ejecuta sin autorización explícita del humano
 (`constitution.md` §4).
 
-Progreso: **0 / 13 tareas**
+Progreso: **2 / 13 tareas** (2 verificadas, al 26/11/2026)
 
 ---
 
 ## Fase F1 — Dominio
 
-- [ ] **T-001** — Modelos del mensaje y la conversación
+- [x] **T-001** — Modelos del mensaje y la conversación
   - Depende de: —
   - Aceptación: `Message` (autor, contenido, fecha, estado), `MessageContent`
     como tipo cerrado (texto o imagen), `MessageStatus` (pendiente, enviado,
@@ -26,7 +26,7 @@ Progreso: **0 / 13 tareas**
   - Archivos: `domain/model/Message.kt`, `domain/model/MessageContent.kt`,
     `domain/model/Conversation.kt`
 
-- [ ] **T-002** — Contrato del repositorio de chat
+- [x] **T-002** — Contrato del repositorio de chat
   - Depende de: T-001
   - Aceptación: `ChatRepository` declara observar la conversación paginada,
     enviar mensaje, marcar como leídos y consultar el contador; devuelve

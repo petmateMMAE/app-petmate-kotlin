@@ -15,7 +15,7 @@ después. Un agente que implemente estas tareas sin autorización viola la
 constitución §4 ("Nunca: ejecutar tareas de `task.md` sin aprobación explícita
 del humano").
 
-Progreso: **0 / 42 tareas** · Fases completadas: **0 / 9**
+Progreso: **18 / 42 tareas** (4 verificadas; 14 implementadas, por verificar; 5 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026) · Fases completadas: **0 / 9**
 
 ---
 
@@ -50,7 +50,7 @@ Puerta de calidad de toda tarea que toque código:
   - Nota: resuelve la deuda D-04 de `memoria.md`. Los lineamientos exigen la
     matriz **antes** de desarrollar, por eso es la tarea 1.
 
-- [ ] **T-002** — Corregir la configuración base del módulo `app`
+- [x] **T-002** — Corregir la configuración base del módulo `app` _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-001 · Bloqueada por: **Q-01, Q-05**
   - Aceptación: `minSdk` confirmado; `release` con `isMinifyEnabled = true`,
     `isShrinkResources = true`, `isDebuggable = false` y reglas de ProGuard
@@ -59,7 +59,7 @@ Puerta de calidad de toda tarea que toque código:
   - Verificación: `./gradlew assembleDebug bundleRelease` compila.
   - Archivos: `app/build.gradle.kts`, `app/proguard-rules.pro`
 
-- [ ] **T-003** — Verificar la compatibilidad del catálogo y agregar KSP
+- [x] **T-003** — Verificar la compatibilidad del catálogo y agregar KSP _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-002
   - Aceptación: queda comprobado que AGP, Kotlin, Compose BOM, KSP, Hilt y
     Room son compatibles entre sí; el plugin de KSP está declarado; las
@@ -78,7 +78,7 @@ Puerta de calidad de toda tarea que toque código:
   - Archivos: `build.gradle.kts`, `app/build.gradle.kts`,
     `config/detekt/detekt.yml`, `gradle/libs.versions.toml`
 
-- [ ] **T-005** — Configurar la URL base por entorno y revisar `.gitignore`
+- [x] **T-005** — Configurar la URL base por entorno y revisar `.gitignore` _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-002 · Bloqueada por: **Q-02**
   - Aceptación: la URL base llega por `buildConfigField` y se lee de
     `local.properties` o de una variable de entorno, con un valor por omisión
@@ -89,7 +89,7 @@ Puerta de calidad de toda tarea que toque código:
     tiene el valor esperado; `git status` no lista archivos sensibles.
   - Archivos: `app/build.gradle.kts`, `.gitignore`, `local.properties.example`
 
-- [ ] **T-006** — Crear el esqueleto de paquetes de las tres capas
+- [x] **T-006** — Crear el esqueleto de paquetes de las tres capas _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-003
   - Aceptación: existen los paquetes `core/`, `di/`, `domain/{model,repository,usecase}`,
     `data/{local,remote,mapper,repository,session,cache}`,
@@ -105,7 +105,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F2 — Núcleo
 
-- [ ] **T-007** — Modelo de resultado y de error (`AppResult`, `AppError`)
+- [x] **T-007** — Modelo de resultado y de error (`AppResult`, `AppError`) _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-006
   - Aceptación: `AppResult<T>` como interfaz sellada con `Success` y
     `Failure`; `AppError` como jerarquía sellada que cubre red, tiempo de
@@ -115,7 +115,7 @@ Puerta de calidad de toda tarea que toque código:
   - Archivos: `core/result/AppResult.kt`, `core/result/AppError.kt`,
     `test/.../core/result/AppResultTest.kt`
 
-- [ ] **T-008** — `UiText`
+- [x] **T-008** — `UiText`
   - Depende de: T-007
   - Aceptación: `UiText` sellada con `Resource(id, args)` y `Dynamic(value)`,
     y un `asString()` que se resuelve en el Composable; ningún `ViewModel`
@@ -123,7 +123,7 @@ Puerta de calidad de toda tarea que toque código:
   - Verificación: `./gradlew test`
   - Archivos: `core/ui/UiText.kt`, `test/.../core/ui/UiTextTest.kt`
 
-- [ ] **T-009** — `Logger` y `DispatcherProvider`
+- [x] **T-009** — `Logger` y `DispatcherProvider`
   - Depende de: T-007
   - Aceptación: interfaz `Logger` con implementación que registra en `debug` y
     queda silenciosa o remota en `release`, y que **nunca** registra tokens ni
@@ -134,7 +134,7 @@ Puerta de calidad de toda tarea que toque código:
   - Archivos: `core/log/Logger.kt`, `core/coroutines/DispatcherProvider.kt`,
     `test/.../core/`
 
-- [ ] **T-010** — Activar Hilt en la aplicación
+- [x] **T-010** — Activar Hilt en la aplicación _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-003, T-009
   - Aceptación: `PetMateApplication` con `@HiltAndroidApp`, declarada en el
     manifiesto; `MainActivity` con `@AndroidEntryPoint`; un módulo
@@ -152,7 +152,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F3 — Datos
 
-- [ ] **T-011** — Base de datos Room
+- [ ] **T-011** — Base de datos Room _(implementada, falta prueba instrumentada)_
   - Depende de: T-010
   - Aceptación: `PetMateDatabase` con una entidad de prueba desechable, su DAO
     exponiendo `Flow`, conversores de tipo para fechas, y provista por Hilt en
@@ -164,7 +164,7 @@ Puerta de calidad de toda tarea que toque código:
     `androidTest/.../data/local/PetMateDatabaseTest.kt`
   - Nota: cambiar el esquema de Room requiere autorización (constitución §4).
 
-- [ ] **T-012** — Cliente HTTP
+- [x] **T-012** — Cliente HTTP _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-010, T-005
   - Aceptación: Retrofit con OkHttp y `kotlinx.serialization`; tiempos de
     espera explícitos de conexión, lectura y escritura; interceptor de
@@ -176,7 +176,7 @@ Puerta de calidad de toda tarea que toque código:
     `app/src/main/res/xml/network_security_config.xml`,
     `test/.../data/remote/ApiServiceTest.kt`
 
-- [ ] **T-013** — `ErrorMapper`
+- [x] **T-013** — `ErrorMapper` _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-012 · Bloqueada por: **Q-03**
   - Aceptación: toda falla HTTP (4xx, 5xx), de conexión, de tiempo de espera y
     de deserialización se traduce a un `AppError` concreto; ninguna excepción
@@ -192,7 +192,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F4 — Sesión
 
-- [ ] **T-014** — `SessionStore` cifrado
+- [ ] **T-014** — `SessionStore` cifrado _(implementada, falta prueba instrumentada)_
   - Depende de: T-010
   - Aceptación: los tokens se guardan en `EncryptedSharedPreferences`; existen
     operaciones de guardar, leer y borrar; si la inicialización del cifrado
@@ -202,7 +202,7 @@ Puerta de calidad de toda tarea que toque código:
   - Archivos: `data/session/SessionStore.kt`, `di/SessionModule.kt`,
     `androidTest/.../data/session/SessionStoreTest.kt`
 
-- [ ] **T-015** — Interfaz y repositorio de sesión
+- [x] **T-015** — Interfaz y repositorio de sesión
   - Depende de: T-014, T-013
   - Aceptación: `SessionRepository` declarada en `domain/repository/` y
     `SessionRepositoryImpl` en `data/repository/`; expone el estado de sesión
@@ -214,7 +214,7 @@ Puerta de calidad de toda tarea que toque código:
     `data/repository/SessionRepositoryImpl.kt`,
     `test/.../data/repository/SessionRepositoryImplTest.kt`
 
-- [ ] **T-016** — `AuthInterceptor`
+- [x] **T-016** — `AuthInterceptor`
   - Depende de: T-015
   - Aceptación: agrega la cabecera `Authorization` cuando hay token y la omite
     en las rutas públicas; **no** intenta renovar nada.
@@ -223,7 +223,7 @@ Puerta de calidad de toda tarea que toque código:
   - Archivos: `data/remote/interceptor/AuthInterceptor.kt`,
     `test/.../data/remote/interceptor/AuthInterceptorTest.kt`
 
-- [ ] **T-017** — `TokenAuthenticator` (renovación automática)
+- [x] **T-017** — `TokenAuthenticator` (renovación automática) _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-016 · Bloqueada por: **Q-04**
   - Aceptación: ante un 401 renueva el token y reintenta la petición **una
     sola vez**; la renovación está serializada con `Mutex`, de modo que varias
@@ -257,7 +257,7 @@ Puerta de calidad de toda tarea que toque código:
   - Archivos: `data/cache/CachePolicy.kt`, `core/time/Clock.kt`,
     `test/.../data/cache/CachePolicyTest.kt`
 
-- [ ] **T-019** — Patrón de repositorio offline-first
+- [x] **T-019** — Patrón de repositorio offline-first _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-018, T-015
   - Aceptación: existe un repositorio de referencia, documentado, que
     implementa el camino red → Room → UI: la UI observa Room, la red refresca
@@ -279,7 +279,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F6 — Presentación
 
-- [ ] **T-020** — Tema visual
+- [x] **T-020** — Tema visual _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-010
   - Aceptación: paleta de PetMate, tipografía y formas en Material 3, con modo
     claro y oscuro; el color dinámico queda decidido de forma explícita (a
@@ -287,7 +287,7 @@ Puerta de calidad de toda tarea que toque código:
   - Verificación: `@Preview` en claro y oscuro; revisión visual (C-14).
   - Archivos: `ui/theme/Color.kt`, `ui/theme/Theme.kt`, `ui/theme/Type.kt`
 
-- [ ] **T-021** — Componentes base reutilizables
+- [ ] **T-021** — Componentes base reutilizables _(implementada, falta prueba instrumentada)_
   - Depende de: T-020, T-008
   - Aceptación: existen los componentes de estado de carga, estado vacío,
     estado de error con reintento, botón primario y campo de texto; todos sin
@@ -297,7 +297,7 @@ Puerta de calidad de toda tarea que toque código:
     del componente de error y su reintento.
   - Archivos: `ui/components/`, `androidTest/.../ui/components/`
 
-- [ ] **T-022** — Navegación con rutas tipadas
+- [ ] **T-022** — Navegación con rutas tipadas _(implementada, falta prueba instrumentada)_
   - Depende de: T-021
   - Aceptación: un solo `NavHost`; rutas tipadas (sin cadenas concatenadas);
     ningún Composable recibe el `NavController`, la navegación sube como
@@ -367,7 +367,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F8 — Entrega
 
-- [ ] **T-028** — Flujo de CI para cambios propuestos
+- [x] **T-028** — Flujo de CI para cambios propuestos _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-027
   - Aceptación: `pr.yml` corre en cada propuesta de cambio con las etapas
     `ktlintCheck` → `detekt` → `test` → `assembleDebug`, con caché de Gradle;
@@ -376,7 +376,7 @@ Puerta de calidad de toda tarea que toque código:
   - Archivos: `.github/workflows/pr.yml`
   - Nota: cambiar el CI requiere autorización (constitución §4).
 
-- [ ] **T-029** — Etapas de seguridad en el pipeline
+- [x] **T-029** — Etapas de seguridad en el pipeline _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-028
   - Aceptación: el flujo de cambios propuestos incluye análisis estático de
     seguridad (CodeQL), revisión de dependencias vulnerables y búsqueda de
@@ -394,7 +394,7 @@ Puerta de calidad de toda tarea que toque código:
     revierte el cambio.
   - Archivos: — (prueba temporal, se revierte)
 
-- [ ] **T-031** — Flujo de generación del artefacto
+- [x] **T-031** — Flujo de generación del artefacto _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-030
   - Aceptación: `release.yml` genera un AAB firmado al integrar a `main`, con
     el `versionCode` y `versionName` tomados de la matriz de versionamiento
@@ -442,7 +442,7 @@ Puerta de calidad de toda tarea que toque código:
     `test/.../data/remote/RetryInterceptorTest.kt`
   - Nota: no se usa pinning; el balanceador rota certificados (G-09).
 
-- [ ] **T-034** — `PermissionController` (permisos en el momento de uso)
+- [ ] **T-034** — `PermissionController` (permisos en el momento de uso) _(implementada, falta prueba instrumentada)_
   - Depende de: T-010, T-008
   - Aceptación: existe el ciclo explicar → pedir → resultado para ubicación,
     cámara, fotos y notificaciones; la justificación es `UiText`; si el usuario

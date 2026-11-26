@@ -13,7 +13,7 @@
 se ejecutan después, con autorización explícita del humano. Un agente que
 implemente estas tareas sin aprobación viola la constitución §4.
 
-Progreso: **0 / 12 tareas** · Fases completadas: **0 / 5**
+Progreso: **2 / 12 tareas** (2 verificadas; 2 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026) · Fases completadas: **0 / 5**
 
 ---
 
@@ -38,7 +38,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F1 — Política
 
-- [ ] **T-001** — Política por entidad y contrato de entidad sincronizable
+- [x] **T-001** — Política por entidad y contrato de entidad sincronizable
   - Depende de: 001/T-029, 001/T-007
   - Aceptación: existe `SyncPolicy` con la tabla de mascota, vacuna,
     desparasitación, peso, alergia y condición (crear, editar, borrar y
@@ -51,7 +51,7 @@ Puerta de calidad de toda tarea que toque código:
     `domain/sync/SyncOperation.kt`,
     `test/.../domain/sync/SyncPolicyTest.kt`
 
-- [ ] **T-002** — Extensión del outbox de 001
+- [ ] **T-002** — Extensión del outbox de 001 _(implementada, falta prueba instrumentada)_
   - Depende de: T-001, 001/T-029
   - Aceptación: la cola de 001 guarda estado por operación (pendiente,
     enviando, error permanente), dependencia y clave de idempotencia; sobrevive
@@ -67,7 +67,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F2 — Motor
 
-- [ ] **T-003** — Planificador con dependencias
+- [x] **T-003** — Planificador con dependencias
   - Depende de: T-002
   - Aceptación: el planificador respeta el grafo (una vacuna no sale antes que
     su mascota) y aplica FIFO dentro de cada nivel; detecta ciclos al registrar
@@ -126,7 +126,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F4 — Visibilidad
 
-- [ ] **T-008** — Estado observable por elemento
+- [ ] **T-008** — Estado observable por elemento _(implementada, falta prueba instrumentada)_
   - Depende de: T-002, 001/T-020
   - Aceptación: el outbox expone `Flow<SyncStatus>` por operación; existe un
     indicador visual con pendiente, sincronizando y error, y un botón de

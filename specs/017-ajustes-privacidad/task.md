@@ -10,13 +10,13 @@
 Ninguna tarea se ejecuta sin autorización explícita del humano
 (`constitution.md` §4).
 
-Progreso: **0 / 12 tareas**
+Progreso: **1 / 12 tareas** (1 verificada; 1 sin marcar: implementada, falta prueba instrumentada, al 26/11/2026)
 
 ---
 
 ## Fase F1 — Dominio
 
-- [ ] **T-001** — Modelos de perfil y enlaces legales
+- [x] **T-001** — Modelos de perfil y enlaces legales
   - Depende de: —
   - Aceptación: `UserProfile` (datos y si es afiliado) y `LegalLinks` (URLs de
     privacidad y términos) en `domain/model`, en Kotlin puro; las
@@ -116,7 +116,7 @@ Progreso: **0 / 12 tareas**
 
 > Esta fase es la irreversible. Se construye y se prueba por separado.
 
-- [ ] **T-009** — Limpieza local verificable
+- [ ] **T-009** — Limpieza local verificable _(implementada, falta prueba instrumentada)_
   - Depende de: T-002
   - Aceptación: `WipeLocalDataUseCase` borra **todas** las tablas de Room, las
     preferencias de DataStore y las credenciales cifradas, en una sola

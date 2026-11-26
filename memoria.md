@@ -3,7 +3,7 @@
 > Memoria viva del repositorio. Los agentes la leen al empezar y la actualizan
 > al terminar cada tarea. Si algo se decidió, está aquí.
 >
-> Última actualización: 29/10/2026
+> Última actualización: 26/11/2026
 
 ---
 
@@ -315,6 +315,8 @@ Ramas: `main` (estable) y `develop`.
 | D-02 | ~~Quedaron en el repositorio `hs_err_pid26380.log` y `replay_pid26380.log`~~ | Cerrada 04/11/2026 | Se verificó que **nunca estuvieron versionados**; la deuda estaba mal redactada. Siguen en la carpeta local (ahora son cuatro: `pid24740` y `pid26380`) y ya tienen regla en `.gitignore`. Se pueden borrar a mano cuando se quiera. |
 | D-03 | `minSdk` 24 vs. Android 8+ (API 26) de los lineamientos | Media | Confirmar con el profesor (ver §3). |
 | D-04 | No hay matriz de versionamiento escrita todavía | Alta | Los lineamientos la exigen **antes** de desarrollar. Es la tarea T-001. |
+| D-06 | ~~Umbrales de fechas distintos~~ | Resuelta 17/11/2026 | Lista, carnet y registros usan `DueThresholds` (rojo ≤ 3, amarillo ≤ 14, la decisión aprobada en 010 R-07) con `dueColors()`. |
+| D-05 | `ui` importa de `data`: `OwnerBusinessScreens.kt` (`data.repository.label`) y `PetComponents.kt` (`SamplePetRepository`) | Media | Rompe P3. Encontrado el 17/11/2026 al revisar capas en la spec 005; no se corrigió por estar fuera de la tarea. |
 
 ---
 
@@ -355,3 +357,115 @@ Ramas: `main` (estable) y `develop`.
 - **Sesión:** `AuthorizedCaller` renueva el access token una vez con el refresh (con Mutex) y cierra la sesión solo si la renovación falla; un 403 no cierra sesión.
 - **Fuera de alcance hoy:** fotos (pm-079), copia local sin conexión (spec 005), historial clínico (spec 014) y avisos (spec 006).
 - **Pruebas:** 64 unitarias en verde; 3 jobs nuevos en la matriz del pipeline.
+
+## Base local y cola offline (17/11/2026)
+
+- **Room arranca** (spec 001, T-011): `PetMateDatabase` (versión 1, `petmate.db`) con una entidad de prueba desechable (`ProbeEntity`), su DAO con `Flow`, conversor de fechas a milisegundos y `DatabaseModule` en Hilt. `exportSchema = false` mientras ninguna versión publicada traiga la base.
+- **Política de sincronización** (spec 005, T-001): `domain/sync/SyncPolicy` es el único lugar que decide qué se crea, edita o borra sin conexión. La tabla sale de las operaciones que el backend expone hoy: mascota crea/edita/borra y gana el más reciente; vacuna y desparasitación crean y borran; peso solo crea; alergia y condición crean y editan; en todo lo clínico gana el servidor y dependen de la mascota.
+- **Cola persistente** (spec 005, T-002): tabla `sync_operations` con estado (`Pending`, `Sending`, `PermanentError`), padre, intentos, último error y clave de idempotencia única que se genera una vez al encolar. `SyncOutbox` es la única cola. Al abrir la app, lo que quedó `Sending` porque el proceso murió vuelve a `Pending` (`PetMateApplication`).
+- **Pruebas nuevas:** 7 de la política y 6 de la cola en JVM, registradas en la matriz del pipeline (`politica-sincronizacion`, `cola-offline`); 2 instrumentadas de la base y 1 de persistencia al reabrir la base en disco (C-09).
+- **Planificador** (spec 005, T-003): `SyncGraph` saca los niveles de `SyncPolicy` (mascota 0, carnet 1) y falla al arrancar si la política tiene un ciclo. `SyncScheduler` ordena por nivel y luego FIFO; un elemento con una operación enviándose o con error permanente bloquea sus operaciones siguientes y las de sus hijos. Es lógica pura: no envía ni toca la base. 9 pruebas (`SyncGraphTest`, `SyncSchedulerTest`), registradas en la matriz (`grafo-sincronizacion`, `planificador-sincronizacion`).
+- **Estado visible** (spec 005, T-008): `SyncStatus` (sincronizado, pendiente, sincronizando, error) y la interfaz `SyncStatusRepository` viven en `domain/sync` y no en `data/sync` como dice la tarea, porque la UI no puede importar de `data` (P3 gana). `SyncStatusRepositoryImpl` toma el estado más grave de la cola por elemento y reintenta solo los errores de ese elemento. `ui/components/sync/SyncStatusIndicator` no pinta nada si está sincronizado y solo el error muestra «Reintentar». 5 pruebas JVM (`SyncStatusRepositoryImplTest`, matriz `estado-sincronizacion`) y 4 de interfaz en `androidTest`.
+- **Verificado el 19/11/2026:** `assembleDebug`, `testDebugUnitTest` (las 36 pruebas JVM de esta sección en verde) y `lintDebug` (0 errores). 005/T-001 y T-003 quedan verificadas. T-011 de 001 y T-002 y T-008 de 005 piden prueba instrumentada: compilan (`assembleDebugAndroidTest`), pero no había dispositivo y siguen por verificar.
+- **Room 2.6.1 → 2.7.2 (autorizado por Eduardo el 19/11/2026):** con 2.6.1 el build fallaba en `kspDebugKotlin` con `unexpected jvm signature V`. Room 2.6.1 no es compatible con KSP2 (`ksp` 2.2.10-2.0.2) y estos fueron los primeros DAOs del proyecto. Se descartó volver a KSP1 (`ksp.useKSP2=false`), que sí compilaba, porque KSP1 es obsoleto y desaparece en KSP 2.3.
+- **Bloqueadas por el backend:** T-004 (Q-01), T-005 (Q-08), T-006 (Q-02, Q-05, Q-07) y T-007 (Q-06). Las tareas de 005 sin bloqueo ya están escritas; T-009 espera a 004 (moderación) y T-010 a T-012 esperan a T-004…T-007.
+
+## Permisos (17/11/2026)
+
+- **Spec 003 escrita completa (T-001…T-010).** Catálogo y contrato en `domain/permissions`; `AndroidPermissionGateway` y `PermissionFlow` (lógica pura) en `core/permissions`; explicación previa, diálogo de ajustes, `rememberPermissionRequest` y las cuatro alternativas en `ui/components/permissions`; pantalla de prueba `ui/permissionsdebug/PermissionHarnessScreen` **fuera** del grafo de navegación.
+- **Pantallas conectadas:** `rememberLocationRequest` (mapa, afiliación, mi negocio) y el escáner pasan por el flujo. Antes, ZXing pedía la cámara sin explicación; ahora hay explicación previa y, si se niega, un aviso que lleva al código manual.
+- **Decisiones:** Q-01 se piden precisa y aproximada (basta la aproximada); Q-02 código de 8 caracteres; Q-03 notificaciones solo al activarlas; Q-05 selector de fotos del sistema sin permiso. Q-04 (aprobación de textos) y Q-06 (analítica) siguen abiertas. Detalle en `docs/evidencia-003.md`.
+- **Desviaciones de la tarea:** las pruebas de interfaz van en `androidTest` y no en `test` (Compose necesita dispositivo sin Robolectric); el gateway no persiste negativas en disco: el sistema las recuerda y el flujo guarda su contador con `rememberSaveable`.
+- **Pruebas:** 18 JVM (`PermissionCatalogTest`, `PermissionFlowTest`, `PhotoFallbackInitialsTest`, en la matriz como `catalogo-permisos`, `flujo-permisos`, `alternativa-foto`) y 14 instrumentadas.
+- **Verificado el 19/11/2026:** las 18 pruebas JVM en verde y `lintDebug` sin errores; T-001 queda verificada. T-002 a T-009 piden pruebas instrumentadas: compilan, pero no había dispositivo. Siguen pendientes las 14 instrumentadas y la prueba manual de volver desde ajustes.
+
+## Seguimiento de tratamiento (17/11/2026)
+
+- **Spec 015, lo que se escribió:** `FollowUpStatus` (Treating, Improving, Discharged, los textos del backend) y `Followup.statusKind`; `FollowUpTransition` con la tabla de la spec (desde el alta no sale nada; Q-05 queda: no se reabre, se abre uno nuevo); `DueThresholds` (3 y 14 días) y `ClassifyReviewDateUseCase` con «hoy» inyectado; `ChangeFollowUpStatusUseCase` valida la transición y los días (1–365) antes de llamar al servidor; `ui/seguimiento` con `FollowUpViewModel`, `FollowUpScreen`, `StatusTimeline` y `ReviewDateBadge`.
+- **Integración (T-011):** al guardar una consulta desde la ficha, la veterinaria ve la pantalla de seguimiento para abrirlo o saltarlo. Cambios mínimos en archivos de 014: `VeterinaryActionUiState.lastConsultationId`, el parámetro opcional `onSavedWithId` de `ConsultationFormScreen` y el estado `followUpFor` en `FichaScreen`.
+- **Reutilizado y no duplicado:** el modelo `Followup`, los DTOs, `VeterinaryApiService` y los métodos de `VeterinaryRepository` ya existían (014). Por eso T-004 y T-006 no crearon archivos nuevos, y Q-01 queda respondida por el código: `followups/create`, `update/{id}`, `add-note`, `get-by-consultation/{id}`.
+- **Decisiones:** Q-03, la fecha de revisión es opcional (el backend acepta null). Al dar de alta no se manda fecha.
+- **Pendiente:** R-09 (moderar notas) espera a 004; R-05 (alerta al dueño) depende de Q-02 y de 006. **Pregunta nueva para Miguel:** las notas solo traen fecha y texto; la bitácora de la spec pide también autor y estado de cada cambio.
+- **Pruebas:** 24 JVM (`FollowUpTransitionTest`, `ClassifyReviewDateUseCaseTest`, `ChangeFollowUpStatusUseCaseTest`, `FollowUpViewModelTest`), registradas en la matriz.
+- **Verificado el 19/11/2026:** las 24 pruebas JVM en verde. T-001 a T-004 quedan verificadas. **Desmarcadas** porque su verificación no existe todavía: **T-006**, que pide `MockWebServer` para los endpoints de seguimiento y prueba de ordenación, y `VeterinaryRepositoryImplTest` no tiene ninguna de seguimiento; y **T-008**, que pide los casos "cambio sin red" y "cambio rechazado por el backend" en el repositorio, y `OfflineFirstFollowUpRepositoryTest` solo cubre lectura sin red, cambio confirmado y aislamiento por cuenta (el cambio sin red además espera a la cola de 005). T-007, T-009 y T-010 piden instrumentadas y siguen por verificar, igual que la prueba en el teléfono del flujo consulta → seguimiento.
+
+## Offline-first: mascotas, carnet y seguimiento en SQLite (17/11/2026)
+
+- **Lo que pedía P4 y no estaba:** las pantallas de 007 y 008 leían directo del servidor; sin red no se veía nada. Se implementaron las tareas de Room que estaban sin hacer: **007/T-002 y T-004**, **008/T-002 y T-005** y **015/T-007 y T-008**.
+- **Tablas nuevas en `petmate.db`:** `pets`, `vaccines`, `dewormings`, `weights`, `allergies` (las condiciones van con `kind = Condition`), `carnet_sync` (marca de carnet descargado) y `followups`. Todas llevan `ownerId`: dos cuentas en el mismo teléfono no se mezclan (007, C-09).
+- **`OfflineFirstPetRepository`** envuelve a `PetRepositoryImpl` sin cambiarlo. Leer sale de Room y no toca la red (008, C-02); `refreshPets()` y `refreshCarnet()` bajan del servidor y guardan; las escrituras van al servidor y, si confirma, se guardan en Room. `PetRepository` ganó `observePets`, `observeCarnet`, `refreshPets` y `refreshCarnet` con valores por defecto, así `SamplePetRepository` (modo demo) no cambió; `PetRepositoryRouter` los reenvía.
+- **ViewModels de 007 y 008:** `PetsViewModel` y `PetCarnetViewModel` muestran primero lo guardado y luego refrescan; sin red y con datos guardados no muestran error.
+- **`OfflineFirstFollowUpRepository`** (015) envuelve a `VeterinaryRepositoryImpl`: al leer intenta el servidor y, sin red, devuelve lo guardado; todo seguimiento que llega se guarda. `VeterinaryModule` pasó de `@Binds` a `@Provides` para envolverlo.
+- **Desviaciones:** la spec pide prueba de migración, pero la versión publicada (versionCode 3) no trae base: Room crea las tablas al instalar y la primera migración real será el primer cambio de esquema después de publicar. El repositorio nuevo es un envoltorio en vez de reescribir `PetRepositoryImpl`, para no romper sus pruebas. En 015 la lectura intenta primero la red (para no mostrarle a la veterinaria un estado viejo) y cae a Room sin conexión.
+- **Pendiente:** escribir sin conexión y encolar (007/T-004 y 008/T-005, segunda mitad) espera a 005/T-004…T-007, que esperan a Miguel.
+- **Pruebas:** 14 JVM (`OfflineFirstPetRepositoryTest`, `OfflineFirstFollowUpRepositoryTest`, en la matriz como `mascotas-carnet-sin-red` y `seguimiento-sin-red`) y 5 instrumentadas (`PetStorageTest`).
+- **Verificado el 19/11/2026:** las 14 pruebas JVM en verde. 007/T-002, 008/T-002 y 015/T-007 piden instrumentadas (`PetStorageTest`): compilan, pero no había dispositivo y siguen por verificar, igual que la prueba en el teléfono (abrir con red, luego modo avión y volver a abrir mascotas, carnet y seguimiento).
+
+## Lo que no depende de nadie: 006, 017, 018, 019 y D-06 (17/11/2026)
+
+- **D-06 resuelta:** `DueThresholds.level()` es el único cálculo; `ui/components/DueColors.kt` pinta lista de mascotas, resumen del carnet y registros con rojo ≤ 3 y amarillo ≤ 14 (antes 7 y 30). La tarjeta «lo más próximo» del inicio (010/R-07) todavía no existe.
+- **006 · T-001, T-007, T-009:** `domain/push` con las cinco categorías y `NotificationPreferences` (seguridad no se puede apagar). **Decisión:** por defecto todo encendido menos «novedades», que es publicidad; la spec no fijaba valores. `NotificationPreferencesStore` (DataStore) y `NotificationActivation`, que guarda y pide el permiso con el flujo de 003 al encender una categoría. Sin Firebase todavía (Q-01 a Q-03 de Miguel y el `google-services.json`).
+- **017 · T-001, T-002, T-009:** `LegalLinks` (no muestra enlaces mientras falten las URLs, Q-02); `UserProfile` ya existía y no se duplicó. Contratos `SettingsRepository` y `AccountRepository`, separados porque eliminar la cuenta no se deshace. `WipeLocalDataUseCase` + `DeviceDataWiper` borran todas las tablas, las preferencias y la sesión cifrada; su prueba revisa **todas** las tablas de SQLite, así que cubre tablas futuras.
+- **018 · T-001:** `BreedSuggestion`, `ClassificationResult` (sugerencias, no identificada, modelo no disponible) y `BreedClassifier`, que recibe `PetImage` (bytes) y no un `Bitmap`.
+- **019 · T-001, T-002, T-004:** `GenerationRequest`, `GeneratedText` (siempre marcado como IA, con huella SHA-256 del original), `GenerationResult` y `AiRepository`, que solo habla con el backend. Tabla `generated_texts`: solo devuelve el texto si la huella del original coincide.
+- **Pruebas:** 20 JVM (`NotificationPreferencesTest`, `NotificationPreferencesStoreTest`, `BreedClassifierModelsTest`, `GenerationModelsTest`, en la matriz) y 3 instrumentadas (`WipeLocalDataUseCaseTest`, `GeneratedTextDaoTest`).
+- **Verificado el 19/11/2026:** las 20 pruebas JVM en verde y `grep` sin imports de framework en los paquetes nuevos de `domain`. Quedan verificadas 006/T-001, 017/T-001 (una sola definición de `NotificationCategory`), 018/T-001 y 019/T-001 y T-002. **Desmarcada 017/T-002:** pide "`./gradlew test` con dobles" y ninguna prueba usa `SettingsRepository` ni `AccountRepository`. 006/T-007 y T-009, 017/T-009 y 019/T-004 piden instrumentadas y siguen por verificar.
+
+## Moderación y chat: lo que no depende del backend (17/11/2026)
+
+- **Hecho a pedido de Eduardo, aunque en el reparto son unidades de Adrián:** avisar a Adrián para que no lo duplique.
+- **004 · T-001:** `domain/moderation` con `ModerationContentType`, `ModerationRequest` (texto, o bytes + MIME para imagen y video), `ModerationVerdict` (aprobado, rechazado, no validado; solo aprobado deja publicar, R-08) y `ModerationGateway`. **Decisión:** motivos de rechazo cerrados y genéricos (contenido no permitido, archivo muy grande, formato no soportado), porque la spec no los enumera y R-07 prohíbe revelar categorías internas.
+- **016 · T-001 y T-002:** `Message`, `MessageContent` (texto o imagen), `MessageStatus`, `Conversation` (ligada al seguimiento de 015) y `ChatRepository` con `Flow` y `AppResult`, páginas de 30.
+- **Lo siguiente de ambas espera a Miguel:** 004/T-002 (Q-01) y 016/T-003 y T-004 (Q-01, Q-02).
+- **Pruebas:** 8 JVM (`ModerationVerdictTest`, `ChatModelsTest`), en la matriz como `moderacion-modelos` y `chat-modelos`.
+- **Verificado el 19/11/2026:** las 8 en verde; 004/T-001 y 016/T-001 y T-002 quedan verificadas.
+
+## Estado de las tareas en los `task.md` (17/11/2026)
+
+- **Qué se hizo:** los `task.md` no se habían actualizado. Se marcó `[x]` cada tarea cuyo código ya existe, con la nota _(implementada, por verificar · 17/11/2026)_, y se actualizó el contador «Progreso» de cada spec. **Nadie ha corrido todavía la verificación de esas tareas**: Adrián (las suyas) y la sesión de Claude Code (las de Eduardo) deben confirmarlas y quitar la nota, o desmarcarlas si no pasan.
+- **Criterio:** se marcó solo si el título completo de la tarea está hecho; una tarea a medias quedó sin marcar (ej. 007/T-004: lee de Room pero no encola sin red).
+
+Marcadas `[x]` al 26/11/2026 (antes de la revisión del 26/11 eran 134 / 280):
+
+| Spec | Marcadas | Spec | Marcadas |
+|---|---|---|---|
+| 001 Arquitectura | 18 / 42 | 011 Afiliación | 5 / 14 |
+| 002 Identidad | 6 / 18 | 012 Panel | 4 / 13 |
+| 003 Permisos | 1 / 10 | 013 Escáner | 6 / 12 |
+| 004 Moderación | 1 / 12 | 014 Consulta | 6 / 15 |
+| 005 Offline | 2 / 12 | 015 Seguimiento | 4 / 11 |
+| 006 Push | 1 / 11 | 016 Chat | 2 / 13 |
+| 007 Mascotas | 3 / 13 | 017 Privacidad | 1 / 12 |
+| 008 Carnet | 2 / 14 | 018 ML | 1 / 9 |
+| 009 Compartir | 3 / 11 | 019 IA | 2 / 10 |
+| 010 Mapa e inicio | 5 / 14 | 020 Play | 4 / 14 |
+| **Total** | **77 / 280 (27.5 %)** | | |
+
+De esas 77, 36 están verificadas y 41 siguen con la nota "por verificar". Aparte hay 57 tareas implementadas, sin marcar, a las que les falta la prueba instrumentada. Detalle en la sección del 26/11/2026.
+
+- **No existe en el código (por eso no se marcó):** verificación de correo y recuperación de contraseña (002), cobro de la consulta y borradores persistentes (011, 014), caché del directorio (010), línea de tiempo y comprobante del carnet (008), tarjeta «lo más próximo» del inicio (010/R-07), cuenta regresiva de la compartición (009), ktlint/detekt aplicados al build (001/T-004), matriz de versionamiento (001/T-001), `ConnectivityObserver` (001/T-035) y la base de push con FCM (001/T-039).
+- **020:** solo se marcó lo que Eduardo confirmó (cuenta, nombre de paquete, testers, prueba cerrada). Él debe revisar el resto.
+- **Verificación del 19/11/2026 (Claude Code, unidades de Eduardo y las del 17/11):** 15 tareas verificadas, sin la nota; 3 desmarcadas (015/T-006, 015/T-008 y 017/T-002, motivos en sus secciones); el resto de lo de 17/11 pide instrumentadas y sigue con la nota, porque no había dispositivo. Las de Adrián no se tocaron. Totales en la tabla: 137 → 134.
+- **Puerta de calidad incompleta:** `ktlintCheck` y `detekt` no existen en el build (001/T-004 sin hacer), así que de `ktlintCheck detekt test` solo corre `test`.
+- **Para compilar en Windows:** el lanzador `gradlew.bat` necesita `JAVA_HOME`. El JBR de Android Studio es JDK 25 y AGP no lo acepta; se usa el JDK 21 que ya apunta `org.gradle.java.home` (`%USERPROFILE%\.gradle\jdks\eclipse_adoptium-21-amd64-windows.2`).
+
+## Correcciones de la verificación (19/11/2026)
+
+La sesión del 19/11 tuvo que corregir el build antes de verificar. Sale de su registro y de los commits; los cambios quedaron dentro de los commits `6cf26c2` y `3deec96`, no hay un diff aparte.
+
+- **El problema:** `kspDebugKotlin` fallaba con `unexpected jvm signature V`. Room 2.6.1 no es compatible con KSP2 (`ksp` 2.2.10-2.0.2) y estos fueron los primeros DAOs del proyecto.
+- **Primer intento, deshecho:** se cambiaron a `Int` (filas afectadas) los `@Query` de escritura que devolvían `Unit`, en `HealthDao`, `PetDao` y `SyncOperationDao`. Para que compilaran, también se cambiaron los dobles de prueba en `SyncOutboxTest` y `OfflineFirstPetRepositoryTest`. El build siguió fallando, así que **los cinco archivos se regresaron a como estaban el 17/11**. En el código de hoy esas funciones devuelven `Unit` (solo `PetDao.count` y `SyncOperationDao.moveAll` devuelven `Int`, y así eran desde el inicio).
+- **Corrección que quedó:** Room 2.6.1 → 2.7.2 en `gradle/libs.versions.toml`, autorizada por Eduardo (detalle en «Base local y cola offline»). Es el único cambio de código de esa sesión.
+- **`SyncOutbox` y `FollowUpViewModel`:** el registro de esa sesión no tiene ninguna edición a estos dos archivos; se escribieron así el 17/11.
+
+## Revisión de tareas y estado de pruebas (26/11/2026)
+
+- **Pruebas:** `:app:testDebugUnitTest --rerun` dio 212 / 212 en 32 clases (0 fallos, 0 omitidas). `:app:lintDebug` dio 0 errores y 104 warnings. `scripts/ci/check-test-matrix.sh` pasó, y `pipeline.yml` trae las entradas de `politica-sincronizacion` a `chat-modelos`.
+- **Instrumentadas: no corrieron.** No había teléfono conectado. El AVD `Medium_Phone_API_37.0` se arrancó dos veces: la primera se quedó `offline` más de 6 minutos y se cerró; la segunda el proceso murió antes de aparecer en `adb`. `connectedDebugAndroidTest` sigue pendiente.
+- **Criterio aplicado a las 119 tareas con la nota del 17/11** (de Eduardo y de Adrián):
+  - **21 verificadas, sin la nota:** su verificación es JVM y existe la prueba que piden, o el `grep` que piden sale limpio. Son 001/T-008, T-009, T-015, T-016; 002/T-001, T-002, T-005, T-006, T-009; 007/T-001, T-003; 008/T-001, T-004; 009/T-001, T-003; 010/T-001, T-002, T-003; 011/T-005; 012/T-001 y 014/T-003. Los `grep` de imports prohibidos se corrieron sobre todo `domain/`, porque `domain/identity`, `domain/pets`, `domain/health`, `domain/sharing` y `domain/business` no existen: los modelos viven en `domain/model`.
+  - **57 desmarcadas, con la nota _(implementada, falta prueba instrumentada)_:** su verificación pide `connectedAndroidTest`, prueba instrumentada, de interfaz o de navegación. Están en 001, 002, 003, 005, 006, 007, 008, 009, 010, 011, 012, 013, 014, 015, 017 y 019.
+  - **26 siguen `[x]` con la nota "por verificar"**, porque la prueba JVM que pide su verificación no existe: 001/T-007 (`AppResultTest`), T-012 (`ApiServiceTest`), T-013 (`ErrorMapperTest`), T-017 (falta la prueba de concurrencia, y la tarea dice que no se cierra sin ella), T-019 (casos de caché vigente y vencida); 002/T-008 (concurrencia); 007/T-012 (`PetsMatrixTest`); 010/T-005 (caché del directorio), T-012 (doble que cuente escrituras); 011/T-001 (suma de `Money`), T-003 (pin, cero servicios, precio negativo), T-007 (doble de moderación), T-009 (Turbine del flujo); 012/T-002, T-005, T-009 (panel); 013/T-001, T-002, T-003, T-004, T-005, T-007 (escaneo); 014/T-005, T-006, T-008, T-010 (consulta).
+  - **15 siguen `[x]` con la nota porque su verificación no es una prueba:** 001/T-002, T-003, T-005, T-006, T-010, T-020, T-028, T-029, T-031 (build, revisión, GitHub Actions); 009/T-006; 014/T-015 (pide `ktlintCheck detekt`, que no existen); 020/T-001, T-003, T-009, T-011 (consola de Play).
+- **Defecto encontrado, no corregido (fuera de la tarea):** la UI importa de `data` en dos archivos, contra P3: `ui/business/OwnerBusinessScreens.kt` (`data.repository.label`) y `ui/pets/PetComponents.kt` (`data.repository.SamplePetRepository`). Vienen del commit `a50d07c` del 11/11.
+

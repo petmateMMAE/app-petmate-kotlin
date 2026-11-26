@@ -10,13 +10,13 @@
 Ninguna tarea se ejecuta sin autorización explícita del humano
 (`constitution.md` §4).
 
-Progreso: **0 / 11 tareas**
+Progreso: **4 / 11 tareas** (4 verificadas; 3 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026)
 
 ---
 
 ## Fase F1 — Máquina de estados
 
-- [ ] **T-001** — Modelos del seguimiento
+- [x] **T-001** — Modelos del seguimiento
   - Depende de: —
   - Aceptación: `FollowUp` (estado, fecha de revisión, bitácora),
     `FollowUpStatus` (En tratamiento, Mejorando, Dado de alta) y
@@ -26,7 +26,7 @@ Progreso: **0 / 11 tareas**
   - Archivos: `domain/model/FollowUp.kt`, `domain/model/FollowUpStatus.kt`,
     `domain/model/FollowUpEntry.kt`
 
-- [ ] **T-002** — Tabla de transiciones válidas
+- [x] **T-002** — Tabla de transiciones válidas
   - Depende de: T-001 · Bloqueada por: **Q-05** (reapertura)
   - Aceptación: `FollowUpTransition` declara las transiciones permitidas:
     En tratamiento → Mejorando, En tratamiento → Dado de alta,
@@ -38,7 +38,7 @@ Progreso: **0 / 11 tareas**
     `test/.../domain/usecase/FollowUpTransitionTest.kt`
   - Nota: mitiga G-01. La prueba debe cubrir la matriz completa.
 
-- [ ] **T-003** — Clasificación de la fecha de revisión
+- [x] **T-003** — Clasificación de la fecha de revisión
   - Depende de: T-001
   - Aceptación: `ClassifyReviewDateUseCase` **importa la constante de umbrales
     compartida** con 008, 010 y 012; no define umbrales propios; devuelve
@@ -54,7 +54,7 @@ Progreso: **0 / 11 tareas**
 
 ## Fase F2 — Dominio
 
-- [ ] **T-004** — Contrato del repositorio
+- [x] **T-004** — Contrato del repositorio
   - Depende de: T-001
   - Aceptación: `FollowUpRepository` declara crear seguimiento desde una
     consulta, observar un seguimiento, cambiar su estado y actualizar la fecha
@@ -90,7 +90,7 @@ Progreso: **0 / 11 tareas**
     `data/remote/FollowUpApiService.kt`, `data/mapper/FollowUpMapper.kt`,
     `test/.../data/mapper/FollowUpMapperTest.kt`
 
-- [ ] **T-007** — Persistencia para lectura sin conexión
+- [ ] **T-007** — Persistencia para lectura sin conexión _(implementada, falta prueba instrumentada)_
   - Depende de: T-001
   - Aceptación: entidad y DAO guardan estado, fechas, autor y notas; **no
     guardan diagnóstico ni receta** (D-06); el DAO expone `Flow`.
@@ -126,7 +126,7 @@ Progreso: **0 / 11 tareas**
 
 ## Fase F5 — Presentación
 
-- [ ] **T-009** — ViewModel y pantalla con permisos por rol
+- [ ] **T-009** — ViewModel y pantalla con permisos por rol _(implementada, falta prueba instrumentada)_
   - Depende de: T-008
   - Aceptación: `FollowUpViewModel` expone un `StateFlow` con el seguimiento,
     la bitácora y si el usuario puede editar; **el dueño no ve los controles
@@ -140,7 +140,7 @@ Progreso: **0 / 11 tareas**
     `ui/seguimiento/FollowUpScreen.kt`,
     `test/.../ui/seguimiento/FollowUpViewModelTest.kt`
 
-- [ ] **T-010** — Bitácora y distintivo de la fecha de revisión
+- [ ] **T-010** — Bitácora y distintivo de la fecha de revisión _(implementada, falta prueba instrumentada)_
   - Depende de: T-009
   - Aceptación: `StatusTimeline` muestra los cambios en orden, el más reciente
     arriba, con fecha, autor y nota; `ReviewDateBadge` pinta la fecha con el

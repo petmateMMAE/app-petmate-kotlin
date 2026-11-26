@@ -10,7 +10,7 @@
 Ninguna tarea se ejecuta sin autorización explícita del humano
 (`constitution.md` §4).
 
-Progreso: **0 / 9 tareas**
+Progreso: **1 / 9 tareas** (1 verificada, al 26/11/2026)
 
 ---
 
@@ -19,7 +19,7 @@ Progreso: **0 / 9 tareas**
 > Se construye y se prueba con un clasificador doble, antes de elegir la
 > tecnología (decisión D-01).
 
-- [ ] **T-001** — Modelos y contrato del clasificador
+- [x] **T-001** — Modelos y contrato del clasificador
   - Depende de: —
   - Aceptación: `BreedSuggestion` (raza y confianza), `ClassificationResult`
     con **tres casos distintos** —sugerencias, no identificada, modelo no
