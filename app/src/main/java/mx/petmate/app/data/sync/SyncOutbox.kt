@@ -8,7 +8,6 @@ import mx.petmate.app.domain.sync.SyncAction
 import mx.petmate.app.domain.sync.SyncEntityRef
 import mx.petmate.app.domain.sync.SyncEntityType
 import mx.petmate.app.domain.sync.SyncOperation
-import java.util.UUID
 
 /** Operacion de la cola con su estado. */
 data class QueuedOperation(
@@ -30,7 +29,13 @@ data class QueuedOperation(
 class SyncOutbox(
     private val dao: SyncOperationDao,
     private val dispatchers: DispatcherProvider,
-    private val newKey: () -> String = { UUID.randomUUID().toString() },
+    /**
+     * De dónde sale la clave de idempotencia. Por omisión se **deriva** de la operación
+     * ([SyncIdempotencyKey]) y no se sortea: si la fila se pierde y la app vuelve a encolar la
+     * misma escritura, la clave vuelve a ser la misma y el servidor la reconoce como repetida en
+     * vez de aplicarla dos veces (spec 005, T-004, R-04). Se deja inyectable para las pruebas.
+     */
+    private val newKey: (SyncOperation) -> String = SyncIdempotencyKey::of,
 ) {
 
     /** Toda la cola en orden FIFO, para pintar el estado de cada elemento. */
@@ -38,7 +43,7 @@ class SyncOutbox(
 
     /** Guarda [operation] como pendiente y devuelve su id local. */
     suspend fun enqueue(operation: SyncOperation): Long = withContext(dispatchers.io) {
-        dao.insert(operation.toEntity(newKey()))
+        dao.insert(operation.toEntity(newKey(operation)))
     }
 
     /** Operaciones listas para enviarse, en orden FIFO. */

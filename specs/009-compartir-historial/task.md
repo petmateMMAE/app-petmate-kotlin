@@ -13,7 +13,7 @@
 se ejecutan después, con autorización explícita del humano. Un agente que
 implemente estas tareas sin aprobación viola la constitución §4.
 
-Progreso: **3 / 11 tareas** (2 verificadas; 1 implementada, por verificar; 2 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026) · Fases completadas: **0 / 5**
+Progreso: **5 / 11 tareas** (4 verificadas; 1 implementada, por verificar; 2 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026) · Fases completadas: **1 / 5**
 
 ---
 
@@ -51,7 +51,7 @@ Puerta de calidad de toda tarea que toque código:
     `domain/sharing/usecase/CreateShareUseCase.kt`,
     `test/.../domain/sharing/ShareSelectionTest.kt`
 
-- [ ] **T-002** — Regla de secciones y alergias obligatorias
+- [x] **T-002** — Regla de secciones y alergias obligatorias
   - Depende de: T-001, 008/T-003
   - Aceptación: las secciones elegibles son vacunas, desparasitación, peso,
     condiciones e historial; las alergias se agregan siempre desde
@@ -94,7 +94,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F3 — Tiempo
 
-- [ ] **T-005** — Duración, expiración y cuenta regresiva
+- [x] **T-005** — Duración, expiración y cuenta regresiva
   - Depende de: T-003
   - Aceptación: la duración se elige entre las tres opciones; la expiración se
     toma del servidor; la cuenta regresiva usa esa marca y no el reloj del
@@ -137,7 +137,17 @@ Puerta de calidad de toda tarea que toque código:
     `ui/sharing/ShareUiState.kt`,
     `test/.../ui/sharing/ShareScreenTest.kt`
 
-- [ ] **T-009** — Auditoría de emisión
+- [x] **T-009** — Auditoría de emisión _(hecha 27/11/2026)_
+  - Hecho (27/11/2026): `data/sharing/ShareAuditLogger.kt` con `issued`,
+    `revoked` e `issueFailed`. 10 pruebas en verde en `ShareAuditLoggerTest`, en
+    la matriz como `auditoria-comparticion`.
+    Registra identificadores (mascota, negocio, autorizacion), las secciones y la
+    expiracion. **No registra contenido clinico**: la prueba de C-11 mete alergias
+    con nombres y notas muy distinguibles, llama a todo lo que escribe y exige que
+    ninguna de esas cadenas aparezca en el registro.
+    Decision: las alergias se anotan como `allergies=included` y **sin numero**.
+    R-04 dice que van siempre, asi que decir que van no revela nada; decir cuantas
+    ya seria un dato clinico de esa mascota.
   - Depende de: T-003, 001/T-006
   - Aceptación: se registra mascota, negocio, secciones y expiración; no se
     registra contenido clínico; hay prueba de que el historial no aparece en el

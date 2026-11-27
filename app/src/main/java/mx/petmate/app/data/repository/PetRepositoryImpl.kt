@@ -170,6 +170,8 @@ internal fun PetDto.toDomain() = Pet(
     breed = breed?.takeIf { it.isNotBlank() },
     birthDate = birthDate,
     sex = PetSex.fromApi(sex),
+    // El backend ya manda photoUrl en PetResponse; el mapper se lo estaba comiendo.
+    photoUrl = photoUrl,
 )
 
 internal fun PetDraft.toRequest() = PetRequestDto(

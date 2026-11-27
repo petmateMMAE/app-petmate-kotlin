@@ -219,3 +219,12 @@ historial.
 - [ ] Los requisitos y los criterios de éxito son suficientes para planificar.
 - [ ] Las preguntas abiertas están identificadas y se sabe a quién preguntar.
 - [ ] **Aprobada para pasar a `plan.md`.**
+
+
+## Preguntas resueltas contra el backend ya terminado
+
+Estas estaban marcadas como "esperando a Miguel". El backend se termino y se desplego, asi que
+se respondieron leyendo su codigo y su contrato. Las tareas que solo dependian de ellas YA NO
+ESTAN BLOQUEADAS.
+
+- **Q-01 RESUELTA (27/11/2026)** — vaccines (create, create-by-business, get-all, delete/{id}), dewormings (los mismos 4), weights (create, get-all) y conditions. Detalle en backend-petmate-sdd-aspnetcore/openapi/openapi.json (76 rutas, 132 esquemas). El backend esta TERMINADO y desplegado; el contrato completo esta ahi, no hay que preguntarle a nadie.

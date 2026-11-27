@@ -480,4 +480,94 @@
     <string name="settings_session_header">Sesión</string>
     <string name="settings_log_out">Cerrar sesión</string>
     <string name="settings_error_logout">No se pudo cerrar la sesión. Inténtalo de nuevo.</string>
+
+    <!-- Panel del afiliado (spec 012) -->
+    <string name="dashboard_alerts_empty_title">Sin seguimientos pendientes</string>
+    <string name="dashboard_alerts_empty_body">Cuando abras el seguimiento de una consulta, aparecerá aquí para que no se te pase la revisión.</string>
+    <string name="dashboard_alert_overdue">Revisión atrasada</string>
+    <string name="dashboard_alert_review">Revisión el %1$s</string>
+    <string name="dashboard_alert_no_review">Sin fecha de revisión</string>
+    <plurals name="dashboard_alert_unread">
+        <item quantity="one">%1$d mensaje sin leer</item>
+        <item quantity="other">%1$d mensajes sin leer</item>
+    </plurals>
+
+    <!-- Comparticion del historial (spec 009) -->
+    <string name="share_countdown_label">Vence en %1$s</string>
+    <string name="share_countdown_expired">Este código ya venció. Genera uno nuevo para compartir.</string>
+    <string name="share_countdown_unknown">No pudimos leer la vigencia de este código. Genera uno nuevo.</string>
+
+    <!-- Notificaciones push (spec 006). Texto fijo por categoria: el detalle se carga al abrir. -->
+    <string name="notifications_health_title">Salud de tu mascota</string>
+    <string name="notifications_health_body">Tienes un recordatorio de salud. Ábrelo para ver los detalles.</string>
+    <string name="notifications_followup_title">Seguimiento de tratamiento</string>
+    <string name="notifications_followup_body">Hay novedades en un seguimiento. Ábrelo para ver los detalles.</string>
+    <string name="notifications_chat_title">Mensaje de la veterinaria</string>
+    <string name="notifications_chat_body">Tienes un mensaje nuevo. Ábrelo para leerlo.</string>
+    <string name="notifications_news_title">Novedades de PetMate</string>
+    <string name="notifications_news_body">Tenemos algo nuevo para ti. Ábrelo para verlo.</string>
+    <string name="notifications_security_title">Seguridad de tu cuenta</string>
+    <string name="notifications_security_body">Hubo un movimiento en tu cuenta. Ábrelo para revisarlo.</string>
+
+    <!-- Afiliacion: validacion por paso (spec 011) -->
+    <string name="affiliation_error_kind">Elige qué ofreces.</string>
+    <string name="affiliation_error_name">Escribe el nombre del negocio.</string>
+    <string name="affiliation_error_phone">Debe tener 10 dígitos.</string>
+    <string name="affiliation_error_whatsapp">Debe tener 10 dígitos o quedar vacío.</string>
+    <string name="affiliation_error_address">Escribe calle, número y colonia.</string>
+    <string name="affiliation_error_license">La cédula es obligatoria para veterinarias.</string>
+    <string name="affiliation_error_hours_format">Usa el formato 24 h, por ejemplo 09:00.</string>
+    <string name="affiliation_error_hours_order">La hora de cierre debe ser después de la de apertura.</string>
+    <string name="affiliation_error_services">Elige al menos un servicio.</string>
+    <string name="affiliation_error_service_name">El nombre del servicio es demasiado largo.</string>
+    <string name="affiliation_error_service_price">El precio no puede ser negativo.</string>
+    <string name="affiliation_error_pin">Marca en el mapa dónde está tu negocio.</string>
+
+    <!-- Consulta veterinaria: validación y errores del servidor (spec 014) -->
+    <string name="veterinary_error_check_fields">Revisa los campos con error.</string>
+    <string name="veterinary_error_too_long">Máximo %1$d caracteres.</string>
+    <string name="veterinary_error_reason_required">El motivo es obligatorio.</string>
+    <string name="veterinary_error_diagnosis_required">El diagnóstico es obligatorio.</string>
+    <string name="veterinary_error_weight_range">El peso debe estar entre %1$s y %2$s kg.</string>
+    <string name="veterinary_error_medications_max">Máximo %1$d medicamentos por receta.</string>
+    <string name="veterinary_error_med_name">Nombre obligatorio.</string>
+    <string name="veterinary_error_med_dose">Dosis obligatoria.</string>
+    <string name="veterinary_error_med_frequency">Frecuencia obligatoria.</string>
+    <string name="veterinary_error_med_duration">Duración obligatoria.</string>
+    <string name="veterinary_error_vaccine_name">El nombre de la vacuna es obligatorio.</string>
+    <string name="veterinary_error_product_required">El nombre del producto es obligatorio.</string>
+    <string name="veterinary_error_applied_required">La fecha de aplicación es obligatoria.</string>
+    <string name="veterinary_error_applied_future">La fecha de aplicación no puede ser futura.</string>
+    <string name="veterinary_error_next_dose_after">La próxima dosis debe ser posterior a la fecha de aplicación.</string>
+    <string name="veterinary_error_next_deworming_future">La próxima desparasitación debe ser futura.</string>
+    <string name="veterinary_error_grant_expired">La autorización venció o no incluye a tu negocio.</string>
+    <string name="veterinary_error_bad_request">Revisa los datos: alguno no cumple el formato esperado.</string>
+    <string name="veterinary_error_pet_not_found">No se encontró la mascota.</string>
+    <string name="veterinary_error_conflict">Ya existe un registro similar o en conflicto.</string>
+    <string name="veterinary_error_server">Error en el servidor (%1$d). Intenta más tarde.</string>
+    <string name="veterinary_error_network">Sin conexión. Revisa tu internet e intenta de nuevo.</string>
+    <string name="veterinary_error_timeout">El servidor tardó en responder. Intenta de nuevo.</string>
+    <string name="veterinary_error_session">Tu sesión expiró. Vuelve a iniciar sesión.</string>
+    <string name="veterinary_error_field">Error en el campo %1$s.</string>
+    <string name="veterinary_error_unknown">Ocurrió un error inesperado.</string>
+
+    <!-- Inicio: lo más próximo (spec 010, R-07) -->
+    <string name="home_next_health_title">Lo más próximo</string>
+    <string name="home_next_health_vaccine">Vacuna de %1$s</string>
+    <string name="home_next_health_deworming">Desparasitación de %1$s</string>
+    <string name="home_next_health_overdue">Atrasada desde el %1$s</string>
+    <string name="home_next_health_today">Hoy</string>
+    <string name="home_next_health_in_days">En %1$d días</string>
+    <string name="home_next_health_tomorrow">Mañana</string>
+    <string name="home_next_health_empty_title">Sin eventos próximos</string>
+    <string name="home_next_health_empty_body">Registra una mascota y su carnet para no perderte una vacuna.</string>
+    <string name="home_next_health_empty_action">Registrar una mascota</string>
+
+    <!-- Moderacion de contenido (spec 004, T-003). El mensaje de contenido no permitido es UNICO a
+         proposito: distinguir la categoria le diria a quien prueba el sistema por donde pasar, y acusaria de
+         algo concreto a alguien que quiza solo escribio mal. -->
+    <string name="moderation_content_not_allowed">Este contenido no se puede publicar en PetMate. Revísalo e inténtalo de nuevo.</string>
+    <string name="moderation_file_too_large">El archivo pesa demasiado. Elige uno más ligero.</string>
+    <string name="moderation_unsupported_format">Ese formato de archivo no se admite.</string>
+    <string name="moderation_not_validated">No se pudo revisar el contenido en este momento. Inténtalo más tarde.</string>
 </resources>

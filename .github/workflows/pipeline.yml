@@ -2,7 +2,7 @@
 # Es el mismo flujo que el del backend (backend-petmate-sdd-aspnetcore/.github/workflows/pipeline.yml), adaptado a Android.
 #
 #   codigo -> secretos -> compilacion + Android Lint -> [SAST CodeQL | SAST movil (mobsfscan) | dependencias + SBOM
-#           | matriz de pruebas | una prueba por funcionalidad (matriz)] -> puerta de calidad -> APK/AAB de release
+#           | matriz de pruebas | una prueba por funcionalidad (matriz) | cobertura por capa] -> puerta de calidad -> APK/AAB de release
 #           -> entrega -> prueba de humo
 #
 # - En pull request (a develop o main) corre todo hasta el APK/AAB y NO entrega: entrega y prueba de humo aparecen como
@@ -359,6 +359,140 @@ jobs:
             tests: 'mx.petmate.app.domain.moderation.ModerationVerdictTest'
           - feature: chat-modelos
             tests: 'mx.petmate.app.domain.chat.ChatModelsTest'
+          # Seguridad (001/T-042, R-31): leen el manifiesto, las reglas de respaldo y el
+          # codigo fuente reales, asi que fallan solas si alguien afloja una proteccion.
+          - feature: seguridad-manifiesto
+            tests: 'mx.petmate.app.security.ManifestSecurityTest'
+          - feature: seguridad-reglas-respaldo
+            tests: 'mx.petmate.app.security.BackupRulesSecurityTest'
+          - feature: seguridad-secretos-incrustados
+            tests: 'mx.petmate.app.security.NoEmbeddedSecretsTest'
+          - feature: afiliacion-casos-uso
+            tests: 'mx.petmate.app.domain.usecase.AffiliationUseCasesTest'
+          - feature: afiliacion-paso-valido
+            tests: 'mx.petmate.app.domain.usecase.ValidateAffiliationStepUseCaseTest'
+          - feature: negocio-borrador
+            tests: 'mx.petmate.app.data.repository.BusinessRepositoryDraftTest'
+          - feature: observador-conectividad
+            tests: 'mx.petmate.app.core.connectivity.ConnectivityObserverTest'
+          - feature: conexion-backend-tablero
+            tests: 'mx.petmate.app.data.repository.DashboardRepositoryImplTest'
+          - feature: tablero-casos-uso
+            tests: 'mx.petmate.app.domain.usecase.DashboardUseCasesTest'
+          - feature: mapa-vista-falsa
+            tests: 'mx.petmate.app.ui.map.FakeMapViewTest'
+          - feature: reglas-salud
+            tests: 'mx.petmate.app.domain.health.HealthRulesTest'
+          - feature: linea-de-tiempo-salud
+            tests: 'mx.petmate.app.domain.health.HealthTimelineTest'
+          - feature: dinero
+            tests: 'mx.petmate.app.domain.model.MoneyTest'
+          - feature: tarjeta-proxima-salud
+            tests: 'mx.petmate.app.ui.home.NextHealthCardTest'
+          - feature: moderacion-sin-operacion
+            tests: 'mx.petmate.app.data.moderation.NoOpModerationGatewayTest'
+          - feature: presentador-notificaciones
+            tests: 'mx.petmate.app.data.push.NotificationPresenterTest'
+          - feature: conexion-backend-ajustes
+            tests: 'mx.petmate.app.data.repository.SettingsRepositoryImplTest'
+          - feature: pantalla-ajustes
+            tests: 'mx.petmate.app.ui.ajustes.SettingsViewModelTest'
+          - feature: caducidad-compartir
+            tests: 'mx.petmate.app.domain.sharing.ShareExpiryTest'
+          - feature: secciones-compartir
+            tests: 'mx.petmate.app.domain.sharing.ShareSectionsTest'
+          # Red resiliente contra Azure Container Apps (001/T-033, C-24, C-30).
+          - feature: red-reintentos
+            tests: 'mx.petmate.app.data.remote.RetryInterceptorTest'
+          - feature: red-clave-idempotencia
+            tests: 'mx.petmate.app.data.remote.IdempotencyKeyInterceptorTest'
+          # Camino unico de subida: nada se publica sin moderar (001/T-038, C-25).
+          - feature: moderacion-camino-unico
+            tests: 'mx.petmate.app.data.moderation.ModeratedContentTest'
+          # Las reglas de la skill revisar-capas, ejecutables (001/T-026, C-02, C-03, C-20).
+          - feature: arquitectura-capas
+            tests: 'mx.petmate.app.architecture.ArchitectureLayersTest'
+          # La infraestructura compartida de pruebas se prueba a si misma (001/T-023).
+          - feature: infraestructura-pruebas
+            tests: 'mx.petmate.app.util.SharedTestSupportTest'
+          # Cobro de la consulta: renglones, tasa configurable y redondeo (014/T-001, D-03).
+          - feature: cobro-consulta
+            tests: 'mx.petmate.app.domain.model.ChargeSummaryTest'
+          # Auditoria de comparticion: sin contenido clinico en el registro (009/T-009, C-11).
+          - feature: auditoria-comparticion
+            tests: 'mx.petmate.app.data.sharing.ShareAuditLoggerTest'
+          # Borrador de consulta en el telefono, aislado por cuenta (014/T-004, D-05).
+          - feature: borrador-consulta
+            tests: 'mx.petmate.app.data.repository.ConsultationDraftRepositoryImplTest'
+          # ViewModels: perfil y sesion (001/T-027).
+          - feature: pantalla-perfil
+            tests: 'mx.petmate.app.ui.home.HomeViewModelTest'
+          - feature: estado-de-sesion
+            tests: 'mx.petmate.app.ui.navigation.SessionViewModelTest'
+          - feature: panel-atendidas
+            tests: 'mx.petmate.app.ui.business.AttendedViewModelTest'
+          - feature: perfil-publico-negocio
+            tests: 'mx.petmate.app.ui.business.BizProfileViewModelTest'
+          - feature: compartir-historial-pantalla
+            tests: 'mx.petmate.app.ui.business.ShareViewModelTest'
+          - feature: pantalla-registro
+            tests: 'mx.petmate.app.ui.auth.RegisterViewModelTest'
+          - feature: lista-de-mascotas
+            tests: 'mx.petmate.app.ui.pets.PetsViewModelTest'
+          - feature: formulario-mascota
+            tests: 'mx.petmate.app.ui.pets.PetFormViewModelTest'
+          - feature: afiliar-negocio
+            tests: 'mx.petmate.app.ui.business.AffiliateViewModelTest'
+          - feature: mi-negocio
+            tests: 'mx.petmate.app.ui.business.MyBusinessViewModelTest'
+          - feature: historial-mascota-pantalla
+            tests: 'mx.petmate.app.ui.pets.PetHistoryViewModelTest'
+          - feature: carnet-pantalla
+            tests: 'mx.petmate.app.ui.pets.PetCarnetViewModelTest'
+          - feature: mapa-inicio
+            tests: 'mx.petmate.app.ui.map.MapViewModelTest'
+          # Clases que otras sesiones escribieron sin job propio. Las encontro el guardian de la
+          # matriz el 27/11/2026; sin entrada, una regresion ahi solo se habria visto en el total.
+          - feature: moderacion-bitacora
+            tests: 'mx.petmate.app.data.moderation.ModerationAuditLoggerTest'
+          - feature: moderacion-politica
+            tests: 'mx.petmate.app.data.moderation.ModerationPolicyTest'
+          # Moderacion de imagen: el temporal se borra pase lo que pase (004/T-006, C-06 a C-08).
+          - feature: moderacion-imagen
+            tests: 'mx.petmate.app.data.moderation.ImageModeratorTest'
+          # Se modera ANTES de guardar; un fallo del servicio nunca aprueba (004/T-004, C-02 y C-03).
+          - feature: moderacion-texto-en-linea
+            tests: 'mx.petmate.app.data.moderation.InlineTextModeratorTest'
+          # Ninguna llave de nube viaja dentro del APK (004/T-010, C-12).
+          - feature: seguridad-sin-llaves-de-nube
+            tests: 'mx.petmate.app.security.NoCloudKeysTest'
+          - feature: navegacion-mascotas
+            tests: 'mx.petmate.app.ui.navigation.PetsNavigationTest'
+          # Vigencia de la cache con el reloj adelantado a mano (001/T-018, C-11).
+          - feature: politica-de-cache
+            tests: 'mx.petmate.app.data.cache.CachePolicyTest'
+          # Salud del backend al arrancar: nunca tira la app (001/T-033, Q-02).
+          - feature: salud-backend
+            tests: 'mx.petmate.app.data.remote.BackendHealthTest'
+          # Idempotencia: diez envios, un registro (005/T-004, C-03).
+          - feature: idempotencia-sincronizacion
+            tests: 'mx.petmate.app.data.sync.SyncIdempotencyKeyTest'
+          # Cola de sincronizacion: que se reintenta y que no (005/T-005, C-05).
+          - feature: reintentos-sincronizacion
+            tests: 'mx.petmate.app.data.sync.SyncRetryPolicyTest'
+          # Conflictos: gana el servidor en lo clinico, la marca mas reciente en la mascota
+          # (005/T-006, C-06 y C-07).
+          - feature: conflictos-sincronizacion
+            tests: 'mx.petmate.app.data.sync.ConflictResolverTest'
+          # Privacidad de la foto: la inferencia no puede salir a la red (018/T-008, G-07).
+          # Estaba escrita pero sin job propio, asi que una regresion aqui solo se habria visto en
+          # el total. Agregada el 27/11/2026 por el guardian de la matriz.
+          - feature: inferencia-sin-red
+            tests: 'mx.petmate.app.classifier.NoNetworkDuringInferenceTest'
+          # Transporte del chat: el orden lo fija `seq` del servidor y no la fecha, y `seq`
+          # llega como entero o como cadena (016/T-003, Q-02).
+          - feature: transporte-chat
+            tests: 'mx.petmate.app.data.remote.MessageMapperTest'
     steps:
       - uses: actions/checkout@v5
 
@@ -387,6 +521,109 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+  # ------------- Etapa 4 · Cobertura por capa (001/T-027) -------------
+  # Corre la suite completa de una vez, no por funcionalidad: la cobertura solo tiene sentido
+  # agregada. Los jobs de `feature-tests` siguen existiendo para ver cual prueba se rompio.
+  coverage:
+    name: "4 · Cobertura por capa"
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Suite completa y umbrales por capa
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest :app:verificarCoberturaPorCapa :app:koverVerifyDebug
+
+      # Un BUILD SUCCESSFUL puede haber omitido clases en silencio si el demonio de Kotlin murio a media
+      # compilacion: paso de verdad el 27/11/2026, verde con 61 clases de 89. Un verde que se salta un
+      # tercio de las pruebas es peor que un rojo, porque da permiso para seguir.
+      - name: Revisar que la corrida no haya omitido clases
+        run: bash scripts/ci/check-test-run-complete.sh
+
+      - name: Resumen
+        if: always()
+        run: |
+          {
+            echo "### Cobertura por capa"
+            echo ""
+            echo "Umbrales de la constitucion parrafo 5: \`domain\` >= 80 %, \`data/repository\` >= 70 %,"
+            echo "ViewModels 100 %. Los tres bloquean desde el 27/11/2026 (001/T-027 cerrada)."
+            echo ""
+            echo "Los porcentajes salen en el registro del paso anterior y en el informe HTML adjunto."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Informe de cobertura
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: kover-coverage
+          path: app/build/reports/kover
+          if-no-files-found: ignore
+          retention-days: 14
+
+  # ------------- Etapa 4 · Estilo (001/T-004) -------------
+  # ktlint y detekt con linea base: lo que ya estaba sucio el 27/11/2026 quedo registrado en
+  # `config/ktlint/baseline.xml` y `config/detekt/baseline.xml`, y de ahi en adelante **cualquier
+  # violacion nueva reprueba**. Se comprobo con un archivo sucio a proposito: las dos tareas
+  # fallaron y lo nombraron.
+  #
+  # Si este job falla por la linea base y no por tu codigo: regenerar la linea base NO es el arreglo.
+  # Arregla el archivo con `./gradlew :app:ktlintFormat` (o a mano) y, si de verdad hace falta,
+  # regenera con `:app:ktlintGenerateBaseline` y `:app:detektBaseline`. La linea base solo debe
+  # encoger.
+  style:
+    name: "4 · Estilo (ktlint + detekt)"
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: ktlint y detekt
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:ktlintCheck :app:detekt
+
+      - name: Resumen
+        if: always()
+        run: |
+          {
+            echo "### Estilo (ktlint + detekt)"
+            echo ""
+            echo "Cero advertencias nuevas (constitucion parrafo 5). Lo que ya existia el 27/11/2026"
+            echo "esta en la linea base: 6002 avisos de ktlint y 500 de detekt, todos de formato."
+            echo ""
+            echo "La linea base solo debe encoger. Si crece, entro codigo sin formatear."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Informes de estilo
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: style-reports
+          path: |
+            app/build/reports/ktlint
+            app/build/reports/detekt
+          if-no-files-found: ignore
+          retention-days: 7
+
   # ------------- Etapa 5 · Puerta de calidad -------------
   quality-gate:
     name: "5 · Puerta de calidad"
@@ -400,6 +637,8 @@ jobs:
       - dependencies
       - test-matrix-check
       - feature-tests
+      - coverage
+      - style
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -412,6 +651,8 @@ jobs:
           R_DEPENDENCIES: ${{ needs.dependencies.result }}
           R_MATRIX: ${{ needs.test-matrix-check.result }}
           R_FEATURES: ${{ needs.feature-tests.result }}
+          R_COVERAGE: ${{ needs.coverage.result }}
+          R_STYLE: ${{ needs.style.result }}
         run: |
           failed=0
           {
@@ -438,6 +679,8 @@ jobs:
           row "3 · Dependencias (Trivy) y SBOM" "$R_DEPENDENCIES" bloqueante
           row "4 · Cada prueba tiene su job" "$R_MATRIX" bloqueante
           row "4 · Pruebas por funcionalidad (matriz)" "$R_FEATURES" bloqueante
+          row "4 · Cobertura por capa" "$R_COVERAGE" bloqueante
+          row "4 · Estilo (ktlint + detekt)" "$R_STYLE" bloqueante
           if [ "$failed" -ne 0 ]; then
             echo "::error::La puerta de calidad fallo: hay etapas bloqueantes sin resultado correcto."
             echo >> "$GITHUB_STEP_SUMMARY"; echo "**Resultado: FALLO**" >> "$GITHUB_STEP_SUMMARY"

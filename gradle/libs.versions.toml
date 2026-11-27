@@ -9,6 +9,13 @@ activityCompose = "1.9.3"
 kotlin = "2.2.10"
 composeBom = "2024.12.01"
 ksp = "2.2.10-2.0.2"
+kover = "0.9.1"
+# Puerta de estilo (001/T-004). Autorizado por Adrian el 27/11/2026.
+# ktlintPlugin es el plugin de Gradle; ktlint es la version de la herramienta que ejecuta.
+# Se fija la herramienta porque la que trae el plugin por omision es anterior a Kotlin 2.
+ktlintPlugin = "12.1.1"
+ktlint = "1.5.0"
+detekt = "1.23.8"
 hilt = "2.56.2"
 hiltNavigationCompose = "1.2.0"
 navigationCompose = "2.8.5"
@@ -88,3 +95,8 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+# Cobertura (001/T-023 y T-027). Autorizado por Adrian el 27/11/2026.
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
+# Puerta de estilo (001/T-004). Autorizado por Adrian el 27/11/2026.
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintPlugin" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }

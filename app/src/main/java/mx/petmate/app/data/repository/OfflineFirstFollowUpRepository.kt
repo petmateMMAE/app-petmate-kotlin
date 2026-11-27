@@ -1,5 +1,9 @@
 package mx.petmate.app.data.repository
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
@@ -41,6 +45,29 @@ class OfflineFirstFollowUpRepository(
                 if (cached != null) AppResult.Success(cached.toDomain()) else result
             }
         }
+    }
+
+    /**
+     * El seguimiento guardado, observable (spec 015, T-008: "la lectura observa Room y la red la
+     * refresca").
+     *
+     * Se lee **solo de Room**: refrescar es trabajo de [getFollowupByConsultation], que ya guarda
+     * lo que trae el servidor. Separarlos es a proposito. Si este flujo tambien llamara a la red,
+     * cada pantalla que lo observara dispararia su propia peticion y el mismo seguimiento se
+     * pediria tres veces al abrir la app.
+     *
+     * Sin sesion emite null en vez de fallar: no hay cuenta a la que pertenezca el dato, y filtrar
+     * por `ownerId` es la regla que no se negocia.
+     */
+    fun observeFollowup(consultationId: String): Flow<Followup?> {
+        val owner = currentUserId() ?: return flowOf(null)
+        return dao.observe(owner, consultationId).map { it?.toDomain() }.flowOn(dispatchers.io)
+    }
+
+    /** Todos los seguimientos guardados de la cuenta, en el orden en que hay que atenderlos. */
+    fun observeFollowups(): Flow<List<Followup>> {
+        val owner = currentUserId() ?: return flowOf(emptyList())
+        return dao.observeAll(owner).map { filas -> filas.map { it.toDomain() } }.flowOn(dispatchers.io)
     }
 
     override suspend fun createFollowup(consultationId: String, nextReviewInDays: Int?) =

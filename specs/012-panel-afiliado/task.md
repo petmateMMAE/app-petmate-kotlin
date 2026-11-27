@@ -10,7 +10,7 @@
 Ninguna tarea se ejecuta sin autorización explícita del humano
 (`constitution.md` §4).
 
-Progreso: **4 / 13 tareas** (1 verificada; 3 implementadas, por verificar; 2 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026)
+Progreso: **8 / 13 tareas** (6 verificadas; 2 implementadas, por verificar; 2 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026)
 
 ---
 
@@ -46,7 +46,7 @@ Progreso: **4 / 13 tareas** (1 verificada; 3 implementadas, por verificar; 2 sin
   - Archivos: `domain/usecase/ClassifyAlertUseCase.kt`,
     `test/.../domain/usecase/ClassifyAlertUseCaseTest.kt`
 
-- [ ] **T-004** — Casos de uso del panel y del filtro por día
+- [x] **T-004** — Casos de uso del panel y del filtro por día
   - Depende de: T-002, T-003
   - Aceptación: `GetDashboardUseCase` observa el panel desde el repositorio;
     `GetAttendedPetsUseCase` traduce `DayFilter` a un rango de fechas con el
@@ -63,7 +63,7 @@ Progreso: **4 / 13 tareas** (1 verificada; 3 implementadas, por verificar; 2 sin
 
 ## Fase F2 — Datos
 
-- [x] **T-005** — DTOs, servicio remoto y mappers _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-005** — DTOs, servicio remoto y mappers _(desmarcada 26/11/2026: estaba `[x]` y "Bloqueada por Q-01, Q-05" a la vez, y no existe ningún endpoint de panel ni `DashboardApiService`/`DashboardDto`. No se implementa hasta que Miguel responda Q-01.)_
   - Depende de: T-002 · Bloqueada por: **Q-01, Q-05**
   - Aceptación: DTOs del resumen, de las alertas y de las mascotas atendidas,
     con su serialización; `DashboardApiService` declara las llamadas; los
@@ -73,7 +73,7 @@ Progreso: **4 / 13 tareas** (1 verificada; 3 implementadas, por verificar; 2 sin
     `data/remote/DashboardApiService.kt`, `data/mapper/DashboardMapper.kt`,
     `test/.../data/mapper/DashboardMapperTest.kt`
 
-- [ ] **T-006** — Caché local del panel
+- [x] **T-006** — Caché local del panel _(verificada 26/11/2026 en emulador: DashboardDaoTest, 16 casos)_
   - Depende de: T-001
   - Aceptación: entidades y DAOs guardan el resumen, las alertas y las
     mascotas atendidas; **la caché guarda identificadores y fechas, no
@@ -91,7 +91,7 @@ Progreso: **4 / 13 tareas** (1 verificada; 3 implementadas, por verificar; 2 sin
 
 ## Fase F3 — Repositorio
 
-- [ ] **T-007** — `DashboardRepositoryImpl`
+- [x] **T-007** — `DashboardRepositoryImpl`
   - Depende de: T-005, T-006
   - Aceptación: la UI observa Room y la red refresca Room según la política de
     caché de 001; un error de red no borra los datos locales y se reporta; el
@@ -103,7 +103,7 @@ Progreso: **4 / 13 tareas** (1 verificada; 3 implementadas, por verificar; 2 sin
     `di/DashboardModule.kt`,
     `test/.../data/repository/DashboardRepositoryImplTest.kt`
 
-- [ ] **T-008** — Aislamiento por cuenta
+- [x] **T-008** — Aislamiento por cuenta
   - Depende de: T-007
   - Aceptación: los datos del panel se asocian al negocio del usuario activo y
     se limpian en el logout; tras cambiar de cuenta no se ven datos del
@@ -144,7 +144,7 @@ Progreso: **4 / 13 tareas** (1 verificada; 3 implementadas, por verificar; 2 sin
 
 ## Fase F5 — Bloques
 
-- [ ] **T-011** — Lista de alertas con color y navegación
+- [x] **T-011** — Lista de alertas con color y navegación _(verificada 26/11/2026 en emulador: AlertListTest, 12 casos)_
   - Depende de: T-010
   - Aceptación: las alertas se pintan con el color de su severidad; tocar una
     navega al seguimiento con el identificador correcto; si 015 no existe, la

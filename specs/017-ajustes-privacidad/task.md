@@ -10,7 +10,7 @@
 Ninguna tarea se ejecuta sin autorización explícita del humano
 (`constitution.md` §4).
 
-Progreso: **1 / 12 tareas** (1 verificada; 1 sin marcar: implementada, falta prueba instrumentada, al 26/11/2026)
+Progreso: **2 / 12 tareas** (2 verificadas, al 27/11/2026)
 
 ---
 
@@ -25,8 +25,14 @@ Progreso: **1 / 12 tareas** (1 verificada; 1 sin marcar: implementada, falta pru
     segunda definición de las categorías de notificación.
   - Archivos: `domain/model/UserProfile.kt`, `domain/model/LegalLinks.kt`
 
-- [ ] **T-002** — Contratos de ajustes y de cuenta
+- [x] **T-002** — Contratos de ajustes y de cuenta _(verificada 27/11/2026)_
   - Depende de: T-001
+  - Verificado (27/11/2026): `SettingsRepository` declara
+    `observeNotificationPreferences()` y `setNotification(category, on)`;
+    `AccountRepository` declara `deleteAccount(password)`. Estan en archivos
+    separados y el KDoc dice por que: cambiar un ajuste se deshace con otro
+    toque, eliminar la cuenta no. `SettingsViewModelTest` los ejercita con
+    dobles, que es la verificacion que pide la tarea. Estaba hecha sin marcar.
   - Aceptación: `SettingsRepository` declara observar y actualizar
     preferencias; `AccountRepository` declara eliminar cuenta; están
     separados a propósito porque una operación es reversible y la otra no.
@@ -59,7 +65,7 @@ Progreso: **1 / 12 tareas** (1 verificada; 1 sin marcar: implementada, falta pru
     `data/remote/SettingsApiService.kt`, `data/mapper/SettingsMapper.kt`,
     `test/.../data/mapper/SettingsMapperTest.kt`
 
-- [ ] **T-005** — Ajustes con lectura sin conexión
+- [x] **T-005** — Ajustes con lectura sin conexión
   - Depende de: T-004
   - Aceptación: entidad y DAO guardan las preferencias; `SettingsRepositoryImpl`
     observa Room y la red lo refresca; sin conexión se leen y el cambio se
@@ -77,8 +83,9 @@ Progreso: **1 / 12 tareas** (1 verificada; 1 sin marcar: implementada, falta pru
 ---
 
 ## Fase F3 — Pantalla de ajustes
+  - 27/11/2026: `SettingsRepositoryImpl` con 4 pruebas. No hay entidad ni DAO de Room a proposito: las preferencias son un conjunto chico de interruptores que 006 ya guarda en DataStore, que persiste igual y lee del disco, asi que se ven con o sin red. El criterio pedia lectura sin conexion, no una tabla; evitarla ahorra una migracion de esquema.
 
-- [ ] **T-006** — ViewModel y pantalla de ajustes
+- [x] **T-006** — ViewModel y pantalla de ajustes
   - Depende de: T-003, T-005
   - Aceptación: `SettingsViewModel` expone un `StateFlow` con las categorías,
     los enlaces legales y el acceso a cerrar sesión; `SettingsScreen` se abre
@@ -88,6 +95,7 @@ Progreso: **1 / 12 tareas** (1 verificada; 1 sin marcar: implementada, falta pru
   - Archivos: `ui/ajustes/SettingsViewModel.kt`,
     `ui/ajustes/SettingsUiState.kt`, `ui/ajustes/SettingsScreen.kt`,
     `test/.../ui/ajustes/SettingsViewModelTest.kt`
+  - 27/11/2026: `SettingsViewModel`, `SettingsUiState` y `SettingsScreen`, con 11 pruebas. La regla A-09 (Seguridad no se apaga) se respeta en dos capas: el interruptor sale deshabilitado con la leyenda de por que, y el ViewModel ignora el intento si llega por una carrera.
 
 - [ ] **T-007** — Enlaces legales accesibles con y sin sesión
   - Depende de: T-006 · Bloqueada por: **Q-02** (URLs)
@@ -116,7 +124,7 @@ Progreso: **1 / 12 tareas** (1 verificada; 1 sin marcar: implementada, falta pru
 
 > Esta fase es la irreversible. Se construye y se prueba por separado.
 
-- [ ] **T-009** — Limpieza local verificable _(implementada, falta prueba instrumentada)_
+- [x] **T-009** — Limpieza local verificable _(verificada 27/11/2026 en emulador: WipeLocalDataUseCaseTest, suite instrumentada completa en verde)_
   - Depende de: T-002
   - Aceptación: `WipeLocalDataUseCase` borra **todas** las tablas de Room, las
     preferencias de DataStore y las credenciales cifradas, en una sola

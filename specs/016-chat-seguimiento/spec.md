@@ -199,3 +199,13 @@ seguimiento sin buscarla en otro lado.
       advierte al usuario.
 - [ ] Preguntas abiertas con dueño, en especial Q-06.
 - [ ] **Aprobada para pasar a `plan.md`.**
+
+
+## Preguntas resueltas contra el backend ya terminado
+
+Estas estaban marcadas como "esperando a Miguel". El backend se termino y se desplego, asi que
+se respondieron leyendo su codigo y su contrato. Las tareas que solo dependian de ellas YA NO
+ESTAN BLOQUEADAS.
+
+- **Q-01 RESUELTA (27/11/2026)** — conversations (get-all, mark-read, reopen) y messages (get-all, send, send-photo, get-photo-url).
+- **Q-02 RESUELTA (27/11/2026)** — Por CURSOR. MessageResponse trae un campo seq que sirve de cursor estable; no pagines por fecha.

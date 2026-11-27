@@ -207,3 +207,12 @@ próxima o que el veterinario le respondió.
 - [ ] Los requisitos y los criterios de éxito son suficientes para planificar.
 - [ ] Las preguntas abiertas están identificadas y se sabe a quién preguntar.
 - [ ] **Aprobada para pasar a `plan.md`.**
+
+
+## Preguntas resueltas contra el backend ya terminado
+
+Estas estaban marcadas como "esperando a Miguel". El backend se termino y se desplego, asi que
+se respondieron leyendo su codigo y su contrato. Las tareas que solo dependian de ellas YA NO
+ESTAN BLOQUEADAS.
+
+- **Q-02 RESUELTA (27/11/2026)** — SI se guardan en el servidor: GET /api/v1/notification-settings/get y POST /api/v1/notification-settings/update. El dispositivo se registra con devices/register y devices/unregister.

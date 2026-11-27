@@ -49,10 +49,11 @@ class ChatModelsTest {
     @Test
     fun `el contrato se puede doblar con Flow y AppResult`() = runTest {
         val fake = object : ChatRepository {
-            override fun observeMessages(conversationId: String, limit: Int): Flow<List<Message>> =
+            override fun observeMessages(conversationId: String): Flow<List<Message>> =
                 flowOf(listOf(message))
+            override suspend fun refresh(conversationId: String) = AppResult.Success(0)
             override suspend fun send(conversationId: String, content: MessageContent) = AppResult.Success(message)
-            override suspend fun markAsRead(conversationId: String) = AppResult.Success(Unit)
+            override suspend fun markAsRead(conversationId: String, upToMessageId: String) = AppResult.Success(0)
             override fun observeUnreadCount(): Flow<Int> = flowOf(0)
         }
 

@@ -13,7 +13,7 @@
 se ejecutan después, con autorización explícita del humano. Un agente que
 implemente estas tareas sin aprobación viola la constitución §4.
 
-Progreso: **1 / 10 tareas** (1 verificada; 8 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026) · Fases completadas: **0 / 4**
+Progreso: **3 / 10 tareas** (3 verificadas; 6 sin marcar: implementadas, falta prueba instrumentada, al 27/11/2026) · Fases completadas: **0 / 4**
 
 ---
 
@@ -55,7 +55,7 @@ Los componentes de 001 se citan como `001/K-xx` y las tareas como `001/T-xx`.
     `domain/permissions/PermissionCatalog.kt`,
     `test/.../domain/permissions/PermissionCatalogTest.kt`
 
-- [ ] **T-002** — Implementación Android del gateway _(implementada, falta prueba instrumentada)_
+- [x] **T-002** — Implementación Android del gateway _(verificada 27/11/2026: manifiesto corregido con autorización, AndroidPermissionGatewayTest en verde y `lintDebug` con 0 errores)_
   - Depende de: T-001 · Requiere autorización para tocar el manifiesto
   - Aceptación: `AndroidPermissionGateway` implementa el contrato con las APIs
     del sistema; el manifiesto declara solo los permisos del catálogo; la
@@ -65,6 +65,33 @@ Los componentes de 001 se citan como `001/K-xx` y las tareas como `001/T-xx`.
   - Archivos: `core/permissions/AndroidPermissionGateway.kt`,
     `di/PermissionsModule.kt`, `AndroidManifest.xml`,
     `androidTest/.../core/permissions/AndroidPermissionGatewayTest.kt`
+  - ✅ **Defecto encontrado y corregido (27/11/2026), con autorización de
+    Eduardo para tocar el manifiesto.** Lo que estaba mal y ya no:
+    1. **`POST_NOTIFICATIONS` no estaba declarado, y era un defecto de
+       producto.** `AndroidPermissionGateway.systemPermissions()` lo devuelve
+       en API 33+ y `NotificationActivation` consulta su estado, pero ningún
+       manifiesto lo declaraba (ni el de la app ni el fusionado). En Android
+       13+ pedir un permiso no declarado no muestra diálogo: se niega en
+       silencio, así que **encender una categoría de notificación en Ajustes no
+       podía funcionar** en un teléfono moderno. Afectaba a 006 y a 017/T-005.
+       Nada fallaba al compilar y las pruebas pasaban, porque ninguna ejerce el
+       diálogo real del sistema. **Ya está declarado.**
+    2. **`CAMERA` solo llegaba por una librería.** Estaba en el manifiesto
+       fusionado, no en el de la app, así que el escáner (013) dependía de que
+       esa dependencia transitiva siguiera declarándolo. **Ya se declara
+       explícitamente**, con `uses-feature android:required="false"`: declarar
+       el permiso hace que Google Play exija cámara por omisión, y el escáner
+       tiene la alternativa del código manual (spec 003, Q-02), así que excluir
+       teléfonos sin cámara habría sido un daño colateral de cara a 020.
+    3. `INTERNET` y `ACCESS_NETWORK_STATE` siguen en el manifiesto y no en el
+       catálogo. Eso es correcto —son permisos normales, no de ejecución—, pero
+       **el criterio de aceptación está mal redactado**: debería hablar de los
+       permisos de ejecución, no de «solo los permisos del catálogo». Se deja
+       anotado en lugar de reescribir la spec.
+    - **Evidencia:** el manifiesto fusionado declara los cuatro permisos de
+      ejecución del catálogo; `dumpsys package mx.petmate.app` ya lista
+      `POST_NOTIFICATIONS` entre los solicitados (antes no aparecía); las 71
+      pruebas instrumentadas y `lintDebug` siguen en verde después del cambio.
 
 - [ ] **T-003** — Justificación previa reutilizable _(implementada, falta prueba instrumentada)_
   - Depende de: T-001, 001/T-020
@@ -145,7 +172,7 @@ Los componentes de 001 se citan como `001/K-xx` y las tareas como `001/T-xx`.
     `ui/components/permissions/InAppNotice.kt`,
     `test/.../ui/components/permissions/NotificationFallbackTest.kt`
 
-- [ ] **T-009** — Pantalla de prueba de la matriz de permisos _(implementada, falta prueba instrumentada)_
+- [x] **T-009** — Pantalla de prueba de la matriz de permisos _(verificada 27/11/2026 en emulador: PermissionMatrixTest, suite instrumentada completa en verde)_
   - Depende de: T-006, T-007, T-008
   - Aceptación: una pantalla de prueba permite alternar los cuatro permisos
     entre concedido y denegado y muestra cada degradación; **no** se registra

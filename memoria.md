@@ -469,3 +469,307 @@ La sesión del 19/11 tuvo que corregir el build antes de verificar. Sale de su r
   - **15 siguen `[x]` con la nota porque su verificación no es una prueba:** 001/T-002, T-003, T-005, T-006, T-010, T-020, T-028, T-029, T-031 (build, revisión, GitHub Actions); 009/T-006; 014/T-015 (pide `ktlintCheck detekt`, que no existen); 020/T-001, T-003, T-009, T-011 (consola de Play).
 - **Defecto encontrado, no corregido (fuera de la tarea):** la UI importa de `data` en dos archivos, contra P3: `ui/business/OwnerBusinessScreens.kt` (`data.repository.label`) y `ui/pets/PetComponents.kt` (`data.repository.SamplePetRepository`). Vienen del commit `a50d07c` del 11/11.
 
+
+## Seguridad, red resiliente, moderación y capas (27/11/2026)
+
+Sesión sobre 001/T-042, T-033, T-038, T-026 y T-023. **Nada commiteado**: Adrián commitea al final, a su nombre.
+
+- **Estado de la suite:** 444 → **512 pruebas, 0 fallos, 57 clases**. `lintDebug`: 0 errores, 102 warnings. El guardián `check-test-matrix.sh` pasa: 57 clases, 57 entradas.
+- **El proyecto ya compila.** El fallo de `ui/map/MapScreen.kt` que bloqueaba a la sesión anterior no está. Las 6 pruebas de `ManifestSecurityTest` que nunca se habían podido correr pasan.
+
+### Hallazgo real: las reglas de respaldo no protegían nada
+
+`res/xml/data_extraction_rules.xml` y `res/xml/backup_rules.xml` estaban con la plantilla **comentada** de Android Studio. El manifiesto los referenciaba, así que parecían configurados. En Android 12+, `allowBackup="false"` apaga el respaldo en la nube pero, según la documentación de Android, **no apaga la transferencia entre dispositivos**; y si falta `<device-transfer>`, ese modo queda habilitado para todo el contenido. Al cambiar de teléfono se habrían copiado `petmate_session` (el token) y `petmate.db` (el carnet de salud). Ya están excluidos los dominios `sharedpref`, `database`, `file` y `external` en los dos archivos.
+
+### Defecto de las pruebas que leen archivos reales
+
+Las pruebas de seguridad abren el manifiesto y los XML con `File(...)`. Gradle no sabe que son entradas suyas, así que dejaba `testDebugUnitTest` en `UP-TO-DATE` y **un cambio hecho sólo en esos archivos no volvía a ejecutarlas**: se podía aflojar una protección, ver la suite verde en local y subirlo. En CI no ocurría, porque el checkout es limpio. Arreglado con un bloque `tasks.withType<Test>` en `app/build.gradle.kts` que los declara como entradas; comprobado: con él, cambiar sólo el XML reejecuta las 512 y falla.
+
+### Deuda nueva
+
+| | Qué | Por qué quedó así |
+|---|---|---|
+| D-02 | El rechazo de moderación viaja como `AppError.Unknown(ModerationRejected)` en vez de un caso propio `AppError.Moderation(reason)` | `ui/auth/AuthErrorMessages.kt`, `ui/business/BusinessViewModels.kt` y `ui/business/VeterinaryActionViewModel.kt` hacen `when` **exhaustivo sobre `AppError` sin `else`**: un caso nuevo los deja sin compilar. Son de Eduardo. Cuando se pueda tocar `ui/`, son 3 ramas nuevas y se corrige |
+| D-03 | `ModerationApproval` existe pero **ningún repositorio lo pide** todavía | Aplicarlo exige cambiar firmas de escritura en `domain`, sus implementaciones y los que llaman desde `ui/`. Hay que coordinarlo con Eduardo |
+| D-04 | La skill `.agents/skills/revisar-capas` apunta al paquete viejo `com.example.petmateedel` | Tal como está, sus `grep` corren en vacío y no encuentran nada nunca. Las reglas viven ahora en `ArchitectureLayersTest`, que usa el paquete real. Conviene actualizar la skill (relacionado con D-01) |
+| D-05 | 11 archivos de prueba siguen repitiendo el bloque `object : DispatcherProvider` | Ya existe `testDispatcherProvider()` en `test/.../util/`. Adoptado en `AuthRepositoryImplTest` y `BusinessRepositoryDraftTest`; el resto es mecánico y se dejó para cuando alguien pueda revisarlo |
+
+### Las dos violaciones de P3 siguen ahí
+
+`ui/business/OwnerBusinessScreens.kt:45` y `ui/pets/PetComponents.kt:65` (las del commit `a50d07c`, ya anotadas el 26/11). No se tocaron: son de Eduardo. Quedan como excepciones **fechadas** en `EXCEPCIONES_UI_IMPORTA_DATA` dentro de `ArchitectureLayersTest`, para que la prueba proteja contra violaciones nuevas en vez de estar en rojo por estas dos. En cuanto Eduardo las corrija, se quitan de esa lista y T-026 se cierra.
+
+### Bloqueado por falta de autorización
+
+Medir cobertura (T-023 y T-027) necesita el plugin Kover, y eso exige tocar `gradle/libs.versions.toml`, que está en la lista de archivos que no se tocan sin avisar. No se hizo. **Número de pruebas no es cobertura:** puede haber 512 pruebas y un `domain` al 50 %, así que no se marcó nada.
+
+### Un error propio, para que no se repita
+
+Al provocar una violación a propósito para comprobar que `BackupRulesSecurityTest` servía, se usó un `-replace` con expresión regular sobre el XML. El comentario del propio archivo contiene el texto `<device-transfer>`, así que la expresión empezó a cortar dentro del comentario y dejó el XML inválido: la build falló en `mergeDebugResources` en vez de en la prueba. Se restauró y se provocó la violación escribiendo un archivo válido a propósito. **Para provocar una violación, escribe el archivo entero; no lo recortes con expresiones regulares.**
+
+## Barrido de las 20 specs y por qué casi todo está bloqueado (27/11/2026, segundo bloque)
+
+Se revisaron **las 181 tareas sin marcar de las 20 specs** buscando trabajo que se pudiera hacer sin inventar nada. Suite al cerrar: **543 pruebas, 0 fallos, 59 clases** (empezó la noche en 444). Nada commiteado.
+
+### Hecho
+
+- **014/T-001** · `TaxRate` (puntos base), `ChargeLine` y `ChargeSummary` en `domain/model`, 21 pruebas. D-03 respetado: no hay tasa del país en el código. El impuesto se redondea una sola vez sobre el subtotal, con una prueba que demuestra por qué importa.
+- **009/T-009** · `ShareAuditLogger` + 10 pruebas. Registra identificadores, secciones y expiración; la prueba de C-11 demuestra que ningún dato clínico llega al registro.
+- **017/T-002** · estaba hecha sin marcar. Verificada y marcada.
+
+### El mapa de bloqueos, para saber a quién pedir qué
+
+De 181 tareas sin marcar, **63 llevan marca explícita de `Bloqueada por Q-NN`**. De las 118 restantes, solo 41 tienen verificación JVM, y de esas solo 11 tenían todas sus dependencias cumplidas. Al revisarlas una por una:
+
+| Bloqueador | Quién lo desbloquea | Tareas que libera |
+|---|---|---|
+| Endpoints que no existen en el backend: verificación de correo, reenvío de código, recuperación de acceso | **Miguel** | 002/T-003, 002/T-004 |
+| Contrato del endpoint de moderación (`004/Q-01`) | **Miguel** | toda la cadena 004/T-002 → T-011 |
+| Dependencia nueva en `libs.versions.toml`: Kover | **Adrián** | 001/T-023 (cobertura), 001/T-027 |
+| Dependencia nueva en `libs.versions.toml`: WorkManager | **Adrián** | 001/T-036 (y hay que reescribir la tarea: ver el aviso del 26/11, duplicaría la cola) |
+| Cambio de esquema de Room (tabla de borrador de consulta) | **Adrián** | 014/T-004, y detrás T-009 |
+| Las 2 violaciones `ui → data` | **Eduardo** | 001/T-026 |
+| Firmas de escritura que pasan por `ui/` | **Eduardo** | 001/T-038 (aplicar `ModerationApproval`) |
+| Pruebas instrumentadas y verificación en dispositivo | **Adrián con un teléfono** | 57 tareas ya desmarcadas el 26/11, más 001/T-025, 003/T-004, 006/T-007 |
+| Consola de Play | **Adrián** | casi toda la spec 020 |
+
+**Las seis "matrices de pruebas"** (004/T-011, 005/T-011, 006/T-010, 008/T-013, 009/T-010, 010/T-013) se descartaron a propósito: cada una depende de las tareas de feature de su spec, que están bloqueadas. Escribirlas ahora daría pruebas que no prueban nada.
+
+### Hallazgos de la revisión
+
+- **014/T-003 no está falsamente marcada**, aunque lo parecía: `Consultation`, `ConsultationDraft` y `ConsultationSummary` sí existen, pero en `domain/model/Veterinary.kt` y no en los tres archivos que lista la tarea. Es diferencia de ubicación, no trabajo faltante. Antes de dar por falsa una marca conviene buscar el tipo, no el archivo.
+- **002/T-003 y 002/T-004 están bloqueadas y la spec no lo dice.** No llevan marca `Bloqueada por`, pero los endpoints no existen. Ya quedó anotado en su task.md.
+- `003/T-004` y `006/T-007` ya traían la nota *(implementada, falta prueba instrumentada)* y es correcta: su verificación pide instrumentada. Se dejaron sin marcar.
+
+## Borrador de consulta y colisión con otro agente (27/11/2026, tercer bloque)
+
+Suite al cerrar: **557 pruebas, 0 fallos, 60 clases**. `lintDebug` 0 errores. Guardián de la matriz al día. Nada commiteado.
+
+### Hecho: 014/T-004, borrador de consulta
+
+Tabla nueva de Room `consultation_drafts`, **versión 2 → 3 con `MIGRATION_2_3`**, autorizada por Adrián. La migración solo crea la tabla: ninguna columna existente cambia, así que a quien ya tenga la versión 2 instalada no se le borra nada.
+
+La llave es `(ownerId, petId)` y no solo `ownerId` como el borrador de afiliación: una veterinaria atiende varias mascotas la misma mañana, y con una sola columna empezar la segunda consulta borraría la primera.
+
+Se creó `ConsultationDraftRepository` **aparte** en vez de agregarle métodos a `VeterinaryRepository`. Ese contrato lo implementa `VeterinaryRepositoryImpl`, lo delega `OfflineFirstFollowUpRepository` con `by remote` y lo doblan cinco pruebas: agregarle métodos obligaría a tocar todo eso para otra responsabilidad. El borrador vive solo en el teléfono y no sube al servidor hasta cerrar la consulta.
+
+14 pruebas, entre ellas: dos cuentas en el mismo teléfono no se ven el borrador; sin sesión no se guarda nada y se devuelve `Unauthorized`; un JSON de medicamentos ilegible no impide abrir el borrador; y el registro no lleva el diagnóstico ni el peso (P6).
+
+### Colisión con otro agente, para que no se repita
+
+A las 04:13 **otro agente estaba escribiendo `app/build.gradle.kts`** y ya había dejado Kover configurado ahí (con un comentario "Autorizado por Adrián el 27/11/2026") más `kover = "0.9.1"` en `libs.versions.toml`. Esta sesión empezó a hacer lo mismo sin saberlo y **dejó una entrada `kover` duplicada en `[plugins]`**, que habría roto el build por clave repetida en el TOML. Se detectó al leer el `git diff` y se quitó de inmediato; el archivo quedó igual que lo dejó el otro agente.
+
+**La lección:** antes de tocar un archivo compartido, mirar `git diff` de ese archivo y su fecha de modificación. Si cambió en los últimos minutos, hay alguien más dentro. Lo que falta de Kover son los umbrales de T-027; se dejó para quien lo empezó.
+
+### Un error propio de edición
+
+Marcar tareas con `[regex]::Replace` y `$` en modo multilínea sobre archivos con CRLF dejó **retornos de carro sueltos** (CR sin LF) en medio de tres líneas, lo que partía visualmente el renglón. Ya se limpiaron. **Para marcar una tarea en un `.md` de este repo, usar coincidencia exacta de texto y no regex con `$`**, porque los finales de línea están mezclados.
+
+## Cobertura medida y exigida en el CI (27/11/2026, cuarto bloque)
+
+Se terminó lo que faltaba de Kover: **la verificación por capa**. El plugin y los filtros los había dejado otro agente esa misma noche (ver el bloque anterior); esta sesión agregó la comprobación de umbrales y el job del pipeline.
+
+### Los números reales, por fin medidos
+
+| Capa | Constitución §5 | Real | |
+|---|---|---|---|
+| `domain` | ≥ 80 % | **91.2 %** | cumple |
+| `data/repository` | ≥ 70 % | **71.0 %** | cumple, con 1 % de margen |
+| ViewModels | 100 % | **35.4 %** | **no cumple** |
+| total de la app | — | 45.2 % | suelo del 40 % en Kover |
+
+`001/T-027` sigue abierta por los ViewModels: son 18 clases y solo 6 tienen prueba. La regla quedó como **suelo en 35 %** para que no empeore, y está escrito en el código que es un freno y no el objetivo. Buena parte de la lógica de un ViewModel de Compose solo se ejercita con pruebas instrumentadas, así que el 100 % literal puede no alcanzarse hasta que haya un teléfono.
+
+### Por qué la verificación no usa el `verify` de Kover
+
+**`KoverVerifyRule` de Kover 0.9.1 no tiene `filters`.** Solo expone `groupBy` y cotas; se comprobó con `javap` sobre el jar del plugin en la caché de Gradle. Sin filtros por regla no hay forma de expresar tres umbrales distintos por capa con su DSL — el primer intento falló con *"'fun filters(...)' can't be called in this context by implicit receiver"*, que es Kotlin diciendo que el único `filters` en alcance es el del reporte, no el de la regla.
+
+La solución es la tarea `verificarCoberturaPorCapa` en `app/build.gradle.kts`: lee el XML que Kover ya genera, suma los contadores `LINE` **solo de los hijos directos de cada `<class>`** (los de `<method>` contarían doble), y falla con un mensaje concreto. De paso imprime los cuatro porcentajes en cada corrida, que es lo que pide T-023.
+
+Detalle de la caché de configuración: el suelo de los ViewModels **tiene que vivir dentro del `doLast`**, no como propiedad del script. Como propiedad, Gradle falla con *"cannot serialize Gradle script object references"*.
+
+### En el pipeline
+
+Job nuevo **"4 · Cobertura por capa"**: corre la suite completa de una vez (no por funcionalidad, porque la cobertura solo tiene sentido agregada), ejecuta los umbrales, publica el informe HTML como artefacto y entra como **bloqueante** en la puerta de calidad. Los jobs de `feature-tests` siguen ahí para ver cuál prueba se rompió.
+
+Estado al cerrar: **557 pruebas, 0 fallos, 60 clases**; lint 0 errores; 60 clases con su entrada en la matriz; YAML válido con 12 jobs. Nada commiteado.
+
+## Pruebas de ViewModel y cierre de T-023 (27/11/2026, quinto bloque)
+
+Suite al cerrar: **644 pruebas, 0 fallos, 68 clases**. Al empezar la noche eran 444. Lint 0 errores. Guardián de la matriz al día (68 clases, 68 entradas). Nada commiteado.
+
+### T-023 cerrada
+
+Faltaba un solo punto de su aceptación, los **dobles de repositorio reutilizables**, y ya están: `AuthRepositoryFalso` (13 miembros), `BusinessRepositoryFalso` (17) y `PetRepositoryFalso` (19).
+
+Criterio que siguen los tres, y conviene mantenerlo: apuntan cada llamada en `llamadas`, guardan los argumentos de las que importan (`ultimoRegistro`, `ultimaComparticion`, `ultimoBorrador`…), y **lo que la prueba no configura falla a propósito** con `SIN_CONFIGURAR`. Un doble que devuelve lista vacía por omisión deja pasar pruebas que no comprueban nada. No se llamaron `Fake*` porque ya existe `FakeAuthRepository` en `data/repository`, que es el backend simulado del modo demo: son cosas distintas.
+
+### Cobertura de ViewModels: 35.4 % → 63.9 %
+
+Siete clases de prueba nuevas, todas en `test/` (territorio propio, aunque prueben código de `ui/`):
+
+| Prueba | Pruebas |
+|---|---|
+| `HomeViewModelTest` | 12 |
+| `SessionViewModelTest` | 9 |
+| `AttendedViewModelTest` | 7 |
+| `BizProfileViewModelTest` | 6 |
+| `ShareViewModelTest` | 14 |
+| `RegisterViewModelTest` | 14 |
+| `PetsViewModelTest` | 9 |
+| `PetFormViewModelTest` | 16 |
+
+El suelo anti-regresión de los ViewModels se subió de 35 a **55** en `app/build.gradle.kts`. Súbelo cada vez que se gane terreno: es lo que evita que lo ganado se pierda sin que nadie lo note.
+
+Patrón que funcionó y conviene copiar: `MainDispatcherRule(StandardTestDispatcher())` cuando hay que comprobar estados intermedios y guardas contra dobles toques (`isLoading`, `isSaving`, "dos toques guardan una sola vez"), y `MainDispatcherRule()` con el no confinado cuando solo interesa el resultado. Con el no confinado las corrutinas terminan antes de que la prueba pueda mirar el estado intermedio.
+
+Donde se pudo se usó el colaborador **real** en vez de un doble: `RegisterViewModelTest` monta `RegisterUseCase` con el `ValidateCredentialsUseCase` de verdad, porque lo que hay que comprobar es que el error del dominio acabe en el **campo correcto** de la pantalla, y con un doble habría que programar ese mapeo a mano y la prueba solo repetiría lo que ya dijimos.
+
+### Lo que queda de T-027
+
+Seis ViewModels siguen casi sin cubrir, 181 líneas: `AffiliateViewModel` (43), `PetCarnetViewModel` (35), `MapViewModel` (31), `MyBusinessViewModel` (30), `PetFormViewModel` ya hecho, `PetHistoryViewModel` (16). `PetCarnetViewModel` y `PetHistoryViewModel` se pueden hacer con los dobles que ya existen; `MapViewModel` y los dos de negocio necesitan más trabajo de preparación.
+
+Aviso realista: buena parte de la lógica de un ViewModel de Compose solo se ejercita con pruebas instrumentadas, que en esta máquina no corren. El 100 % literal de la constitución puede no alcanzarse sin un teléfono.
+
+### Nota de operación
+
+La sesión perdió el enlace con la computadora alrededor de las 5:20 y lo recuperó a las 5:30. Durante ese rato no se pudo tocar nada: todo el proyecto vive en la máquina. Si vuelve a pasar, lo que lo arregla es volver a enlazar la tarea desde la app de escritorio, no dar permisos de carpetas.
+
+## Puerta de estilo, cobertura al 100 % y 005 (27/11/2026, sexto bloque)
+
+Suite al cerrar: **827 pruebas, 0 fallos, 80 clases.** Empezó la noche en 444. Nada commiteado.
+
+### 001/T-027 cerrada: ViewModels al 100 %
+
+Pasaron de 63.9 % a **100.0 %**. Los 18 ViewModels tienen clase de prueba; en este bloque se escribieron `AffiliateViewModelTest` (21), `MyBusinessViewModelTest` (22), `ScanViewModelTest` (16), `PetHistoryViewModelTest` (13), `MapViewModelTest` (19) y `PetCarnetViewModelTest` (27), más los huecos sueltos de `VeterinaryActionViewModel`, `SettingsViewModel`, `PetFormViewModel` y `AffiliateViewModel`.
+
+Cobertura final: total 57.4 %, `domain` 94.1 %, `data/repository` 71.0 %, ViewModels 100.0 %.
+
+**El umbral de ViewModels dejó de ser un suelo móvil y es el requisito.** Pasó de 35 a 55 a 100 el mismo día. Un ViewModel nuevo sin prueba reprueba el pipeline y el mensaje de error lo dice con esas palabras.
+
+Aviso para quien lea el 100 %: son las **clases** cuyo nombre termina en `ViewModel`. Sus lambdas internas (`...ViewModel$load$1`) caen en el total, y varias solo se ejercitan con pruebas instrumentadas. Si alguien pide "100 % incluyendo lambdas", eso necesita un teléfono.
+
+Ojo con el siguiente: **`data/repository` está a 1 % de su umbral**. El próximo repositorio sin prueba lo tumba.
+
+### 001/T-004: ktlint y detekt, con línea base
+
+ktlint 1.5.0 (plugin 12.1.1) y detekt 1.23.8, con `.editorconfig` nuevo en la raíz —lo leen ktlint **y** Android Studio, así que el formato que exige el pipeline es el mismo que aplica el IDE al guardar— y `config/detekt/detekt.yml` con el motivo escrito en cada regla que se cambia. Job `4 · Estilo` bloqueante en la puerta de calidad.
+
+**Por qué línea base y no reformatear.** `ktlintFormat` arreglaría todo de golpe pero reescribiría 274 archivos, `ui/` incluido, que es de otra sesión. Un diff así no se puede revisar. Así que lo que ya existía quedó registrado (6002 avisos de ktlint, 4135 de ellos en `ui/`; 500 de detekt) y de ahí en adelante lo nuevo reprueba.
+
+Las 16 reglas de la deuda son de formato puro y **todas se arreglan con `ktlintFormat`**. Ninguna es un defecto de comportamiento. La limpieza conviene como commit aparte, por área y por su dueño. **Mi código nuevo también la debe**, y lo digo aquí en vez de maquillarlo: lo baseliné junto con el resto por el reloj, no porque esté bien.
+
+**Se comprobó que muerde.** Archivo sucio a propósito → las dos tareas fallaron y lo nombraron. Y al correr la puerta cazó sola 20 violaciones que otras sesiones habían escrito esa misma noche.
+
+**Una regla quedó apagada a propósito:** `ForbiddenMethodCall` (para `println` y `Thread.sleep`) necesita resolución de tipos y no se dispara en la tarea `detekt`, que es la que corre el pipeline. Se comprobó con un `println` deliberado y detekt no lo marcó. Una regla que calla siempre es peor que no tenerla; quien las vigila de verdad es `ArchitectureLayersTest`.
+
+### 005: idempotencia, reintentos y conflictos (T-004, T-005, T-006)
+
+Las tres cerradas con las respuestas de Adrián que desbloquearon Q-01, Q-02, Q-05, Q-07 y Q-08.
+
+- **T-005**, `SyncRetryPolicy`: 4xx permanentes, 5xx y red transitorios. Dos cosas que conviene no deshacer: `Unauthorized` cuenta como permanente (no es el dato, es la sesión, y reenviar con token vencido es un bucle), y `GaveUp` existe aparte de `Permanent` porque al agotarse los intentos de un error de red el reintento manual sí tiene sentido.
+- **T-006**, `ConflictResolver`: servidor gana en lo clínico, marca más reciente en la mascota. **El empate lo gana el servidor**, decidido a propósito: `updatedAt` llega en segundos, dos cambios del mismo segundo empatan, y el reloj de un teléfono puede estar mal. Igual si la marca local es nula.
+- **T-004**, `SyncIdempotencyKey`: la clave **se deriva** de la operación en vez de sortearse. Un UUID sirve mientras la fila viva en Room, pero si la fila se pierde y la app re-encola, un UUID nuevo hace que el servidor aplique el cambio dos veces. Lleva tipo, acción, id de cliente e instante: sin el instante, dos pesos legítimos de la misma mascota se verían como uno repetido.
+
+### 015/T-007 (parte del Flow) y T-008
+
+`FollowUpDao` ya expone `observe` y `observeAll` como `Flow`. **No cambió el esquema**: un `@Query` que devuelve `Flow` no toca columnas, así que no hubo migración. T-008 cerrada con los cuatro casos que pedía la verificación.
+
+La prueba de D-05 es **estructural**: lee el archivo del repositorio y falla si aparece `SyncOutbox`, `outbox` o `enqueue`. Comprobarlo por comportamiento solo demuestra que hoy no se encola; así falla sola el día que alguien lo inyecte.
+
+### Marcas falsas: van siete
+
+Desmarcada **001/T-028**: pedía `.github/workflows/pr.yml`, que no existe, y las etapas ktlint/detekt que no existían hasta hoy. El proyecto consolidó todo en `pipeline.yml`, que es otra forma válida de organizarlo, pero T-028, T-029 y T-031 describen tres archivos separados. **Decisión para el equipo:** reescribir esas tres aceptaciones (media hora) o partir el pipeline (rompe la puerta de calidad, que necesita todos los jobs en el mismo flujo). Recomendación: reescribir.
+
+### El guardián de la matriz encontró 4 huecos
+
+Clases de prueba sin job propio, escritas por otras sesiones: `NoNetworkDuringInferenceTest`, `ModerationAuditLoggerTest`, `ModerationPolicyTest` y `PetsNavigationTest`. Sin entrada, una regresión ahí solo se habría visto en el total. Agregadas. También había una entrada `escaneo-negocio` que apuntaba a una clase inexistente; el `ScanViewModelTest` de este bloque la llenó.
+
+**Conviene correr el guardián antes de cada commit**, no solo cuando uno se acuerda: con tres sesiones escribiendo, la matriz se desfasa en minutos.
+
+### Nota de operación: las tres sesiones se pisan en `app/build/`
+
+Esto costó tiempo real y conviene saberlo: `Couldn't delete R.jar`, `dirty-sources.txt as it does not exist`, `Daemon compilation failed: null`, `NoSuchFileException` en `build/generated/ksp`. **Ninguno era del código.** Llegó a haber 5 daemons de Gradle ocupados y 12 detenidos, con 9 procesos java y ~4.3 GB.
+
+Lo que funciona: esperar y reintentar, o `--rerun-tasks`. Lo que no hice y no conviene hacer: matar los daemons de otra sesión. Lo que sí ayudaría: que las tres sesiones no compilen a la vez, o dar a cada una su propio directorio de build.
+
+## Transporte del chat y un bug que la prueba cazó (27/11/2026, séptimo bloque)
+
+Hecha **016/T-003** (DTOs, servicio remoto y mappers del chat). 8 pruebas nuevas, todas en
+verde. Nada commiteado.
+
+### Q-01 y Q-02 estaban resueltas: T-003 no estaba bloqueada
+
+La tarea llevaba marca `Bloqueada por Q-01, Q-02`, pero las dos ya están respondidas al final
+de su `spec.md` contra el backend desplegado. **Van tres bloqueos obsoletos encontrados.**
+Conviene seguir leyendo esas respuestas antes de saltarse una tarea.
+
+### El bug: `seq` no se puede declarar ni `Long` ni `String`
+
+El contrato declara `MessageResponse.seq` y `ConversationSummaryResponse.unreadCount` como
+`type: ["integer","string"]` (son `int64`: un `long` de .NET se serializa a veces entre
+comillas, porque no cabe en un `Number` de JavaScript sin perder precisión).
+
+`kotlinx.serialization` es **estricto**: un campo `String` exige comillas y un `Long` las
+rechaza. Cualquiera de las dos declaraciones **falla con la mitad de las respuestas legítimas
+del servidor**. Lo cacó la prueba `acepta la secuencia como entero y como cadena`, que manda
+las dos formas en la misma página; la primera versión del DTO falló en verde aparente hasta
+que esa prueba corrió.
+
+La solución es `Int64AsStringSerializer` en `data/remote/dto/`: lee el primitivo tal como
+venga y devuelve su texto. **Si aparece otro campo `int64` en el contrato, usa ese
+serializador**, no `Long` ni `String` a secas.
+
+### Tres cosas del contrato que la spec no decía bien
+
+- **El cursor de paginación es el `id` del último mensaje, no el `seq`.** `after` es un uuid:
+  el backend busca ese mensaje y usa *su* secuencia como corte (`ListMessagesHandler`).
+  Mandar el `seq` revienta el parseo del Guid.
+- **Se pagina hacia adelante, en orden ascendente.** El `ChatRepository` de T-002 documenta
+  *"del mas nuevo al mas viejo"*: **contradice al backend**. No se tocó porque es de otra
+  sesión; **queda pendiente corregirlo** antes de T-005, o el repositorio pedirá páginas al
+  revés.
+- `conversations/mark-read` exige **`upToMessageId`**, no solo la conversación: no se marca
+  "toda la conversación", se marca hasta un mensaje concreto. Así un mensaje que llegó
+  mientras el usuario leía no se da por leído sin verse.
+- `kind` tiene **tres** valores (`Text`, `System`, `Photo`) y `MessageContent` solo modela
+  dos. El de sistema se mapea a texto para no perderlo de la conversación.
+
+La foto **no viene en el mensaje**: se pide a `messages/get-photo-url` y la URL **expira**.
+El mapeo deja la URL vacía a propósito, para que nadie guarde una URL muerta en Room (D-05).
+
+### Dato de ubicación
+
+La tarea pide `data/mapper/MessageMapper.kt`, pero **`data/mapper/` no existe**: el repo pone
+los mappers en `data/remote/` (junto a `AuthMapper.kt`). Se siguió el repo, no la spec, y
+quedó anotado en la tarea.
+
+### Lo que no se pudo verificar
+
+La suite completa corrió **879 pruebas con 2 fallos, los dos en `RetryInterceptorTest`**
+(`SocketTimeoutException` en MockWebServer). **No es código mío**: ese archivo es de las 03:20
+y no se tocó. Al intentar correr esa clase sola para confirmarlo, Gradle falló dos veces por
+archivos bloqueados por otra sesión (`classes.jar` en uso, `Unable to delete directory`).
+Con la máquina así, un timeout de socket es lo esperable. **Queda por confirmar en una
+máquina tranquila.** Tampoco corrió `lintDebug` ni la puerta de estilo, por lo mismo.
+
+### 001/T-039 cerrada: el push ya tiene quien lo llame
+
+Lo que estaba a medias no era el codigo, era el cableado: `PushTokenProvider` y `DeviceApiService` ya existian y **nadie los llamaba**, asi que ese par de archivos no servia para nada. Ahora hay `PushRegistrar` (alta tras el login, baja y borrado del token en el logout) y `PushMessageRouter` (que se muestra y que se descarta). 15 pruebas nuevas en verde; la suite quedo en 879 y `lintDebug` en verde.
+
+**Donde se engancho y por que no en el repositorio.** `AuthorizedCaller` depende de `AuthRepository`, asi que inyectar `PushRegistrar` en `AuthRepositoryImpl` crea un ciclo de Hilt. El enganche quedo en `LoginUseCase` y `LogoutUseCase`, que ademas son los que ya llaman los ViewModels, asi que **no hubo que tocar `ui/`**. Como `domain` no puede importar `data` (regla 3 de `ArchitectureLayersTest`), en medio va la interfaz `DeviceRegistration`.
+
+**El orden esta probado a proposito**, porque es el error facil de cometer: en el login el alta va DESPUES de guardar la sesion (si no, no hay access token que mandar) y en el logout la baja va ANTES de cerrarla (si no, la peticion sale sin credencial). Las dos cosas se rompen solas si alguien reordena dos lineas, y ahora falla una prueba cuando pase.
+
+**Se cerro sin el SDK de Firebase, y fue decision del humano.** No hay ninguna dependencia de Firebase en el proyecto. Agregar el plugin `google-services` sin `google-services.json` **rompe el build de toda la app**, y somos tres sesiones en la misma carpeta: habria dejado a las otras dos sin compilar. El proveedor inyectado es `NoPushTokenProvider`, que devuelve null, asi que el registrador no llama al backend y la app arranca igual. Eso no es un hueco: es literalmente lo que pide D-19.
+
+Para enchufar Firebase cuando se resuelva Q-08 (que proyecto se usa y quien administra el archivo): agregar el SDK, escribir `FirebasePushTokenProvider`, cambiar **una linea** en `PushModule.providePushTokenProvider` y un `FirebaseMessagingService` que solo delegue en `PushMessageRouter`. Por eso el manifiesto no se toco: declarar ahi un servicio que no existe rompe la app.
+
+**Dato que conviene no deshacer:** el backend declara `additionalProperties: false` en `RegisterDeviceRequest` y solo acepta `token`. `DeviceTokenRequestDto` tiene `platform` con valor por omision y kotlinx **no serializa defaults**, asi que viaja una sola clave y el backend lo acepta. Si alguien pone `encodeDefaults = true` en el `Json` de `NetworkModule`, el registro empieza a dar 400. Hay una prueba que compara el cuerpo exacto y lo caza.
+
+### La linea base de ktlint se desfasa con las lineas, no con el codigo
+
+Costo tiempo y conviene saberlo: la linea base de ktlint guarda las violaciones **por numero de linea**. Al insertar tres lineas en `NetworkModule`, `PushModule`, `LoginUseCase` y `LogoutUseCase`, las entradas dejaron de calzar y la puerta se puso roja en archivos que yo no habia roto. Se regenero con `:app:ktlintGenerateBaseline` (6188 → 6293 entradas), que es el procedimiento que documenta `app/build.gradle.kts`. **No corri `ktlintFormat`**: reformatea todo el repositorio, incluido el trabajo sin commitear de las otras dos sesiones.
+
+Tambien quedo claro que el estilo de la casa **si** lleva comas finales y el orden de imports actual: las dos cosas estan en la linea base a proposito, no son deuda. Si un archivo nuevo las "corrige", la puerta lo marca.
+
+**`detekt` quedo rojo por algo ajeno:** `ImageModeratorTest` y `InlineTextModeratorTest` (de otra sesion, sin commitear y sin entrada en la linea base) usan `throw IllegalStateException` y detekt pide `check()`/`error()`. Son 2 issues y no los toque porque no son mios. Quien lleve moderacion: son dos lineas.

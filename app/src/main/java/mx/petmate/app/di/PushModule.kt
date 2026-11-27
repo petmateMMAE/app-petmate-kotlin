@@ -13,8 +13,16 @@ import dagger.hilt.components.SingletonComponent
 import mx.petmate.app.core.coroutines.DispatcherProvider
 import mx.petmate.app.data.account.DeviceDataWiper
 import mx.petmate.app.data.local.PetMateDatabase
+import mx.petmate.app.core.log.Logger
 import mx.petmate.app.data.push.NotificationActivation
 import mx.petmate.app.data.push.NotificationPreferencesStore
+import mx.petmate.app.data.push.PushMessageRouter
+import mx.petmate.app.data.push.PushRegistrar
+import mx.petmate.app.data.remote.AuthorizedCaller
+import mx.petmate.app.data.remote.DeviceApiService
+import mx.petmate.app.domain.push.DeviceRegistration
+import mx.petmate.app.domain.push.NoPushTokenProvider
+import mx.petmate.app.domain.push.PushTokenProvider
 import mx.petmate.app.data.session.SessionStore
 import mx.petmate.app.domain.permissions.PermissionGateway
 import mx.petmate.app.domain.usecase.LocalDataWiper
@@ -49,6 +57,42 @@ object PushModule {
 
     @Provides
     fun provideWipeLocalDataUseCase(wiper: LocalDataWiper): WipeLocalDataUseCase = WipeLocalDataUseCase(wiper)
+
+    /**
+     * De donde sale el token de push.
+     *
+     * `NoPushTokenProvider` mientras Q-08 siga abierta: que proyecto de Firebase se usa y quien
+     * administra `google-services.json`. Devuelve `null`, asi que `PushRegistrar` no llama al
+     * backend y la app arranca y funciona igual sin Firebase, que es lo que exige D-19.
+     *
+     * **Para enchufar Firebase se cambia solo esta linea** por el proveedor real; ni
+     * `PushRegistrar` ni `PushMessageRouter` se enteran.
+     */
+    @Provides
+    @Singleton
+    fun providePushTokenProvider(): PushTokenProvider = NoPushTokenProvider
+
+    @Provides
+    @Singleton
+    fun providePushRegistrar(
+        tokenProvider: PushTokenProvider,
+        deviceApi: DeviceApiService,
+        caller: AuthorizedCaller,
+        dispatchers: DispatcherProvider,
+        logger: Logger,
+    ): PushRegistrar = PushRegistrar(tokenProvider, deviceApi, caller, dispatchers, logger)
+
+    /** Lo que ven `LoginUseCase` y `LogoutUseCase`; `domain` no puede importar `data` (regla 3). */
+    @Provides
+    @Singleton
+    fun provideDeviceRegistration(registrar: PushRegistrar): DeviceRegistration = registrar
+
+    @Provides
+    @Singleton
+    fun providePushMessageRouter(
+        store: NotificationPreferencesStore,
+        logger: Logger,
+    ): PushMessageRouter = PushMessageRouter(store, logger)
 
     @Provides
     @Singleton

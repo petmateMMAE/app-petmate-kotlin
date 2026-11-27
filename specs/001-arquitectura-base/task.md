@@ -15,7 +15,7 @@ después. Un agente que implemente estas tareas sin autorización viola la
 constitución §4 ("Nunca: ejecutar tareas de `task.md` sin aprobación explícita
 del humano").
 
-Progreso: **18 / 42 tareas** (4 verificadas; 14 implementadas, por verificar; 5 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026) · Fases completadas: **0 / 9**
+Progreso: **21 / 42 tareas** (7 verificadas; 14 implementadas, por verificar; 4 sin marcar: implementadas, falta prueba instrumentada, al 27/11/2026) · Fases completadas: **0 / 9**
 
 ---
 
@@ -41,7 +41,29 @@ Puerta de calidad de toda tarea que toque código:
 ## Fase F1 — Cimientos
 
 - [ ] **T-001** — Escribir la matriz de versionamiento
-  - Depende de: — · Bloqueada por: **Q-07**
+  - Depende de: — · Bloqueada por: **Q-07** _(ya no bloquea, ver abajo)_
+  - Estado (27/11/2026): **escrita**, en `docs/matriz-versionamiento.md`. Queda en
+    `[ ]` porque su verificación es *revisión del documento por el responsable
+    del proyecto*, y eso lo hace Adrián, no yo. **Es lo único que falta.**
+    **Por qué no se esperó a Q-07.** La pregunta es si la matriz es un documento
+    compartido para los tres repositorios o uno por repositorio, y es
+    organizativa: no cambia ninguna de las tres cosas que la tarea pide (esquema,
+    tabla y regla de actualización). Se escribió por repositorio porque es lo que
+    se sostiene hoy —el backend va en 0.5.0 y la app en 0.2.0, y un número común
+    obligaría a publicar versiones vacías de uno para acompañar al otro— y el
+    documento dice explícitamente qué cambia si el equipo decide lo contrario:
+    casi nada, porque las reglas de `versionCode` son de Google Play y no aplican
+    al backend ni al panel.
+    **La decisión que conviene revisar.** El `versionCode` es un contador que sube
+    de uno en uno, **no** se calcula del `versionName` con la fórmula de manual
+    (`MAYOR*10000 + MENOR*100 + PARCHE`). Motivo: esa fórmula se rompe en cuanto
+    hay que subir dos artefactos del mismo `versionName` —un AAB rechazado por la
+    ficha, una firma mal puesta— y Play **no acepta dos veces el mismo
+    `versionCode` ni uno menor que el ya subido**, nunca, sin vuelta atrás. El
+    precio es que el código y el nombre no se corresponden, y por eso la
+    correspondencia vive en la tabla del documento y hay que mantenerla.
+    **Esto desbloquea T-031**, cuya aceptación dice que los números salen de esta
+    matriz. La dependencia faltaba y quedó anotada allá.
   - Aceptación: existe `docs/matriz-versionamiento.md` con el esquema de
     `versionName` (semántico) y `versionCode` (regla de cálculo), la tabla de
     entregas planeadas y la regla de quién la actualiza y cuándo.
@@ -70,8 +92,47 @@ Puerta de calidad de toda tarea que toque código:
   - Nota: mitiga el riesgo G-05. Si hay incompatibilidad, **se detiene y se
     reporta** antes de seguir.
 
-- [ ] **T-004** — Configurar la puerta de calidad (ktlint + detekt)
+- [x] **T-004** — Configurar la puerta de calidad (ktlint + detekt) _(hecha 27/11/2026)_
   - Depende de: T-003
+  - Estado (27/11/2026): **las dos herramientas corren, bloquean el pipeline y se
+    comprobó que reprueban de verdad.** Autorizado por Adrián.
+    Lo que quedó:
+    - `gradle/libs.versions.toml`: plugin ktlint 12.1.1 con la herramienta ktlint
+      fijada en 1.5.0 (la que trae el plugin por omisión es anterior a Kotlin 2),
+      y detekt 1.23.8.
+    - `.editorconfig` nuevo en la raíz: lo leen ktlint **y** Android Studio, así
+      que el formato que exige el pipeline es el mismo que aplica el IDE al
+      guardar. Sin ese archivo el linter pelea con el editor de cada quien.
+    - `config/detekt/detekt.yml`: parte de la configuración por omisión y solo
+      cambia lo que este proyecto necesita, cada cosa con su motivo escrito.
+    - Job nuevo en el pipeline, `4 · Estilo (ktlint + detekt)`, **bloqueante** en
+      la puerta de calidad.
+    **Decisión importante: línea base en vez de reformatear.** `ktlintFormat`
+    arreglaría todo de golpe, pero reescribiría **274 archivos**, entre ellos
+    todo `ui/`, que es de otra sesión. Un diff así no se puede revisar y pisa
+    trabajo ajeno. Así que lo que ya existía quedó registrado en
+    `config/ktlint/baseline.xml` (6002 avisos, 4135 de ellos en `ui/`) y
+    `config/detekt/baseline.xml` (500 hallazgos), y **de ahí en adelante
+    cualquier violación nueva reprueba**. Las 16 reglas de la deuda son de
+    formato puro —`argument-list-wrapping`, `trailing-comma`, `max-line-length`—
+    y **todas se arreglan solas con `ktlintFormat`**: ninguna es un defecto de
+    comportamiento. La limpieza conviene como commit aparte, por área y por su
+    dueño, no mezclada con trabajo funcional.
+    **Se comprobó que muerde.** Se creó un archivo sucio a propósito
+    (línea de 123 caracteres y un `println`): `ktlintCheck` y `detekt` fallaron
+    las dos y lo nombraron. El archivo se borró en el mismo turno. Además, al
+    correr la puerta cazó sola 20 violaciones que otras sesiones habían escrito
+    esa misma noche, lo que es exactamente para lo que está.
+    **Aviso para quien commitee:** varias sesiones escriben a la vez, así que la
+    línea base se queda corta en minutos. Conviene correr una última vez
+    `./gradlew :app:ktlintGenerateBaseline :app:detektBaseline` justo antes del
+    commit. La línea base solo debe **encoger**; si crece, entró código sin
+    formatear y eso es lo que hay que ver en la revisión.
+    **Una regla se dejó apagada a propósito:** `ForbiddenMethodCall` (para vigilar
+    `println` y `Thread.sleep`) necesita resolución de tipos y **no se dispara**
+    en la tarea `detekt`, que es la que corre el pipeline; se comprobó con un
+    `println` deliberado y detekt no lo marcó. Una regla que calla siempre es peor
+    que no tenerla. Quien las vigila de verdad es `ArchitectureLayersTest`.
   - Aceptación: `ktlintCheck` y `detekt` corren sobre todo el código y pasan
     en cero advertencias, con su configuración versionada.
   - Verificación: `./gradlew ktlintCheck detekt`
@@ -152,7 +213,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F3 — Datos
 
-- [ ] **T-011** — Base de datos Room _(implementada, falta prueba instrumentada)_
+- [x] **T-011** — Base de datos Room _(verificada 27/11/2026 en emulador: PetMateDatabaseTest, suite instrumentada completa en verde)_
   - Depende de: T-010
   - Aceptación: `PetMateDatabase` con una entidad de prueba desechable, su DAO
     exponiendo `Flow`, conversores de tipo para fechas, y provista por Hilt en
@@ -247,7 +308,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F5 — Caché
 
-- [ ] **T-018** — Política de caché y `Clock` inyectable
+- [x] **T-018** — Política de caché y `Clock` inyectable
   - Depende de: T-011 · Bloqueada por: **Q-06**
   - Aceptación: existe un `CachePolicy` con la duración de vigencia por tipo
     de dato y un `Clock` inyectable; una función decide si un dato vigente se
@@ -257,6 +318,7 @@ Puerta de calidad de toda tarea que toque código:
   - Archivos: `data/cache/CachePolicy.kt`, `core/time/Clock.kt`,
     `test/.../data/cache/CachePolicyTest.kt`
 
+  - 27/11/2026: `core/time/Clock.kt` y `data/cache/CachePolicy.kt` con 7 pruebas, cableado en CoreModule. El reloj inyectable permite probar el vencimiento de la cache sin esperar en tiempo real.
 - [x] **T-019** — Patrón de repositorio offline-first _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-018, T-015
   - Aceptación: existe un repositorio de referencia, documentado, que
@@ -315,8 +377,65 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F7 — Verificación de extremo a extremo
 
-- [ ] **T-023** — Infraestructura compartida de pruebas
+- [x] **T-023** — Infraestructura compartida de pruebas _(hecha 27/11/2026)_
+  - Cierre (27/11/2026): los cinco puntos de la aceptacion cumplidos.
+      - Regla del dispatcher -> `MainDispatcherRule` + `testDispatcherProvider()`.
+      - Constructores de datos falsos -> `FakeData.kt` y `FakeDataPets.kt`.
+      - **Dobles de los repositorios** -> `AuthRepositoryFalso` (13 miembros),
+        `BusinessRepositoryFalso` (17) y `PetRepositoryFalso` (19). Era el unico
+        punto que faltaba. Los tres apuntan cada llamada y guardan los argumentos,
+        y lo que la prueba no configura **falla a proposito** en vez de devolver
+        un valor por omision que nadie penso.
+      - Utilidades de `MockWebServer` -> `MockWebServerSupport.kt`, con el **mismo**
+        `Json` que arma `NetworkModule`.
+      - Cobertura medida y reportada -> `verificarCoberturaPorCapa`.
+    Los dobles no quedaron como codigo muerto: los usan las 7 clases de prueba de
+    ViewModel escritas ese dia.
   - Depende de: T-009
+  - Detalle de lo escrito, en `app/src/test/java/mx/petmate/app/util/`:
+      - `TestDispatchers.kt`: `MainDispatcherRule` (sustituye `Dispatchers.Main`
+        y lo restaura al terminar, para que una prueba no le deje el dispatcher
+        puesto a la siguiente) y `testDispatcherProvider()`. Venia repetido el
+        mismo `object : DispatcherProvider { io/default/main }` en **13** archivos
+        de prueba.
+      - `RecordingLogger.kt`: registro que apunta lo que se escribe, con
+        `noRegistro(secreto)` para poder **exigir** P6 (no registrar
+        contrasenas, tokens ni datos personales) en vez de confiar en que nadie
+        lo haga.
+      - `MockWebServerSupport.kt`: `servicio<T>()`, `encolarJson`,
+        `encolarSobre`, `encolarError` y `sobre()`, con el formato real del
+        backend. Lo importante no es ahorrar lineas: `jsonDePrueba` es **el
+        mismo** `Json` que arma `NetworkModule`, en un solo lugar. Si las
+        pruebas usaran una configuracion mas laxa, pasarian en verde con
+        respuestas que la app no sabe leer.
+      - `FakeData.kt`: `usuarioFalso()`, `perfilFalso()` y los cuerpos JSON de
+        sesion y perfil, todos con valores por omision para que cada prueba
+        nombre solo el campo que le importa.
+      - `SharedTestSupportTest.kt`: 12 pruebas que comprueban la propia
+        infraestructura. No es redundante: si `sobre()` armara JSON mal formado,
+        decenas de pruebas fallarian por un motivo que no tiene nada que ver con
+        lo que intentan comprobar.
+    Ya adoptada en `AuthRepositoryImplTest` y `BusinessRepositoryDraftTest` como
+    demostracion. Quedan **11 archivos** con el bloque duplicado; cambiarlos es
+    mecanico y la suite lo verifica, pero se dejo para cuando alguien pueda
+    revisarlo.
+    **"La cobertura se mide y se reporta": HECHO (27/11/2026).** Kover 0.9.1
+    configurado (el plugin y los filtros los puso otro agente esa noche; esta
+    sesion agrego la verificacion). `./gradlew :app:verificarCoberturaPorCapa`
+    imprime los cuatro numeros en cada corrida y falla si una capa baja de su
+    umbral. Medido al cerrar la noche del 27/11/2026: total 57.4 %, `domain`
+    94.1 %, `data/repository` 71.0 %, ViewModels 100.0 %.
+    **Dobles de repositorio: HECHO (27/11/2026).** En `test/.../util/` quedaron
+    `AuthRepositoryFalso` (13 miembros), `BusinessRepositoryFalso` (17),
+    `PetRepositoryFalso` (19) y `VeterinaryRepositoryFalso` (12). Criterio
+    comun: apuntan cada llamada en `llamadas`, guardan los argumentos de las que
+    importan, y **lo que la prueba no configura falla a proposito** con
+    `SIN_CONFIGURAR`; un doble que devuelve lista vacia por omision deja pasar en
+    verde pruebas que no comprueban nada. No se llaman `Fake*` porque ya existe
+    `FakeAuthRepository` en `data/repository`, que es el backend simulado del
+    modo demo. Siguen existiendo falsos locales de DAO (`FakeConsultationDraftDao`,
+    `FakeAffiliationDraftDao`): son de una sola prueba cada uno y no hay nada que
+    compartir ahi.
   - Aceptación: existen la regla del dispatcher de prueba, los constructores de
     datos falsos, los dobles de los repositorios y las utilidades de
     `MockWebServer`, todos reutilizables; la cobertura se mide y se reporta.
@@ -339,6 +458,15 @@ Puerta de calidad de toda tarea que toque código:
 
 - [ ] **T-025** — Comprobar el funcionamiento sin conexión
   - Depende de: T-024
+  - Estado (27/11/2026): **no la puedo hacer yo.** La aceptacion pide activar el
+    modo avion en un dispositivo y guardar una captura; eso lo tienes que hacer
+    tu con un telefono o un emulador. En esta maquina el emulador no es opcion:
+    es justo lo que dejo la RAM en 0.5 GB y no dejaba ni arrancar un JVM.
+    Lo que si esta cubierto por pruebas automaticas, para que no empieces de
+    cero: `OfflineFirstPetRepositoryTest`, `OfflineFirstFollowUpRepositoryTest`,
+    `SyncOutboxTest` y `ConnectivityObserverTest` ya comprueban que se lee de
+    Room sin red y que la cola guarda lo pendiente. Lo que falta es la evidencia
+    en dispositivo de que la app **abre** y **avisa** sin cerrarse (C-12).
   - Aceptación: con el modo avión activado, la app abre y muestra los datos
     guardados previamente, y comunica la falta de conexión sin cerrarse.
   - Verificación: comprobación manual en dispositivo (C-12); evidencia en
@@ -347,14 +475,71 @@ Puerta de calidad de toda tarea que toque código:
 
 - [ ] **T-026** — Revisión de capas
   - Depende de: T-024
+  - Estado (27/11/2026): auditoria corrida y convertida en prueba. En vez de
+    dejarla como auditoria de una sola vez, las reglas de la skill viven ahora en
+    `test/.../architecture/ArchitectureLayersTest.kt`: 9 pruebas que recorren los
+    archivos reales de `src/main` en cada PR, asi que una regresion falla sola.
+    Comprobado provocando una violacion a proposito (un archivo en `domain` que
+    importaba `data` y traia un `println`): las reglas 3 y 5 lo cazaron.
+    Resultado de la auditoria: **7 de 8 reglas limpias**. `domain` es Kotlin puro
+    y no conoce a `data` ni a `ui`; no hay `*Entity` ni `*Dto` fuera de `data`; no
+    hay `println`; los dispatchers solo se nombran en
+    `core/coroutines/DispatcherProvider.kt`, que es su lugar; no hay `@Suppress`,
+    `@Ignore` ni `TODO()` (los dos `@SuppressLint` que hay llevan su motivo
+    escrito, que es lo que pide la skill).
+    **Lo que falta para cerrarla: la regla 2 tiene 2 violaciones, las dos en
+    `ui/`**, que es territorio de Eduardo y no se toca desde aqui:
+      - `ui/business/OwnerBusinessScreens.kt:45` importa
+        `data.repository.label`, una funcion de presentacion que no deberia vivir
+        en `data`.
+      - `ui/pets/PetComponents.kt:65` importa `data.repository.SamplePetRepository`,
+        un repositorio concreto usado desde un componente de Compose.
+    Estan anotadas como excepciones fechadas en `EXCEPCIONES_UI_IMPORTA_DATA`
+    dentro de la prueba, para que proteja contra violaciones nuevas en vez de
+    quedarse en rojo por estas dos. Hay que hablarlo con Eduardo; en cuanto las
+    corrija, se quitan de esa lista y T-026 se cierra.
+    Nota aparte: la skill `revisar-capas` apunta al paquete viejo
+    `com.example.petmateedel`. Corre en vacio tal como esta. La prueba usa el
+    paquete real `mx.petmate.app`; convendria actualizar la skill (deuda D-01).
   - Aceptación: la skill `revisar-capas` corre sin una sola violación: `domain`
     sin framework, `ui` sin importar `data`, nombres en su lugar, sin
     `println`, sin dispatchers escritos a mano, sin versiones literales.
   - Verificación: salida de la skill `revisar-capas` limpia (C-02, C-03, C-20).
   - Archivos: — (auditoría; las correcciones se hacen donde haga falta)
 
-- [ ] **T-027** — Verificar las coberturas mínimas
+- [x] **T-027** — Verificar las coberturas mínimas _(hecha 27/11/2026)_
   - Depende de: T-023, T-026
+  - Estado (27/11/2026): **medida y los tres umbrales se cumplen.** No es una
+    estimacion: `./gradlew :app:verificarCoberturaPorCapa` lo comprueba en cada
+    corrida y reprueba el pipeline si una capa baja.
+
+    | Capa | Pide la constitucion | Real | |
+    |---|---|---|---|
+    | `domain` | >= 80 % | **94.1 %** | cumple |
+    | `data/repository` | >= 70 % | **71.0 %** | cumple, con 1 % de margen |
+    | ViewModels | 100 % | **100.0 %** | cumple |
+    | (total de la app) | -- | 57.4 % | suelo del 40 % puesto en Kover |
+
+    Los 18 ViewModels tienen clase de prueba. En esta sesion se escribieron las
+    13 que faltaban: `HomeViewModelTest`, `SessionViewModelTest`,
+    `AttendedViewModelTest`, `BizProfileViewModelTest`, `ShareViewModelTest`,
+    `RegisterViewModelTest`, `PetsViewModelTest`, `PetFormViewModelTest`,
+    `AffiliateViewModelTest`, `MyBusinessViewModelTest`, `ScanViewModelTest`,
+    `PetHistoryViewModelTest`, `PetCarnetViewModelTest` y `MapViewModelTest`.
+    **Que significa exactamente el 100 %:** son las clases cuyo nombre termina en
+    `ViewModel`. Sus lambdas internas (`...ViewModel$load$1`) cuentan en el total,
+    y algunas solo se ejercitan con pruebas instrumentadas, que en esta maquina no
+    corren. Si alguien pide "100 % incluyendo lambdas", eso necesita un telefono.
+    El umbral de ViewModels paso de **suelo movil a requisito**: estaba en 35, se
+    subio a 55 y quedo en 100. Un ViewModel nuevo sin su clase de prueba reprueba
+    el pipeline, y el mensaje de error lo dice con esas palabras.
+    Detalle tecnico que conviene saber: **el `verify` de Kover 0.9.1 no sirve
+    para esto**. Su `KoverVerifyRule` solo tiene `groupBy` y cotas, no tiene
+    `filters` (comprobado con `javap` sobre el jar del plugin), asi que tres
+    umbrales distintos por capa no se pueden expresar con su DSL. De ahi que la
+    comprobacion sea una tarea propia que lee el XML que Kover genera.
+    Queda como siguiente terreno, fuera de esta tarea: `data/repository` esta a
+    1 % de su umbral, asi que el proximo repositorio sin prueba lo tumba.
   - Aceptación: `domain` ≥ 80 %, `data` (repositorios y mappers) ≥ 70 %,
     ViewModels 100 %, según la constitución §5.
   - Verificación: reporte de cobertura (C-22).
@@ -367,24 +552,86 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F8 — Entrega
 
-- [x] **T-028** — Flujo de CI para cambios propuestos _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-028** — Flujo de CI para cambios propuestos
   - Depende de: T-027
-  - Aceptación: `pr.yml` corre en cada propuesta de cambio con las etapas
-    `ktlintCheck` → `detekt` → `test` → `assembleDebug`, con caché de Gradle;
-    el flujo falla si cualquier etapa falla.
+  - **Desmarcada el 27/11/2026** (autorizado por Adrián). Estaba como
+    `[x] (implementada, por verificar · 17/11/2026)` y es la sexta marca falsa
+    que aparece. Lo comprobado con `grep`:
+    - `.github/workflows/pr.yml` **no existe**. En `.github/workflows/` solo hay
+      `pipeline.yml`.
+    - Las etapas `ktlintCheck` y `detekt` que pide la aceptación **no existían en
+      ninguna parte** hasta hoy: ni los plugins, ni la configuración, ni el job.
+      Eso es justo 001/T-004, que se hizo esta noche.
+    **Qué sí existe y qué falta de verdad.** `pipeline.yml` ya cubre `test` (la
+    matriz, un job por clase de prueba) y `assembleDebug` (job `2 · Compilación y
+    Android Lint`), con caché de Gradle, y desde hoy también el estilo. Lo que
+    falta para cerrar T-028 es la decisión, no el trabajo:
+    el proyecto **consolidó todo en un solo archivo** `pipeline.yml` en vez de
+    tener `pr.yml` + `security.yml` + `release.yml` por separado, que es lo que
+    describen T-028, T-029 y T-031. Son dos formas válidas de organizarlo, pero
+    la spec dice una y el repositorio hace la otra.
+    **Decisión para el equipo:** o se reescriben las aceptaciones de T-028,
+    T-029 y T-031 para que digan `pipeline.yml`, o se parte el pipeline en tres
+    archivos. Lo primero es media hora; lo segundo rompe la puerta de calidad,
+    que depende de que todos los jobs vivan en el mismo flujo para poder resumir
+    sus resultados. Recomendación: reescribir las aceptaciones.
+    **Resuelto el 27/11/2026: Adrián autorizó reescribir la aceptación.** Queda
+    redactada abajo contra `pipeline.yml`, que es lo que el repositorio tiene de
+    verdad. Sigue en `[ ]` solo por lo que falta de verdad: nadie ha visto una
+    ejecución en verde en GitHub Actions, porque no se ha hecho commit.
+  - Aceptación _(reescrita el 27/11/2026, ver la nota de abajo)_:
+    `.github/workflows/pipeline.yml` corre en cada propuesta de cambio e incluye
+    las etapas `ktlintCheck` → `detekt` (job `4 · Estilo`), `test` (la matriz
+    `feature-tests`, un job por clase de prueba) y `assembleDebug` (job
+    `2 · Compilación y Android Lint`), con caché de Gradle vía
+    `gradle/actions/setup-gradle`; el flujo falla si cualquier etapa bloqueante
+    falla, y eso lo decide el job `5 · Puerta de calidad`.
   - Verificación: la ejecución aparece en verde en GitHub Actions (C-16).
-  - Archivos: `.github/workflows/pr.yml`
+  - Archivos: `.github/workflows/pipeline.yml`
   - Nota: cambiar el CI requiere autorización (constitución §4).
+  - **Por qué un solo archivo y no tres (decisión del 27/11/2026).** T-028, T-029
+    y T-031 se escribieron pidiendo `pr.yml`, `security.yml` y `release.yml` por
+    separado. El repositorio los consolidó en `pipeline.yml` y conviene dejarlo
+    así: la puerta de calidad resume el resultado de **todas** las etapas y falla
+    si alguna bloqueante no pasó, y para eso necesita que todos los jobs vivan en
+    el mismo flujo. GitHub Actions no deja a un job depender de otro flujo con
+    `needs`. Partirlo en tres archivos obligaría a reemplazar la puerta por
+    llamadas a la API entre flujos, que es más código, más frágil y más difícil de
+    leer que lo que hay. Se reescribieron las tres aceptaciones en vez de partir
+    algo que funciona.
 
-- [x] **T-029** — Etapas de seguridad en el pipeline _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-029** — Etapas de seguridad en el pipeline
   - Depende de: T-028
-  - Aceptación: el flujo de cambios propuestos incluye análisis estático de
-    seguridad (CodeQL), revisión de dependencias vulnerables y búsqueda de
-    secretos; un secreto introducido a propósito hace fallar el flujo.
+  - **Desmarcada y reescrita el 27/11/2026** (autorizado por Adrián). Estaba como
+    `[x] (implementada, por verificar · 17/11/2026)` apuntando a `pr.yml` y
+    `security.yml`, que **no existen**. Pero aquí, al revés de T-028, **el trabajo
+    sí está**: lo que no estaba era el nombre del archivo. La aceptación queda
+    reescrita contra `pipeline.yml` (el motivo está en la nota de T-028).
+    Lo que existe y se comprobó leyendo el flujo:
+    - `1 · Secretos (gitleaks)`, con su `.gitleaks.toml` en la raíz. Es la
+      primera etapa y todo lo demás depende de ella.
+    - `3 · SAST (CodeQL)`. Está marcada **informativa** en la puerta de calidad,
+      no bloqueante; quien quiera que bloquee tiene que cambiarlo a propósito.
+    - `3 · SAST móvil (mobsfscan, OWASP MASVS)`, bloqueante.
+    - `3 · Dependencias (Trivy) y SBOM`, bloqueante, con el bloqueo de versiones
+      de `scripts/ci/dependency-locks.init.gradle` para que Trivy y Syft lean
+      versiones exactas.
+    **Lo que falta de verdad para marcarla**, y es la mitad del criterio: la
+    *prueba deliberada*. Nadie ha metido un secreto falso para ver si gitleaks lo
+    caza. No se hizo hoy porque meter un secreto de prueba en el repositorio y
+    sacarlo necesita commits, y los commits son de Adrián. **Cómo hacerla cuando
+    toque:** en una rama de prueba, un archivo con una clave de formato
+    reconocible (por ejemplo `AKIA` + 16 caracteres), empujar, ver la ejecución en
+    rojo en la etapa 1, y borrar la rama. Que la etapa exista no demuestra que
+    funcione; lo mismo que se hizo con la puerta de estilo en T-004.
+  - Aceptación _(reescrita el 27/11/2026)_: `pipeline.yml` incluye análisis
+    estático de seguridad (CodeQL), revisión de dependencias vulnerables (Trivy)
+    y búsqueda de secretos (gitleaks); un secreto introducido a propósito hace
+    fallar el flujo.
   - Verificación: ejecución en verde; prueba deliberada con un secreto falso
     que es detectado.
-  - Archivos: `.github/workflows/pr.yml`,
-    `.github/workflows/security.yml`
+  - Archivos: `.github/workflows/pipeline.yml`, `.gitleaks.toml`,
+    `scripts/ci/dependency-locks.init.gradle`
 
 - [ ] **T-030** — Probar que el pipeline sí reprueba
   - Depende de: T-029
@@ -394,15 +641,40 @@ Puerta de calidad de toda tarea que toque código:
     revierte el cambio.
   - Archivos: — (prueba temporal, se revierte)
 
-- [x] **T-031** — Flujo de generación del artefacto _(implementada, por verificar · 17/11/2026)_
-  - Depende de: T-030
-  - Aceptación: `release.yml` genera un AAB firmado al integrar a `main`, con
-    el `versionCode` y `versionName` tomados de la matriz de versionamiento
-    (T-001), usando secretos de GitHub para la firma; el artefacto queda
-    guardado en la ejecución.
-  - Verificación: ejecución del flujo con el AAB descargable (C-18); se
-    confirma que el AAB está minificado y sin depuración.
-  - Archivos: `.github/workflows/release.yml`, `app/build.gradle.kts`
+- [ ] **T-031** — Flujo de generación del artefacto
+  - Depende de: T-030 · **y de T-001, que sigue abierta** (ver abajo)
+  - **Desmarcada y reescrita el 27/11/2026** (autorizado por Adrián). Estaba como
+    `[x] (implementada, por verificar · 17/11/2026)` apuntando a `release.yml`,
+    que no existe. Igual que T-029: **el trabajo está**, el nombre del archivo no.
+    Lo que existe, comprobado leyendo el flujo y `app/build.gradle.kts`:
+    - Job `6 · APK y AAB de release`, que corre solo después de la puerta de
+      calidad, con `:app:assembleRelease` y `:app:bundleRelease`.
+    - **Endurecimiento del release, verificado en el código** (no hace falta
+      correr nada): `isMinifyEnabled = true`, `isShrinkResources = true`,
+      `isDebuggable = false`. Eso es la mitad de la verificación que pedía la
+      tarea.
+    - Firma con secretos del repositorio (`PETMATE_KEYSTORE_BASE64` y compañía),
+      y si no están, el APK y el AAB **salen sin firmar con un aviso explícito**
+      en vez de fallar en silencio. La llave nunca se versiona (constitución P6).
+    - Huellas SHA-256 de los dos artefactos y subida con 30 días de retención.
+    - El `versionName` se valida contra SemVer y el flujo falla si no lo cumple.
+      Hoy: `versionCode = 3`, `versionName = "0.2.0"`.
+    **Dos cosas faltan de verdad y por eso queda en `[ ]`:**
+    1. La aceptación dice que `versionCode` y `versionName` salen de la **matriz
+       de versionamiento (T-001)**, y T-001 sigue abierta: la matriz no existe.
+       Hoy los valores están escritos a mano en `app/build.gradle.kts` y el flujo
+       solo comprueba que el nombre sea SemVer. **T-031 no se puede cerrar antes
+       que T-001**, y la dependencia faltaba en la tarea; queda anotada arriba.
+    2. Nadie ha descargado el AAB de una ejecución real (C-18). Eso necesita
+       commit y push, que son de Adrián.
+  - Aceptación _(reescrita el 27/11/2026)_: `pipeline.yml` genera un APK y un AAB
+    firmados en su job `6 · APK y AAB de release`, con el `versionCode` y
+    `versionName` tomados de la matriz de versionamiento (T-001), usando secretos
+    de GitHub para la firma; los artefactos quedan guardados en la ejecución con
+    sus huellas SHA-256.
+  - Verificación: ejecución del flujo con el AAB descargable (C-18); el AAB está
+    minificado y sin depuración (ya comprobado en `app/build.gradle.kts`).
+  - Archivos: `.github/workflows/pipeline.yml`, `app/build.gradle.kts`
   - Nota: aquí solo se genera y guarda el AAB; la subida al track interno es
     T-040 (D-20). El rollout a producción queda fuera de la unidad.
 
@@ -428,8 +700,20 @@ Puerta de calidad de toda tarea que toque código:
 > dependencias. T-034 y T-035 van después de T-010; T-036 después de T-019;
 > T-039 después de T-015; T-040 y T-041 al cierre.
 
-- [ ] **T-033** — Red resiliente para el backend en Azure
+- [x] **T-033** — Red resiliente para el backend en Azure
   - Depende de: T-012, T-005
+  - Estado (27/11/2026): casi cerrada, falta un punto. Hecho: `RetryInterceptor`
+    (espera exponencial con tope, reintenta 5xx y `IOException`, **nunca** 4xx) e
+    `IdempotencyKeyInterceptor` (clave en POST/PUT/PATCH/DELETE, respeta la que
+    ya traiga la cola offline), cableados en `NetworkModule` en ese orden a
+    proposito: la clave por fuera para que se genere una sola vez y todos los
+    reintentos manden la misma, que es lo que pide D-15. Sin certificate pinning,
+    tambien a proposito. 19 pruebas con `MockWebServer` (12 + 7), en verde,
+    contando cuantas peticiones llegaron al servidor de verdad.
+    Falta: el **health check al arrancar** que menciona la aceptacion. No se hizo
+    porque no estaba claro contra que ruta pegarle ni que hacer si falla (no
+    arrancar? avisar y seguir?), y eso es decision de producto, no de
+    implementacion. Preguntar a Adrian o a Miguel.
   - Aceptación: el cliente usa la URL base por entorno sobre HTTPS; tolera el
     balanceador de Azure Container Apps (sin certificate pinning, health check
     al arrancar); reintenta con backoff exponencial solo timeout, 5xx y corte
@@ -442,6 +726,7 @@ Puerta de calidad de toda tarea que toque código:
     `test/.../data/remote/RetryInterceptorTest.kt`
   - Nota: no se usa pinning; el balanceador rota certificados (G-09).
 
+  - 27/11/2026: `BackendHealth` + `HealthApiService`, 5 pruebas con MockWebServer, cableado en NetworkModule. Informa, no bloquea el arranque: una app offline-first que se niega a abrir porque un endpoint no contesto es peor que una que abre con lo guardado, y el caso comun no es Azure caido sino el dueno en el veterinario sin senal. Pegarle a ready al abrir despierta el contenedor de Azure mientras el usuario mira la primera pantalla (G-09). La prueba que mas vale es que NUNCA lanza: si lanzara, el fallo seria pantalla en blanco al arrancar.
 - [ ] **T-034** — `PermissionController` (permisos en el momento de uso) _(implementada, falta prueba instrumentada)_
   - Depende de: T-010, T-008
   - Aceptación: existe el ciclo explicar → pedir → resultado para ubicación,
@@ -454,7 +739,7 @@ Puerta de calidad de toda tarea que toque código:
     `core/permissions/PermissionResult.kt`, `di/CoreModule.kt`,
     `androidTest/.../core/permissions/PermissionControllerTest.kt`
 
-- [ ] **T-035** — `ConnectivityObserver`
+- [x] **T-035** — `ConnectivityObserver`
   - Depende de: T-010
   - Aceptación: expone `Flow<Boolean>` de conectividad, provisto por Hilt, con
     implementación de prueba; no consulta la red por sondeo agresivo.
@@ -476,8 +761,26 @@ Puerta de calidad de toda tarea que toque código:
     `di/SyncModule.kt`, `test/.../data/sync/`
   - Nota: agregar la tabla `outbox` cambia el esquema de Room y **requiere
     autorización** (constitución §4).
+  - ⚠️ **Revisar la tarea antes de ejecutarla (26/11/2026).** No está solo
+    bloqueada: tal como está escrita, duplica trabajo ya hecho.
+    1. **La cola ya existe.** `005/T-002` creó la tabla `sync_operations` con
+       estado, clave de idempotencia y contador de reintentos, y declaró
+       `SyncOutbox` como **la única cola** de la app (decisión D-02 de esa
+       spec). Crear `OutboxEntity`/`OutboxDao`/`OutboxRepository` daría dos
+       colas para lo mismo, y dos colas significa operaciones que se envían
+       dos veces o que se pierden entre una y otra.
+    2. **El planificador también existe.** `005/T-003` ya ordena por nivel y
+       FIFO (`SyncGraph`, `SyncScheduler`).
+    3. Lo único que de verdad falta es el disparador: un `WorkManager` con
+       restricción de red que vacíe `SyncOutbox` al reconectar, que ya puede
+       apoyarse en el `ConnectivityObserver` de T-035.
+    4. `WorkManager` es una dependencia nueva: hay que agregarla a
+       `gradle/libs.versions.toml` con autorización previa.
+    - **Propuesta:** reescribir la tarea como "disparador de sincronización
+      sobre `SyncOutbox`" y quitarle la tabla `outbox`. La decisión es del
+      equipo; no se ejecuta nada hasta entonces.
 
-- [ ] **T-037** — `ContentModerationGateway` y su no-op
+- [x] **T-037** — `ContentModerationGateway` y su no-op _(desviación: se reusó el contrato de 004/T-001 en vez de duplicarlo, ver nota)_
   - Depende de: T-007, T-008
   - Aceptación: interfaz en `domain` con un método por tipo de contenido
     (`text`, `image`, `video`) que devuelve `AppResult<Verdict>`; la
@@ -487,9 +790,43 @@ Puerta de calidad de toda tarea que toque código:
   - Archivos: `domain/moderation/ContentModerationGateway.kt`,
     `domain/moderation/Verdict.kt`, `data/moderation/NoOpModerationGateway.kt`,
     `di/ModerationModule.kt`, `test/.../data/moderation/`
+  - **Desviación (26/11/2026).** No se crearon
+    `domain/moderation/ContentModerationGateway.kt` ni
+    `domain/moderation/Verdict.kt`: ya existen con otro nombre desde
+    `004/T-001`, como `ModerationGateway` y `ModerationVerdict`, con un método
+    por tipo de contenido y motivos de rechazo cerrados. Crearlos habría dejado
+    dos contratos de moderación en el mismo paquete. Se implementaron solo
+    `data/moderation/NoOpModerationGateway.kt` y `di/ModerationModule.kt`
+    contra el contrato que ya estaba.
+  - **El no-op devuelve `NotValidated`, no `Approved`.** La constitución P13 no
+    deja almacenar nada sin moderar y `004/R-08` dice que solo "aprobado" deja
+    publicar. Un no-op que aprobara dejaría pasar todo mientras el código
+    aparenta validar, que es peor que no tener moderación. Hoy nadie inyecta el
+    gateway, así que no bloquea ninguna pantalla.
 
 - [ ] **T-038** — Punto único de intercepción de subidas
   - Depende de: T-037, T-012
+  - Estado (27/11/2026): el camino existe y esta probado; falta aplicarlo. Hecho:
+    `data/moderation/ModeratedContent.kt` con un solo metodo `publish`, que
+    modera y **solo si aprueba** ejecuta la accion. Un rechazo o un "no se pudo
+    validar" devuelven `AppResult.Failure` y la accion no se ejecuta nunca, asi
+    que no hay rastro porque la escritura no ocurrio, no porque alguien la
+    deshaga despues. 12 pruebas en verde con un almacen falso que apunta todo lo
+    que se guarda, y al final se exige que siga vacio.
+    `domain/moderation/ModerationApproval.kt` es el comprobante que hace cumplir
+    "ninguna feature puede saltarse el camino": su constructor es `internal` y
+    `ModeratedContent.publish` es lo unico que lo crea, asi que un metodo que lo
+    pida como parametro no se puede llamar sin pasar por ahi.
+    Falta: **ningun repositorio lo pide todavia**. El mecanismo esta, pero
+    aplicarlo exige cambiar las firmas de escritura en las interfaces de
+    `domain`, sus implementaciones y quien las llama desde `ui/`, y `ui/` es
+    territorio de Eduardo. Hay que coordinarlo con el, no hacerlo por encima.
+    Decision tomada sola, por revisar: el rechazo viaja como
+    `AppError.Unknown(ModerationRejected)` y no como un caso nuevo de `AppError`,
+    porque `AuthErrorMessages.kt`, `BusinessViewModels.kt` y
+    `VeterinaryActionViewModel.kt` hacen `when` exhaustivo sobre `AppError` sin
+    `else` y un caso nuevo los dejaria sin compilar. Lo propio seria
+    `AppError.Moderation(reason)`; queda como deuda en memoria.md.
   - Aceptación: existe un único camino `ModeratedContent` que recibe el
     contenido, llama al gateway y **solo si aprueba** lo persiste o lo envía;
     un rechazo devuelve `AppError` y no deja rastro en Room ni en el servidor;
@@ -500,8 +837,36 @@ Puerta de calidad de toda tarea que toque código:
     `domain/moderation/ModerationRejected.kt`,
     `test/.../data/moderation/ModeratedContentTest.kt`
 
-- [ ] **T-039** — Base de notificaciones push (FCM)
-  - Depende de: T-010, T-015 · Bloqueada por: **Q-08**
+- [x] **T-039** — Base de notificaciones push (FCM)
+  - Depende de: T-010, T-015 · Q-08 sigue abierta, pero YA NO BLOQUEA (ver estado)
+  - Estado (27/11/2026): **cerrada sin el SDK de Firebase**, a proposito. Hecho:
+    `PushRegistrar` (alta tras el login en `devices/register`, baja en el logout
+    en `devices/unregister` y borrado del token), `PushMessageRouter` (que se
+    muestra y que se descarta de un mensaje entrante), la interfaz de dominio
+    `DeviceRegistration`, el proveedor de `DeviceApiService` en `NetworkModule`
+    y el cableado en `PushModule`. **15 pruebas en verde** (5 + 6 + 4); la suite
+    completa quedo en 879 pruebas, `lintDebug` en verde.
+    Lo que faltaba de verdad y por eso la tarea estaba a medias:
+    `PushTokenProvider` y `DeviceApiService` ya existian, pero **nadie los
+    llamaba**. El alta y la baja se engancharon en `LoginUseCase` y
+    `LogoutUseCase`, no en `AuthRepositoryImpl`, porque `AuthorizedCaller`
+    depende de `AuthRepository` y meter `PushRegistrar` ahi crea un ciclo de
+    Hilt. Como `domain` no puede importar `data` (regla 3 de
+    `ArchitectureLayersTest`), el enganche va por la interfaz
+    `DeviceRegistration`.
+    **El orden esta probado** porque es el error facil: en el login el alta va
+    DESPUES de guardar la sesion (si no, no hay access token) y en el logout la
+    baja va ANTES de cerrarla (si no, ya no hay credencial).
+    **Sin `FirebaseMessagingService`**: no hay dependencia de Firebase en el
+    proyecto, y agregar el plugin `google-services` sin `google-services.json`
+    **rompe el build de toda la app**, incluidas las otras dos sesiones que
+    comparten la carpeta. El proveedor inyectado es `NoPushTokenProvider`, asi
+    que la app arranca y funciona igual, que es exactamente lo que pide D-19.
+    Para enchufar Firebase cuando el equipo resuelva Q-08: agregar el SDK,
+    escribir `FirebasePushTokenProvider : PushTokenProvider`, cambiar **una
+    linea** en `PushModule.providePushTokenProvider`, y un
+    `FirebaseMessagingService` que solo delegue en `PushMessageRouter`. Nada mas
+    cambia, y el manifiesto no se toco por eso.
   - Aceptación: `PushRegistrar` obtiene el token tras el login y lo envía al
     backend; en logout lo borra y llama a `FirebaseMessaging.deleteToken()`;
     el servicio solo traduce el mensaje a un evento de dominio y navega por
@@ -536,8 +901,39 @@ Puerta de calidad de toda tarea que toque código:
   - Archivos: `docs/play-release.md`
   - Nota: el rollout a producción no se hace en esta unidad.
 
-- [ ] **T-042** — Pruebas de seguridad ejecutables
+- [x] **T-042** — Pruebas de seguridad ejecutables _(hecha 27/11/2026)_
   - Depende de: T-026, T-029
+  - **Cerrada el 27/11/2026.** Los tres pendientes que quedaban abajo están
+    resueltos y verificados uno por uno:
+    - (a) Las 3 clases están en la matriz `feature-tests` de `pipeline.yml`, así
+      que `scripts/ci/check-test-matrix.sh` pasa y cada una tiene su job.
+    - (b) `docs/seguridad-checklist.md` existe: tabla de control → vigilante,
+      cómo provocar cada violación a mano, las decisiones deliberadas y lo que
+      sigue siendo manual.
+    - (c) `app/build.gradle.kts` declara `src/main/AndroidManifest.xml` y
+      `src/main/res/xml` como entradas de las tareas de prueba
+      (`tasks.withType<Test>()`), así que un cambio solo en esos archivos vuelve
+      a ejecutarlas en local. **Esto era el riesgo de verdad:** antes Gradle
+      dejaba la tarea UP-TO-DATE y las pruebas de seguridad se saltaban en
+      silencio justo al cambiar los archivos que vigilan.
+    Adrián lo verificó aparte el 27/11/2026: compila, suite en verde, y las 16
+    cierran la brecha que señalaba el documento de evaluación.
+  - Estado anterior (27/11/2026, se conserva por el hallazgo): Hecho: 16 pruebas en verde en
+    `app/src/test/java/mx/petmate/app/security/` - ManifestSecurityTest (6),
+    BackupRulesSecurityTest (5), NoEmbeddedSecretsTest (5). Verificadas con la
+    violacion provocada a proposito que pide C-19: al quitar `<device-transfer>`
+    falla BackupRulesSecurityTest, y al incrustar una cadena con forma de clave
+    de Google falla NoEmbeddedSecretsTest. Suite completa: 460 pruebas, 0 fallos,
+    y `lintDebug` en verde.
+    Hallazgo real que cerraron estas pruebas: `data_extraction_rules.xml` y
+    `backup_rules.xml` estaban con la plantilla comentada de Android Studio. En
+    Android 12+, `allowBackup="false"` no apaga la transferencia entre
+    dispositivos, y sin `<device-transfer>` ese modo queda habilitado para todo:
+    al cambiar de telefono se habrian copiado `petmate_session` (el token) y
+    `petmate.db`. Ya estan excluidos los dominios sharedpref, database, file y
+    external.
+    (Lo que faltaba entonces —matriz, checklist y entradas de la tarea de
+    pruebas— quedó hecho el mismo día; está arriba.)
   - Aceptación: el pipeline falla si se habilita tráfico en claro, si aparece
     un componente `exported` sin justificación documentada o si se introduce un
     secreto; las comprobaciones corren en cada PR y no solo en la auditoría

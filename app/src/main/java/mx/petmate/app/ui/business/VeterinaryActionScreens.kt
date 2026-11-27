@@ -124,7 +124,7 @@ fun ConsultationFormScreen(
                         .background(extra.alertSoft)
                         .padding(14.dp),
                 ) {
-                    Text(err, color = extra.alert, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    Text(err.asString(), color = extra.alert, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                 }
                 Spacer(Modifier.height(12.dp))
             }
@@ -135,7 +135,7 @@ fun ConsultationFormScreen(
                 label = "Motivo de la consulta",
                 placeholder = "Ej. Revisión anual, decaimiento, tos...",
                 required = true,
-                error = state.fieldErrors["reason"]?.let { UiText.Dynamic(it) },
+                error = state.fieldErrors["reason"],
             )
 
             PetMateTextField(
@@ -144,7 +144,7 @@ fun ConsultationFormScreen(
                 label = "Diagnóstico clínico",
                 placeholder = "Ej. Faringitis leve, buen estado general...",
                 required = true,
-                error = state.fieldErrors["diagnosis"]?.let { UiText.Dynamic(it) },
+                error = state.fieldErrors["diagnosis"],
             )
 
             PetMateTextField(
@@ -153,7 +153,7 @@ fun ConsultationFormScreen(
                 label = "Peso en kg (opcional)",
                 placeholder = "Ej. 14.5",
                 keyboardType = KeyboardType.Decimal,
-                error = state.fieldErrors["weightKg"]?.let { UiText.Dynamic(it) },
+                error = state.fieldErrors["weightKg"],
             )
 
             Spacer(Modifier.height(8.dp))
@@ -226,7 +226,7 @@ fun ConsultationFormScreen(
                             label = "Nombre del medicamento",
                             placeholder = "Ej. Amoxicilina 250mg",
                             required = true,
-                            error = state.fieldErrors["med_${index}_name"]?.let { UiText.Dynamic(it) },
+                            error = state.fieldErrors["med_${index}_name"],
                         )
 
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -237,7 +237,7 @@ fun ConsultationFormScreen(
                                     label = "Dosis",
                                     placeholder = "Ej. 1 tableta",
                                     required = true,
-                                    error = state.fieldErrors["med_${index}_dose"]?.let { UiText.Dynamic(it) },
+                                    error = state.fieldErrors["med_${index}_dose"],
                                 )
                             }
                             Box(modifier = Modifier.weight(1f)) {
@@ -247,7 +247,7 @@ fun ConsultationFormScreen(
                                     label = "Frecuencia",
                                     placeholder = "Ej. Cada 8 horas",
                                     required = true,
-                                    error = state.fieldErrors["med_${index}_frequency"]?.let { UiText.Dynamic(it) },
+                                    error = state.fieldErrors["med_${index}_frequency"],
                                 )
                             }
                         }
@@ -258,7 +258,7 @@ fun ConsultationFormScreen(
                             label = "Duración",
                             placeholder = "Ej. 7 días",
                             required = true,
-                            error = state.fieldErrors["med_${index}_duration"]?.let { UiText.Dynamic(it) },
+                            error = state.fieldErrors["med_${index}_duration"],
                         )
 
                         PetMateTextField(
@@ -340,7 +340,7 @@ fun VaccineByBusinessScreen(
                         .background(extra.alertSoft)
                         .padding(14.dp),
                 ) {
-                    Text(err, color = extra.alert, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    Text(err.asString(), color = extra.alert, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                 }
                 Spacer(Modifier.height(12.dp))
             }
@@ -351,7 +351,7 @@ fun VaccineByBusinessScreen(
                 label = "Nombre de la vacuna",
                 placeholder = "Ej. Rabia, Séxtuple, Desparasitante...",
                 required = true,
-                error = state.fieldErrors["name"]?.let { UiText.Dynamic(it) },
+                error = state.fieldErrors["name"],
             )
 
             PetMateTextField(
@@ -361,7 +361,7 @@ fun VaccineByBusinessScreen(
                 placeholder = "AAAA-MM-DD",
                 required = true,
                 hint = "No puede ser una fecha futura",
-                error = state.fieldErrors["appliedOn"]?.let { UiText.Dynamic(it) },
+                error = state.fieldErrors["appliedOn"],
             )
 
             PetMateTextField(
@@ -377,7 +377,7 @@ fun VaccineByBusinessScreen(
                 label = "Próxima dosis (AAAA-MM-DD, opcional)",
                 placeholder = "AAAA-MM-DD",
                 hint = "Debe ser posterior a la fecha de aplicación",
-                error = state.fieldErrors["nextDoseOn"]?.let { UiText.Dynamic(it) },
+                error = state.fieldErrors["nextDoseOn"],
             )
 
             Spacer(Modifier.height(24.dp))
@@ -449,7 +449,7 @@ fun DewormByBusinessScreen(
                         .background(extra.alertSoft)
                         .padding(14.dp),
                 ) {
-                    Text(err, color = extra.alert, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    Text(err.asString(), color = extra.alert, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                 }
                 Spacer(Modifier.height(12.dp))
             }
@@ -460,7 +460,7 @@ fun DewormByBusinessScreen(
                 label = "Producto desparasitante",
                 placeholder = "Ej. Nexgard, Bravecto, Drontal...",
                 required = true,
-                error = state.fieldErrors["product"]?.let { UiText.Dynamic(it) },
+                error = state.fieldErrors["product"],
             )
 
             Text("Tipo de desparasitación", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
@@ -508,7 +508,7 @@ fun DewormByBusinessScreen(
                 placeholder = "AAAA-MM-DD",
                 required = true,
                 hint = "No puede ser una fecha futura",
-                error = state.fieldErrors["appliedOn"]?.let { UiText.Dynamic(it) },
+                error = state.fieldErrors["appliedOn"],
             )
 
             PetMateTextField(
@@ -517,7 +517,7 @@ fun DewormByBusinessScreen(
                 label = "Próxima desparasitación (AAAA-MM-DD, opcional)",
                 placeholder = "AAAA-MM-DD",
                 hint = "Debe ser una fecha futura",
-                error = state.fieldErrors["nextOn"]?.let { UiText.Dynamic(it) },
+                error = state.fieldErrors["nextOn"],
             )
 
             Spacer(Modifier.height(24.dp))

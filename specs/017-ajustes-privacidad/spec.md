@@ -193,3 +193,13 @@ nadie.
       cascada lo hace el backend.
 - [ ] Preguntas abiertas con dueño, en especial Q-01 y Q-02.
 - [ ] **Aprobada para pasar a `plan.md`.**
+
+
+## Preguntas resueltas contra el backend ya terminado
+
+Estas estaban marcadas como "esperando a Miguel". El backend se termino y se desplego, asi que
+se respondieron leyendo su codigo y su contrato. Las tareas que solo dependian de ellas YA NO
+ESTAN BLOQUEADAS.
+
+- **Q-01 RESUELTA (27/11/2026)** — POST /api/v1/account-deletion/request y POST /api/v1/account-deletion/confirm (dos pasos, con confirmacion).
+- **Q-04 RESUELTA (27/11/2026)** — En el servidor: notification-settings/get y /update. Igual que 006/Q-02.

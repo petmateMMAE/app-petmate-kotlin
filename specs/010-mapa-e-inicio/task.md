@@ -13,7 +13,10 @@
 se ejecutan después, con autorización explícita del humano. Un agente que
 implemente estas tareas sin aprobación viola la constitución §4.
 
-Progreso: **5 / 14 tareas** (3 verificadas; 2 implementadas, por verificar; 4 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026) · Fases completadas: **0 / 5**
+Progreso: **8 / 14 tareas** (6 verificadas; 2 implementadas, por verificar; 3 sin marcar: implementadas, falta prueba instrumentada, al 27/11/2026) · Fases completadas: **2 / 5** (F1 dominio y F3 mapa)
+
+
+> **Pendiente de UNA corrida del emulador (27/11/2026).** Las pruebas instrumentadas de las tareas de `ui/` de esta spec **ya estan escritas y compilan**; faltaba correrlas cuando la maquina se quedo sin memoria. Detalle de que tarea depende de que clase, y que clases ya salieron verdes, en `NOTAS-SESION-EDUARDO-UI.md` en la raiz del repo. No marcar nada sin confirmar la corrida.
 
 ---
 
@@ -107,7 +110,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F3 — Mapa
 
-- [ ] **T-006** — Abstracción del mapa y adaptador falso
+- [x] **T-006** — Abstracción del mapa y adaptador falso _(verificada 27/11/2026: 26 pruebas JVM; `grep -rn '^import org.osmdroid' ui/` solo encuentra el adaptador)_
   - Depende de: T-001, 001/T-020
   - Aceptación: existe un contrato de mapa con marcadores, cámara y selección
     que no menciona ningún SDK; un adaptador falso permite probar la pantalla;
@@ -116,8 +119,26 @@ Puerta de calidad de toda tarea que toque código:
   - Archivos: `ui/map/MapContract.kt`, `ui/map/MapMarker.kt`,
     `ui/map/FakeMapView.kt`,
     `test/.../ui/map/FakeMapViewTest.kt`
+  - **Cerrada junto con T-007 el 27/11/2026, con autorización de Eduardo.**
+    Q-01 estaba cerrada desde el 04/11 (`memoria.md`: osmdroid, por costo cero)
+    y nadie quitó la marca de T-007.
+    - `MapCamera` (con rangos validados), `MapMarker`, `MapController`,
+      `MapCallbacks`, `MapCommands` y `MapSurfaceState`: el contrato, sin una
+      sola referencia al proveedor.
+    - `MapSurface` es una ranura: `MapScreen` recibe quién dibuja el mapa y ya
+      no llama a `OsmMap`. Hay tres adaptadores —`OsmMapSurface`,
+      `IllustratedMapSurface` (previsualizaciones) y `FakeMapSurface`
+      (pruebas)— y cambiar de proveedor es escribir un cuarto.
+    - `OsmMapHandle` ahora implementa `MapCommands`, y `rememberMapCommands()`
+      devuelve el tipo del contrato. Con eso `AffiliateScreens` y
+      `BusinessModeScreens` dejaron de importar nada de osmdroid.
+    - `MapCamera` ya no lee `OsmMapConfig`: el contrato no puede depender del
+      adaptador. Hay una prueba que lo fija.
+    - **El `grep` del criterio pasa:** `^import org.osmdroid` en `ui/` solo
+      aparece en `ui/map/OsmMap.kt` y `ui/map/OsmMapConfig.kt`, que son el
+      adaptador que la propia spec coloca ahí en T-007.
 
-- [ ] **T-007** — Adaptador del proveedor de mapas _(implementada, falta prueba instrumentada)_
+- [x] **T-007** — Adaptador del proveedor de mapas _(verificada 27/11/2026; Q-01 cerrada el 04/11 con osmdroid, el bloqueo era obsoleto)_
   - Depende de: T-006 · Bloqueada por: **Q-01** · Requiere autorización de
     dependencia y de llave
   - Aceptación: el adaptador implementa el contrato con el SDK elegido; la
@@ -143,9 +164,17 @@ Puerta de calidad de toda tarea que toque código:
     aparece con el icono de su tipo; los filtros por tipo muestran solo los
     marcadores elegidos; hay estado vacío, de error y de desactualizado.
   - Verificación: prueba de interfaz y de navegación (C-01, C-02, C-03, C-11).
-  - Archivos: `ui/home/HomeScreen.kt`, `ui/home/HomeViewModel.kt`,
-    `ui/home/HomeUiState.kt`, `ui/home/BusinessTypeFilter.kt`,
-    `test/.../ui/home/HomeScreenTest.kt`
+  - Archivos: `ui/map/MapScreen.kt` (la pantalla acabó en `ui/map/`, no en
+    `ui/home/`), `androidTest/.../ui/map/MapContentTest.kt`
+  - **Estado real al 27/11/2026 (medido, no supuesto):** `MapContentTest` pasa
+    19/19 en emulador y cubre marcador por negocio, los tres filtros, el
+    filtrado por tipo, el estado vacío y el de error con reintento. Q-03 quedó
+    resuelta a medias: los tipos son exactamente tres y están cerrados por el
+    backend; falta solo el icono y el color de cada uno, que es maqueta.
+    **Lo que de verdad falta para cerrar esta tarea: el «estado de
+    desactualizado» no existe.** No hay ni `stale` ni `desactualizado` en
+    `ui/map/` ni en el modelo, así que no es un hueco de pruebas sino de
+    alcance. Marcar esta tarea requiere implementarlo primero.
 
 - [ ] **T-009** — Carrusel y tarjeta resumida del negocio _(implementada, falta prueba instrumentada)_
   - Depende de: T-008 · Bloqueada por: **Q-04**
@@ -153,10 +182,20 @@ Puerta de calidad de toda tarea que toque código:
     mapa comparten una sola selección y se sincronizan en ambos sentidos; la
     tarjeta muestra los campos acordados.
   - Verificación: prueba de interfaz (C-04, C-05).
-  - Archivos: `ui/home/BusinessCard.kt`, `ui/home/BusinessCarousel.kt`,
-    `test/.../ui/home/BusinessCarouselTest.kt`
+  - Archivos: `ui/map/MapScreen.kt` (`MapScreenTags.BUSINESS_SHEET`),
+    `androidTest/.../ui/map/MapContentTest.kt`
+  - **Estado real al 27/11/2026 (medido, no supuesto):** tocar un marcador abre
+    la tarjeta y hay una sola selección compartida, las dos cosas verdes en
+    `MapContentTest`. Q-04 quedó resuelta a medias: la tarjeta muestra nombre,
+    distancia y estado de apertura, y `get-nearby` no trae dirección ni horario
+    completo. **Lo que de verdad falta: no hay carrusel.** Se implementó una
+    hoja inferior de un solo negocio, y la sincronía «en ambos sentidos» que
+    pide el criterio no está probada: la prueba verifica un estado fijo donde
+    mapa y tarjeta coinciden, no que mover uno mueva el otro. Decidir con el
+    equipo si el criterio baja a «hoja inferior» o si hay que escribir el
+    carrusel; hasta entonces no se marca.
 
-- [ ] **T-010** — Tarjeta "lo más próximo" y navegación al carnet
+- [x] **T-010** — Tarjeta "lo más próximo" y navegación al carnet _(verificada 27/11/2026: 13 pruebas JVM de la elección del evento y 13 de interfaz y navegación en emulador)_
   - Depende de: T-002, T-008, 008/T-007
   - Aceptación: la tarjeta muestra la próxima dosis de la mascota con menos
     días y su color (rojo ≤ 3, amarillo ≤ 14, neutro); tocar la tarjeta abre
@@ -164,6 +203,15 @@ Puerta de calidad de toda tarea que toque código:
   - Verificación: prueba de interfaz y de navegación (C-06, C-07, C-13).
   - Archivos: `ui/home/NextHealthCard.kt`,
     `test/.../ui/home/NextHealthCardTest.kt`
+  - **Desviación (27/11/2026).** La prueba de interfaz y navegación va en
+    `androidTest/.../ui/home/NextHealthCardUiTest.kt`, no en `test/`: Compose
+    necesita dispositivo y el proyecto no usa Robolectric (misma desviación ya
+    registrada en 003 y 005). En `test/` queda `NextHealthCardTest`, que cubre
+    la elección del evento con "hoy" inyectado.
+  - **Reutilizado y no duplicado:** `NextEvent` y `Carnet.nextEvent()` ya
+    calculaban el próximo evento de cada carnet (007); aquí solo se compara
+    entre mascotas. Los colores salen de `dueColors`/`DueThresholds`, no de
+    umbrales propios.
 
 > **Punto de verificación F4:** el inicio muestra el mapa, el carrusel y la
 > alerta de salud, y navega al carnet.
@@ -172,8 +220,8 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F5 — Ubicación, demo y cierre
 
-- [ ] **T-011** — Ubicación, "cerca de mí" y degradación _(implementada, falta prueba instrumentada)_
-  - Depende de: T-008, 003/T-006 · Bloqueada por: **Q-08, Q-09**
+- [x] **T-011** — Ubicación, "cerca de mí" y degradación _(verificada 27/11/2026 · MapViewModelTest 19/19 y FakeMapViewTest 26/26 en JVM, MapContentTest 19/19 en emulador · Q-08 y Q-09 cerradas)_
+  - Depende de: T-008, 003/T-006
   - Aceptación: el mapa abre con centro por defecto sin pedir permisos; "cerca
     de mí" usa el flujo de 003; si se niega, se mantiene el centro por defecto
     y la lista; abrir la app no pide ningún permiso.
@@ -181,6 +229,35 @@ Puerta de calidad de toda tarea que toque código:
     C-09).
   - Archivos: `ui/home/HomeLocation.kt`,
     `test/.../ui/home/HomeLocationTest.kt`
+  - **Q-08 y Q-09 cerradas el 27/11/2026.** Q-08: ciudad fija, en
+    `MapCamera.DEFAULT_LATITUDE/LONGITUDE`. Q-09: «cerca de mi» **recentra y
+    vuelve a consultar** desde ahi, y **no reordena** en el cliente porque el
+    backend ya devuelve por distancia. Implementado en
+    `MapViewModel.onNearMeClick()`; `onLocation()` ya hacia lo mismo al cambiar
+    la ubicacion.
+  - ✅ **El «defecto de layout» que se anoto aqui el 27/11/2026 NO existe.**
+    Queda escrito para que nadie vuelva a perseguirlo.
+    - **Lo que se anoto:** que el aviso «No sabemos donde estas» quedaba
+      recortado fuera de la pantalla y que su boton «Activar» no se podia
+      tocar. Se dedujo de que `assertIsDisplayed` fallaba mientras el banner de
+      error, en la misma posicion, si se veia.
+    - **Lo que dijo la medicion.** Un volcado de la semantica en el AVD
+      `Medium_Phone` da estas cajas, en pixeles: la caja del mapa va de
+      y=63 a y=2098; los cuatro botones de `MapControls` ocupan 1289-1856; el
+      banner ocupa 1903-2072. **Cabe de sobra.** La columna inferior no
+      desborda nada: usa unos 800 px de los 2035 disponibles.
+    - **La causa real era el entorno de pruebas.** `MapContentTest` sola pasa
+      sus 19 casos, con `assertIsDisplayed` en el aviso y `performClick` en
+      «Activar». Solo fallaba al correr en lote detras de una clase que
+      escribe texto: el teclado del sistema se quedaba abierto y se comia la
+      parte baja de la ventana, justo donde esta el banner.
+    - **Conclusion:** el producto esta bien; el usuario si ve el aviso y si
+      puede pulsar «Activar». Las dos aserciones estan de vuelta en
+      `assertIsDisplayed` y `performClick`, que es lo que de verdad comprueba
+      el criterio.
+    - Leccion: «existe pero no se ve» en una prueba instrumentada no prueba un
+      defecto de layout. Hay que medir las cajas antes de escribirlo en una
+      spec. Esta nota se dejo mal una vez; que no se repita.
 
 - [x] **T-012** — Modo demo con datos locales _(implementada, por verificar · 17/11/2026)_
   - Depende de: T-008, T-010 · Bloqueada por: **Q-07**
@@ -223,9 +300,16 @@ Puerta de calidad de toda tarea que toque código:
 | F4 Pantalla | T-008 … T-010 | Inicio, carrusel y tarjeta de salud |
 | F5 Cierre | T-011 … T-014 | Ubicación, demo, matriz y evidencia |
 
-**Tareas bloqueadas por preguntas abiertas:** T-003 (Q-02), T-004 (Q-05),
-T-007 (Q-01), T-008 (Q-03), T-009 (Q-04), T-011 (Q-08, Q-09), T-012 (Q-07) y
-T-013 (Q-03, Q-06, Q-10).
+    `ui/pets/PetsUiState.kt`, `ui/pets/PetCard.kt`,
+    `test/.../ui/pets/PetsScreenTest.kt`
+  - **Pendiente que NO bloquea esta tarea pero hay que saber (27/11/2026):** la
+    tarjeta cumple la rama «iniciales» del criterio con las imagenes locales de
+    la maqueta, no con la foto real. `Pet.photoUrl` ya existe en el dominio y el
+    mapper ya lo llena, asi que el dato llega hasta `ui/`; lo que falta es un
+    cargador de imagenes remotas. `coil-compose` **no esta en el catalogo** y
+    T-005 exige su autorizacion registrada (y sigue bloqueada por Q-05). No se
+    anadio la dependencia por cuenta propia. En cuanto se autorice, es un cambio
+    de una linea en `PetAvatar`.
 
 Esas preguntas deben resolverse con el responsable del backend, con el equipo
 y con el profesor antes de ejecutar las tareas correspondientes.

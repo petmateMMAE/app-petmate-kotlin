@@ -13,7 +13,7 @@
 se ejecutan después, con autorización explícita del humano. Un agente que
 implemente estas tareas sin aprobación viola la constitución §4.
 
-Progreso: **2 / 12 tareas** (2 verificadas; 2 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026) · Fases completadas: **0 / 5**
+Progreso: **3 / 12 tareas** (3 verificadas; 1 sin marcar: implementada, falta prueba instrumentada, al 27/11/2026) · Fases completadas: **1 / 5**
 
 ---
 
@@ -51,7 +51,7 @@ Puerta de calidad de toda tarea que toque código:
     `domain/sync/SyncOperation.kt`,
     `test/.../domain/sync/SyncPolicyTest.kt`
 
-- [ ] **T-002** — Extensión del outbox de 001 _(implementada, falta prueba instrumentada)_
+- [x] **T-002** — Extensión del outbox de 001 _(verificada 27/11/2026 en emulador: SyncOutboxPersistenceTest, suite instrumentada completa en verde)_
   - Depende de: T-001, 001/T-029
   - Aceptación: la cola de 001 guarda estado por operación (pendiente,
     enviando, error permanente), dependencia y clave de idempotencia; sobrevive
@@ -76,8 +76,36 @@ Puerta de calidad de toda tarea que toque código:
   - Archivos: `data/sync/SyncScheduler.kt`, `data/sync/SyncGraph.kt`,
     `test/.../data/sync/SyncSchedulerTest.kt`
 
-- [ ] **T-004** — Idempotencia
-  - Depende de: T-003 · Bloqueada por: **Q-01**
+- [x] **T-004** — Idempotencia _(hecha 27/11/2026)_
+  - Depende de: T-003 · ~~Bloqueada por: Q-01~~ **desbloqueada el 27/11/2026.**
+  - Estado (27/11/2026): **hecha y en verde**, 5 de 5, y `SyncOutboxTest` sigue
+    en 6 de 6 tras el cambio de la clave.
+    Lo que se hizo:
+    - `data/sync/SyncIdempotencyKey.kt`: la clave **se deriva de la operación en
+      vez de sortearse**. Antes era `UUID.randomUUID()`. Un UUID también sirve
+      mientras la fila viva en Room, porque la clave se guarda una vez y cada
+      reintento manda la guardada; el problema es el caso que importa: si la fila
+      se pierde (base reinstalada, backup restaurado, borrado de datos a medias)
+      y la app vuelve a encolar la misma escritura, un UUID nuevo hace que el
+      servidor la vea como otra operación y **la aplique dos veces**. El dueño
+      acabaría con dos vacunas idénticas en el carnet sin saber cuál borrar.
+    - La clave lleva tipo, acción, id de cliente e instante de encolado. Cada
+      parte está ahí por una razón concreta, escrita en el archivo: sin el
+      instante, dos pesos legítimos de la misma mascota se verían como uno
+      repetido y el segundo se perdería.
+    - `SyncOutbox` ahora recibe `newKey: (SyncOperation) -> String` con
+      `SyncIdempotencyKey::of` por omisión, y sigue inyectable para las pruebas.
+    - `test/.../data/sync/SyncIdempotencyKeyTest.kt`, 5 casos, con el **contador
+      de peticiones** que pide C-03: un servidor falso que cuenta llamadas y
+      registros aparte, y descarta por clave como el backend. Diez envíos, un
+      registro.
+    **Un fallo que valió la pena, por si alguien toca el saneado.** En la primera
+    corrida el caso del id de cliente falló: el saneado convertía `p-1` en `p_1`
+    porque el guion es el separador de la clave. Se arregló dejando pasar el
+    guion, no cambiando la prueba: los ids del proyecto son `p-1`, `v-3`, y
+    volverlos irreconocibles estorba justo cuando alguien busca una operación
+    atorada en el registro del servidor. El guion repetido no molesta porque para
+    el servidor la clave es un token opaco que nadie vuelve a partir en piezas.
   - Aceptación: cada operación lleva una clave estable derivada del id de
     cliente; repetir diez veces produce un solo registro en el servidor; el
     servidor recibe la misma clave en cada reintento.
@@ -85,8 +113,28 @@ Puerta de calidad de toda tarea que toque código:
   - Archivos: `data/sync/IdempotencyKey.kt`,
     `test/.../data/sync/IdempotencyKeyTest.kt`
 
-- [ ] **T-005** — Reintentos y errores permanentes
-  - Depende de: T-003 · Bloqueada por: **Q-08**
+- [x] **T-005** — Reintentos y errores permanentes _(hecha 27/11/2026)_
+  - Depende de: T-003 · ~~Bloqueada por: Q-08~~ **desbloqueada: Adrián respondió
+    el 27/11/2026 que 4xx son permanentes, y 5xx y red transitorios.**
+  - Estado: **hecha y en verde.** `data/sync/SyncRetryPolicy.kt` con
+    `SyncRetryDecision` (`Retry`, `Permanent`, `GaveUp`), y 5 pruebas en
+    `test/.../data/sync/SyncRetryPolicyTest.kt` (C-05 con 400, 403, 409, 500,
+    503, timeout y red).
+    La regla, en una frase: **lo que el servidor rechazó por su contenido no se
+    reintenta.** Un 400 reenviado cinco veces sigue siendo un 400 y mientras
+    tanto tapa la cola y gasta batería.
+    Dos decisiones que conviene no deshacer sin pensarlas:
+    - `Unauthorized` cuenta como permanente. No es el dato el que está mal, es
+      la sesión, y de eso se encarga el renovador de sesión, no la cola. Si
+      fuera transitorio, la operación se reenviaría en bucle con un token
+      vencido.
+    - `GaveUp` existe aparte de `Permanent` para cuando se agotan los intentos
+      de un error transitorio. Ahí el dato probablemente está bien y falló la
+      red, así que el reintento manual tiene sentido; en un `Permanent` no lo
+      tiene hasta que alguien corrija el dato.
+    No se reusó `RetryInterceptor` (001/T-033) a propósito: ese decide sobre
+    **una petición HTTP** y este sobre **una operación de la cola**, que
+    sobrevive al cierre de la app y lleva la cuenta de sus intentos en Room.
   - Aceptación: 5xx, timeout y corte de red se reintentan con backoff; un 4xx
     se marca como error permanente, no se reintenta y queda visible; el
     usuario puede corregir o descartar.
@@ -101,8 +149,31 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F3 — Garantías
 
-- [ ] **T-006** — Resolución de conflictos
-  - Depende de: T-003 · Bloqueada por: **Q-02, Q-05, Q-07**
+- [x] **T-006** — Resolución de conflictos _(hecha 27/11/2026)_
+  - Depende de: T-003 · ~~Bloqueada por: Q-02, Q-05, Q-07~~ **desbloqueada:
+    Adrián respondió el 27/11/2026 que el servidor devuelve `updatedAt` pero no
+    una versión, así que la reconciliación va por `updatedAt`.**
+  - Estado: **hecha y en verde.** `data/sync/ConflictResolver.kt` con
+    `ConflictNotice` y `ConflictOutcome`, y 5 pruebas en
+    `test/.../data/sync/ConflictResolverTest.kt` (C-06 y C-07).
+    Las dos reglas, y la diferencia no es técnica sino de **quién puede
+    equivocarse menos**:
+    - Lo clínico: gana el servidor siempre y se avisa (R-07). Lo registra una
+      veterinaria y el teléfono del dueño puede llevar días sin conexión; dejar
+      ganar al teléfono borraría lo que escribió un profesional. La marca local
+      ni se mira.
+    - La mascota: gana la marca más reciente (R-08). Son datos del dueño y el
+      último que la tocó sabe mejor cómo se llama su perro.
+    **El empate se decidió a propósito, y es lo que hay que saber de esta
+    tarea.** `updatedAt` llega en segundos, así que dos cambios del mismo
+    segundo traen la misma marca. Con marcas iguales **gana el servidor**. Es la
+    elección conservadora: ante la duda no se pierde lo que ya estaba guardado, y
+    el reloj de un teléfono puede estar mal puesto. Lo mismo si la marca local es
+    nula: si el teléfono no sabe cuándo se cambió, no puede alegar que es más
+    nuevo.
+    El aviso solo sale cuando el usuario **pierde** su cambio. Avisar cuando gana
+    sería ruido. Y `ConflictNotice` es un dato, no un texto: el mensaje lo elige
+    la interfaz desde `strings.xml`.
   - Aceptación: en entidades clínicas gana el servidor y se emite un aviso al
     usuario; en la mascota gana la marca más reciente; el resultado es el mismo
     con reloj fijo y con marcas invertidas.

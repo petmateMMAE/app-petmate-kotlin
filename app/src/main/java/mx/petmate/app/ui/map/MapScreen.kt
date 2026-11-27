@@ -31,6 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
@@ -73,6 +74,22 @@ import mx.petmate.app.ui.theme.petMateColors
  * La navegacion sube como lambdas. Llamar, WhatsApp y "Como llegar" tambien
  * suben: abrir otras apps es trabajo de quien conecte la logica.
  */
+/**
+ * Etiquetas para las pruebas de interfaz (spec 010, T-008, T-009 y T-011).
+ *
+ * Los estados son excluyentes: el `when` de la parte baja muestra uno solo, en
+ * ese orden de prioridad.
+ */
+object MapScreenTags {
+    const val ERROR = "map_state_error"
+    const val EMPTY = "map_state_empty"
+    const val NO_LOCATION = "map_state_no_location"
+    const val BUSINESS_SHEET = "map_business_sheet"
+
+    /** Filtro de un tipo de negocio. */
+    fun filter(type: BusinessType) = "map_filter_${type.name}"
+}
+
 @Composable
 fun MapScreen(
     onTabSelected: (OwnerTab) -> Unit,
@@ -83,7 +100,7 @@ fun MapScreen(
     val uiState by viewModel.state.collectAsStateWithLifecycle()
     val center by viewModel.center.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val handle = remember { OsmMapHandle() }
+    val commands = rememberMapCommands()
     val requestLocation = rememberLocationRequest { lat, lng -> viewModel.onLocation(lat, lng) }
     LaunchedEffect(Unit) { requestLocation(false) }
 
@@ -97,22 +114,27 @@ fun MapScreen(
         onWhatsAppClick = { context.openWhatsApp(it.whatsApp ?: it.phone) },
         onDirectionsClick = { context.openDirections(it.latitude, it.longitude, it.name) },
         onBusinessDetailsClick = onBusinessDetailsClick,
-        onZoomInClick = handle::zoomIn,
-        onZoomOutClick = handle::zoomOut,
-        onMyLocationClick = { handle.centerOn(center.first, center.second) },
+        onZoomInClick = commands::zoomIn,
+        onZoomOutClick = commands::zoomOut,
+        // Q-09 (decidida el 27/11/2026): recentra en la ubicacion del usuario y
+        // vuelve a consultar desde ahi. No reordena la lista: el backend ya
+        // devuelve por distancia.
+        onMyLocationClick = {
+            commands.centerOn(center.first, center.second)
+            viewModel.onNearMeClick()
+        },
         onEnableLocationClick = { requestLocation(true) },
         onHelpClick = viewModel::onHelpClick,
         onRetryClick = viewModel::retry,
         onTabSelected = onTabSelected,
         modifier = modifier,
-        centerLatitude = center.first,
-        centerLongitude = center.second,
-        mapHandle = handle,
+        camera = MapCamera(center.first, center.second),
+        mapCommands = commands,
     )
 }
 
 @Composable
-private fun MapContent(
+internal fun MapContent(
     uiState: MapUiState,
     onQueryChange: (String) -> Unit,
     onTypeToggle: (BusinessType) -> Unit,
@@ -130,11 +152,16 @@ private fun MapContent(
     onRetryClick: () -> Unit,
     onTabSelected: (OwnerTab) -> Unit,
     modifier: Modifier = Modifier,
-    /** true solo en las previsualizaciones, que no pueden cargar el mapa real. */
-    useIllustratedMap: Boolean = false,
-    centerLatitude: Double = OsmMapConfig.DEFAULT_LATITUDE,
-    centerLongitude: Double = OsmMapConfig.DEFAULT_LONGITUDE,
-    mapHandle: OsmMapHandle? = null,
+    /**
+     * Quien dibuja el mapa (spec 010, T-006 y T-007).
+     *
+     * Por omision el adaptador de osmdroid. Las previsualizaciones pasan
+     * [IllustratedMapSurface] y las pruebas [FakeMapSurface]: esta pantalla no
+     * nombra a ningun proveedor.
+     */
+    mapSurface: MapSurface = { state, mapModifier -> OsmMapSurface(state, mapModifier) },
+    camera: MapCamera = MapCamera.Default,
+    mapCommands: MapCommands? = null,
 ) {
     Column(
         modifier = modifier
@@ -149,26 +176,17 @@ private fun MapContent(
             val businessesOnMap =
                 if (uiState.isLoading) emptyList() else uiState.visibleBusinesses
 
-            // En las previsualizaciones se usa el mapa ilustrado, porque el
-            // real necesita red y ciclo de vida de Activity.
-            if (useIllustratedMap) {
-                IllustratedMap(
+            mapSurface(
+                MapSurfaceState(
                     businesses = businessesOnMap,
                     selectedBusinessId = uiState.selectedBusiness?.id,
                     showUserLocation = uiState.isLocationAvailable,
-                    onBusinessClick = onBusinessClick,
-                )
-            } else {
-                OsmMap(
-                    businesses = businessesOnMap,
-                    selectedBusinessId = uiState.selectedBusiness?.id,
-                    showUserLocation = uiState.isLocationAvailable,
-                    onBusinessClick = onBusinessClick,
-                    centerLatitude = centerLatitude,
-                    centerLongitude = centerLongitude,
-                    handle = mapHandle,
-                )
-            }
+                    camera = camera,
+                    callbacks = MapCallbacks(onMarkerClick = onBusinessClick),
+                    commands = mapCommands,
+                ),
+                Modifier,
+            )
 
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -200,6 +218,7 @@ private fun MapContent(
                 val selected = uiState.selectedBusiness
                 when {
                     uiState.error != null -> MessageBanner(
+                        modifier = Modifier.testTag(MapScreenTags.ERROR),
                         icon = R.drawable.ic_pm_alert,
                         iconBackground = MaterialTheme.petMateColors.alertSoft,
                         iconTint = MaterialTheme.petMateColors.alert,
@@ -209,6 +228,7 @@ private fun MapContent(
                         onActionClick = onRetryClick,
                     )
                     selected != null -> BusinessSheet(
+                        modifier = Modifier.testTag(MapScreenTags.BUSINESS_SHEET),
                         business = selected,
                         onDismiss = onDismissBusiness,
                         onCallClick = { onCallClick(selected) },
@@ -217,6 +237,7 @@ private fun MapContent(
                         onDetailsClick = { onBusinessDetailsClick(selected.id) },
                     )
                     uiState.isEmpty -> MessageBanner(
+                        modifier = Modifier.testTag(MapScreenTags.EMPTY),
                         icon = R.drawable.ic_pm_search,
                         iconBackground = MaterialTheme.petMateColors.brandSoft,
                         iconTint = MaterialTheme.petMateColors.brandText,
@@ -224,6 +245,7 @@ private fun MapContent(
                         body = stringResource(R.string.map_empty_body),
                     )
                     !uiState.isLocationAvailable -> MessageBanner(
+                        modifier = Modifier.testTag(MapScreenTags.NO_LOCATION),
                         icon = R.drawable.ic_pm_pin,
                         iconBackground = MaterialTheme.petMateColors.sunSoft,
                         iconTint = MaterialTheme.petMateColors.sunInk,
@@ -309,6 +331,7 @@ private fun TypeFilters(
                 horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
                 modifier = Modifier
                     .weight(1f)
+                    .testTag(MapScreenTags.filter(type))
                     .alpha(if (on) 1f else 0.55f)
                     .shadow(4.dp, CircleShape)
                     .background(MaterialTheme.colorScheme.surface, CircleShape)
@@ -721,7 +744,7 @@ private fun MapPreview(uiState: MapUiState) {
             onHelpClick = {},
             onRetryClick = {},
             onTabSelected = {},
-            useIllustratedMap = true,
+            mapSurface = { state, mapModifier -> IllustratedMapSurface(state, mapModifier) },
         )
     }
 }

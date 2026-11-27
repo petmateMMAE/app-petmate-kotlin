@@ -212,3 +212,13 @@ el historial.
 - [ ] Los requisitos y los criterios de éxito son suficientes para planificar.
 - [ ] Las preguntas abiertas están identificadas y se sabe a quién preguntar.
 - [ ] **Aprobada para pasar a `plan.md`.**
+
+
+## Preguntas resueltas contra el backend ya terminado
+
+Estas estaban marcadas como "esperando a Miguel". El backend se termino y se desplego, asi que
+se respondieron leyendo su codigo y su contrato. Las tareas que solo dependian de ellas YA NO
+ESTAN BLOQUEADAS.
+
+- **Q-01 RESUELTA (27/11/2026)** — GET /api/v1/pets/get-qr/{id} devuelve { petId, qrToken, qrCode }. POST /api/v1/pets/regenerate-qr/{id} lo renueva. El escaner canjea con POST /api/v1/scans/resolve, que recibe { code }.
+- **Q-07 RESUELTA (27/11/2026)** — El directorio es /api/v1/businesses (9 rutas). Para el selector sirve businesses/get-nearby, el mismo del mapa.

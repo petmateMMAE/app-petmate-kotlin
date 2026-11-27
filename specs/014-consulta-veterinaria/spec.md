@@ -206,3 +206,12 @@ diagnóstico y la receta en su carnet antes de salir del consultorio.
 - [ ] **Supuesto 3 confirmado**: PetMate registra el cobro, no procesa pagos.
 - [ ] Preguntas abiertas con dueño, en especial Q-03 (IVA).
 - [ ] **Aprobada para pasar a `plan.md`.**
+
+
+## Preguntas resueltas contra el backend ya terminado
+
+Estas estaban marcadas como "esperando a Miguel". El backend se termino y se desplego, asi que
+se respondieron leyendo su codigo y su contrato. Las tareas que solo dependian de ellas YA NO
+ESTAN BLOQUEADAS.
+
+- **Q-01 RESUELTA (27/11/2026)** — 4 rutas bajo /api/v1/consultations: create, get-all, get-by-id/{id}, add-medication. Detalle en backend-petmate-sdd-aspnetcore/openapi/openapi.json (76 rutas, 132 esquemas). El backend esta TERMINADO y desplegado; el contrato completo esta ahi, no hay que preguntarle a nadie.

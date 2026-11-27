@@ -68,6 +68,16 @@ class MapViewModel @Inject constructor(
 
     fun retry() = load()
 
+    /**
+     * "Cerca de mi" (spec 010, T-011, Q-09).
+     *
+     * Vuelve a consultar el directorio desde el centro actual. **No reordena la
+     * lista en el cliente**: el backend ya la devuelve por distancia, y
+     * reordenar aqui seria hacer dos veces lo mismo con criterios que pueden no
+     * coincidir (decision del 27/11/2026).
+     */
+    fun onNearMeClick() = load()
+
     fun onQueryChange(query: String) = _state.update { it.copy(query = query, selectedBusinessId = null) }
 
     fun onTypeToggle(type: BusinessType) = _state.update {

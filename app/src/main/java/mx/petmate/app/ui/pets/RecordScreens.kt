@@ -98,9 +98,16 @@ private fun RecordListScaffold(
     }
 }
 
-/** .rec: tarjeta de un registro del carnet con quien lo registro. */
+/**
+ * .rec: tarjeta de un registro del carnet con quien lo registro (spec 008, T-011).
+ *
+ * Lo que registro un negocio es **inmutable** para el dueno: lleva el nombre de
+ * quien lo registro, un candado, y no ofrece borrar. Lo que registro el dueno
+ * si se puede borrar. Es  para que la prueba de T-011 la pueda
+ * dibujar sola.
+ */
 @Composable
-private fun RecordCard(
+internal fun RecordCard(
     title: String,
     subtitle: String,
     meta: List<Pair<String, String>>,

@@ -217,3 +217,14 @@ construye las entidades.
 - [ ] Los requisitos y los criterios de éxito son suficientes para planificar.
 - [ ] Las preguntas abiertas están identificadas y se sabe a quién preguntar.
 - [ ] **Aprobada para pasar a `plan.md`.**
+
+
+## Preguntas resueltas contra el backend ya terminado
+
+Estas estaban marcadas como "esperando a Miguel". El backend se termino y se desplego, asi que
+se respondieron leyendo su codigo y su contrato. Las tareas que solo dependian de ellas YA NO
+ESTAN BLOQUEADAS.
+
+- **Q-02 RESUELTA (27/11/2026)** — El servidor devuelve updatedAt en cada recurso. NO devuelve un campo de version: la reconciliacion se hace por updatedAt.
+- **Q-06 RESUELTA (27/11/2026)** — Existe DELETE /api/v1/pets/delete/{id}. El borrado se expone como operacion propia.
+- **Q-08 RESUELTA (27/11/2026)** — No hay catalogo de codigos aparte: la envoltura lleva statusCode HTTP. 4xx son permanentes (no reintentar), 5xx y los fallos de red son transitorios.

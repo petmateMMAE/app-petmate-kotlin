@@ -68,6 +68,14 @@ tareas de esta unidad.
     `domain/identity/repository/TokenRefresher.kt`
 
 - [ ] **T-003** — Casos de uso de alta y verificación
+  - BLOQUEADA DE HECHO (27/11/2026), aunque la tarea no lo diga: el backend **no
+    tiene** endpoints de verificacion de correo ni de reenvio de codigo.
+    `AuthApiService` solo expone `auth/register`, `auth/login`, `auth/refresh`,
+    `auth/logout`, `users/me/get` y `users/me/update`. Escribir
+    `VerifyEmailUseCase` y `ResendCodeUseCase` obligaria a inventar la ruta y los
+    campos, que es justo lo que la spec prohibe. `SignUpUseCase` ya existe como
+    `RegisterUseCase` en `domain/usecase/`. **Preguntar a Miguel** si habra
+    verificacion por correo; si no la hay, la tarea hay que reescribirla.
   - Depende de: T-002
   - Aceptación: `SignUpUseCase`, `VerifyEmailUseCase` y `ResendCodeUseCase`
     devuelven `AppResult`, validan solo lo mínimo del contrato y no conocen
@@ -78,6 +86,12 @@ tareas de esta unidad.
     `domain/identity/usecase/ResendCodeUseCase.kt`
 
 - [ ] **T-004** — Casos de uso de login, recuperación y logout
+  - PARCIALMENTE BLOQUEADA DE HECHO (27/11/2026): `LoginUseCase` y
+    `LogoutUseCase` ya existen en `domain/usecase/`. `RecoverAccessUseCase` **no
+    se puede hacer**: no hay endpoint de recuperacion de acceso en el backend
+    (ver la nota de T-003). `RestoreSessionUseCase` si se podria envolver sobre
+    `AuthRepository.restoreSession()`, que ya existe. **Preguntar a Miguel** por
+    la recuperacion de contrasena.
   - Depende de: T-002
   - Aceptación: `LoginUseCase`, `RecoverAccessUseCase`, `LogoutUseCase` y
     `RestoreSessionUseCase` devuelven `AppResult`; el logout no decide la

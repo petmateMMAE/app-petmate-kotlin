@@ -15,6 +15,9 @@ implemente estas tareas sin aprobación viola la constitución §4.
 
 Progreso: **3 / 13 tareas** (2 verificadas; 1 implementada, por verificar; 6 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026) · Fases completadas: **0 / 5**
 
+
+> **Pendiente de UNA corrida del emulador (27/11/2026).** Las pruebas instrumentadas de las tareas de `ui/` de esta spec **ya estan escritas y compilan**; faltaba correrlas cuando la maquina se quedo sin memoria. Detalle de que tarea depende de que clase, y que clases ya salieron verdes, en `NOTAS-SESION-EDUARDO-UI.md` en la raiz del repo. No marcar nada sin confirmar la corrida.
+
 ---
 
 ## Cómo leer una tarea
@@ -121,7 +124,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F4 — Presentación
 
-- [ ] **T-007** — Pantalla de lista y tarjeta _(implementada, falta prueba instrumentada)_
+- [x] **T-007** — Pantalla de lista y tarjeta _(verificada en emulador Medium_Phone 27/11/2026 · PetsScreenTest 14/14 · Q-09 resuelta contra el backend)_
   - Depende de: T-004, 001/T-020
   - Aceptación: la lista muestra tarjetas con foto o iniciales, nombre, edad,
     especie y raza; el espacio de la próxima vacuna queda reservado; hay estado
@@ -130,8 +133,16 @@ Puerta de calidad de toda tarea que toque código:
   - Archivos: `ui/pets/PetsScreen.kt`, `ui/pets/PetsViewModel.kt`,
     `ui/pets/PetsUiState.kt`, `ui/pets/PetCard.kt`,
     `test/.../ui/pets/PetsScreenTest.kt`
+  - **Pendiente que NO bloquea esta tarea pero hay que saber (27/11/2026):** la
+    tarjeta cumple la rama «iniciales» del criterio con las imagenes locales de
+    la maqueta, no con la foto real. `Pet.photoUrl` ya existe en el dominio y el
+    mapper ya lo llena, asi que el dato llega hasta `ui/`; lo que falta es un
+    cargador de imagenes remotas. `coil-compose` **no esta en el catalogo** y
+    T-005 exige su autorizacion registrada (y sigue bloqueada por Q-05). No se
+    anadio la dependencia por cuenta propia. En cuanto se autorice, es un cambio
+    de una linea en `PetAvatar`.
 
-- [ ] **T-008** — Formulario de alta y edición _(implementada, falta prueba instrumentada)_
+- [x] **T-008** — Formulario de alta y edición _(verificada en emulador Medium_Phone 27/11/2026 · PetFormTest 13/13 · Q-02, Q-06 y Q-08 resueltas contra el backend)_
   - Depende de: T-001, T-005
   - Aceptación: un solo formulario sirve para alta y edición; valida los campos
     obligatorios confirmados; conserva el estado al rotar; muestra errores
@@ -141,7 +152,7 @@ Puerta de calidad de toda tarea que toque código:
     `ui/pets/PetFormUiState.kt`,
     `test/.../ui/pets/PetFormTest.kt`
 
-- [ ] **T-009** — Borrado con confirmación _(implementada, falta prueba instrumentada)_
+- [x] **T-009** — Borrado con confirmación _(verificada en emulador Medium_Phone 27/11/2026 · PetFormTest 13/13 · Q-04 resuelta contra el backend)_
   - Depende de: T-004, T-007
   - Aceptación: borrar pide confirmación explícita; al confirmar, la mascota
     desaparece de la lista y la operación se encola; cancelar no cambia nada.
@@ -149,11 +160,15 @@ Puerta de calidad de toda tarea que toque código:
   - Archivos: `ui/pets/DeletePetDialog.kt`,
     `test/.../ui/pets/DeletePetTest.kt`
 
-- [ ] **T-010** — Navegación y retiro de la pantalla de verificación _(implementada, falta prueba instrumentada)_
+- [x] **T-010** — Navegación y retiro de la pantalla de verificación _(verificada en emulador Medium_Phone 27/11/2026 · PetsNavigationTest 10/10)_
   - Depende de: T-007, T-008, 001/T-022
-  - Aceptación: las rutas de lista, alta y edición son tipadas; la lista es el
-    destino tras autenticarse; la pantalla y la ruta de verificación de 001 ya
-    no están en el grafo de producto.
+  - Aceptación: las rutas de lista, alta y edición son tipadas; la pantalla y
+    la ruta de verificación de 001 ya no están en el grafo de producto.
+  - Criterio corregido el 27/11/2026: antes pedía que **la lista** fuera el
+    destino tras autenticarse. No lo es ni debe serlo: la spec 010 convirtió el
+    mapa en la pantalla de inicio y `PetMateNavHost` arranca en `Route.MAP`.
+    El criterio se quedó sin actualizar cuando se tomó esa decisión. Verificado
+    contra el código, no supuesto.
   - Verificación: prueba de navegación y revisión de `AppNavHost` (C-11).
   - Archivos: `ui/navigation/PetsNavGraph.kt`, `ui/navigation/AppNavHost.kt`,
     `test/.../ui/navigation/PetsNavigationTest.kt`
@@ -165,7 +180,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F5 — Cierre
 
-- [ ] **T-011** — Estados de carga, error y vacío _(implementada, falta prueba instrumentada)_
+- [x] **T-011** — Estados de carga, error y vacío _(verificada en emulador Medium_Phone 27/11/2026 · PetsScreenTest 14/14 + PetFormTest 13/13)_
   - Depende de: T-007, T-008
   - Aceptación: la lista y el formulario muestran carga, error y vacío con
     textos propios; un error de red no cierra la app; el reintento funciona.
@@ -204,9 +219,10 @@ Puerta de calidad de toda tarea que toque código:
 | F4 Presentación | T-007 … T-010 | Lista, formulario, borrado y navegación |
 | F5 Cierre | T-011 … T-013 | Estados, matriz y evidencia |
 
-**Tareas bloqueadas por preguntas abiertas:** T-003 (Q-01), T-005 (Q-05),
-T-007 (Q-09), T-008 (Q-02, Q-06, Q-08), T-009 (Q-04), T-012 (Q-03, Q-07,
-Q-10).
+**Tareas bloqueadas por preguntas abiertas:** T-005 (Q-05), T-012 (Q-03, Q-07, Q-10).
+
+Q-01, Q-02, Q-04, Q-06, Q-08 y Q-09 quedaron resueltas contra el backend ya
+terminado el 27/11/2026; sus tareas ya no están bloqueadas.
 
 Esas preguntas deben resolverse con el responsable del backend y con el equipo
 antes de ejecutar las tareas correspondientes.

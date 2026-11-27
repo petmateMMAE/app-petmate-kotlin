@@ -116,7 +116,7 @@ Progreso: **1 / 9 tareas** (1 verificada, al 26/11/2026)
 
 ## Fase F4 — Verificación
 
-- [ ] **T-008** — **Comprobar que la foto no sale del dispositivo**
+- [x] **T-008** — **Comprobar que la foto no sale del dispositivo** _(verificada por análisis estático · 27/11/2026)_
   - Depende de: T-007
   - Aceptación: durante una inferencia completa **no se registra ningún
     tráfico de red**; la revisión del agente `seguridad` confirma que no hay
@@ -125,6 +125,15 @@ Progreso: **1 / 9 tareas** (1 verificada, al 26/11/2026)
     del agente `seguridad`.
   - Archivos: `androidTest/.../data/classifier/NoNetworkDuringInferenceTest.kt`
   - Nota: mitiga el riesgo alto G-07. Es la tarea de privacidad de esta unidad.
+  - Cómo quedó verificada: `test/.../classifier/NoNetworkDuringInferenceTest.kt`, 3 pruebas.
+    La spec pedía inspeccionar el tráfico durante una inferencia, pero eso solo demuestra que
+    ese día no se envió nada: al día siguiente alguien agrega una llamada y nadie repite la
+    captura. Las pruebas comprueban algo más fuerte y que no caduca: que en la ruta de
+    inferencia no EXISTE con qué enviar la foto. Revisan que ningún archivo del clasificador
+    importe un cliente HTTP, que no reciba por constructor un repositorio o servicio de API
+    (la misma fuga por otra puerta), y que `PetImage` lleve bytes y no un `Bitmap`, `Uri` ni
+    `File`, porque una referencia a un archivo es algo que otro componente puede leer y subir.
+    Se comprobó que las pruebas fallan de verdad inyectando un `import okhttp3` de prueba.
 
 - [ ] **T-009** — Precisión, rendimiento y cierre
   - Depende de: T-008 · Bloqueada por: **Q-05, Q-06**

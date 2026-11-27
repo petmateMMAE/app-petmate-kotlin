@@ -10,7 +10,34 @@
 Ninguna tarea se ejecuta sin autorización explícita del humano
 (`constitution.md` §4).
 
-Progreso: **6 / 15 tareas** (1 verificada; 5 implementadas, por verificar; 2 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026)
+Progreso: **4 / 15 tareas** (1 verificada; 3 implementadas, por verificar; 2 sin marcar: implementadas, falta prueba instrumentada; 2 desmarcadas el 27/11/2026 por marcarse en falso)
+
+> **Nota (27/11/2026) — textos a `strings.xml`, y dos tareas marcadas en falso.**
+>
+> `ui/business/VeterinaryActionViewModel.kt` tenía 27 mensajes en español
+> incrustados (validación de la consulta, la vacuna y la desparasitación, más
+> la traducción de los errores del servidor). Rompía la regla de que todo texto
+> visible vive en `strings.xml`. Ya salieron, con prefijo `veterinary_`:
+> `VeterinaryActionUiState.error` y `fieldErrors` pasaron de `String` a `UiText`,
+> así que el ViewModel sigue probándose en la JVM sin `Context`. Los límites del
+> contrato (500 caracteres, 10 medicamentos, 0.1–200 kg) son constantes y viajan
+> como argumentos del mensaje. Cubierto por `VeterinaryActionViewModelTest`
+> (22 pruebas), que afirma explícitamente que **ningún** mensaje es texto suelto.
+> Mismo reparto que 011/T-003: el ViewModel dice qué está mal, `strings.xml` dice
+> cómo se dice.
+>
+> Esto **no cierra ninguna tarea de 014**, y al revisarlo salieron dos `[x]`
+> falsas más, del mismo tipo que las de 012:
+> - **T-005** nombra `domain/usecase/ValidateConsultationUseCase.kt` y
+>   `SaveConsultationUseCase.kt`: no existen. La validación vive en el ViewModel.
+> - **T-010** nombra `ui/consulta/ConsultationViewModel.kt`, `ConsultationUiState.kt`
+>   y su prueba: no existen, y tampoco `CalculateChargeUseCase` ni los renglones
+>   del cobro. `VeterinaryActionViewModel` es otra cosa: registra la consulta,
+>   no la cobra. El cobro desglosado sigue sin existir, como ya anotaba
+>   `memoria.md`.
+>
+> **Desmarcadas el 27/11/2026**, con autorización de Eduardo, que verificó los cuatro
+> archivos. No se implementan: el cobro desglosado es alcance nuevo.
 
 ---
 
@@ -19,7 +46,21 @@ Progreso: **6 / 15 tareas** (1 verificada; 5 implementadas, por verificar; 2 sin
 > Esta fase va primero a propósito: es donde un error cuesta dinero real y es
 > la más fácil de probar aislada (decisión D-01).
 
-- [ ] **T-001** — Renglón de cobro y resumen
+- [x] **T-001** — Renglón de cobro y resumen _(hecha 27/11/2026)_
+  - Hecho (27/11/2026): `TaxRate` en puntos base (1600 = 16 %), `ChargeLine`
+    (concepto, tipo servicio/vacuna/medicina, precio en `Money` y cantidad) y
+    `ChargeSummary` (subtotal, impuesto y total). 21 pruebas en verde en
+    `ChargeSummaryTest`, en la matriz como `cobro-consulta`.
+    D-03 respetado: **no hay una tasa del pais escrita en el codigo**. Lo unico
+    declarado es `TaxRate.Exempt`, que es cero y es la ausencia de impuesto, no
+    una tasa. La tasa real llega de la configuracion del negocio.
+    El impuesto se calcula sobre el subtotal y se redondea **una sola vez**, no
+    renglon por renglon: hay una prueba que ensena que hacerlo por renglon daria
+    0 de impuesto donde la factura dice 1 centavo.
+    **Por revisar:** el impuesto se suma al subtotal, o sea los precios se
+    capturan SIN impuesto. Si el negocio los captura con IVA incluido, el total
+    saldria cobrado dos veces. Esta escrito en el KDoc de `ChargeSummary`;
+    confirmalo antes de ensenarlo en una pantalla de cobro real.
   - Depende de: —
   - Aceptación: `ChargeLine` (concepto, tipo —servicio, vacuna o medicina— y
     `Money` de 011), `ChargeSummary` (subtotal, IVA y total) y `TaxRate`
@@ -62,7 +103,33 @@ Progreso: **6 / 15 tareas** (1 verificada; 5 implementadas, por verificar; 2 sin
   - Archivos: `domain/model/Consultation.kt`,
     `domain/model/Prescription.kt`, `domain/model/PaymentMethod.kt`
 
-- [ ] **T-004** — Borrador y contrato del repositorio
+- [x] **T-004** — Borrador y contrato del repositorio _(hecha 27/11/2026)_
+  - Hecho (27/11/2026). La aceptacion se cumple repartida en tres contratos que ya
+    existian o se crearon, en vez de un `ConsultationRepository` monolitico:
+      - *guardar consulta* -> `VeterinaryRepository.createConsultation` (ya existia).
+      - *crear servicio nuevo* -> `BusinessRepository.createService` (ya existia).
+      - *guardar, leer y borrar el borrador* -> **`ConsultationDraftRepository`**,
+        nuevo, con `save`, `get`, `observe`, `getAll` y `delete`.
+    Por que aparte y no metodos nuevos en `VeterinaryRepository`: ese contrato lo
+    implementa `VeterinaryRepositoryImpl`, lo delega `OfflineFirstFollowUpRepository`
+    con `by remote` y lo doblan cinco pruebas. Agregarle metodos obligaria a tocar
+    todo eso para otra responsabilidad: el borrador vive **solo en el telefono** y no
+    se manda al servidor hasta cerrar la consulta.
+    Archivos: `data/local/entity/ConsultationDraftEntity.kt`,
+    `data/local/dao/ConsultationDraftDao.kt`,
+    `domain/repository/ConsultationDraftRepository.kt`,
+    `data/repository/ConsultationDraftRepositoryImpl.kt`, mas el cableado en
+    `PetMateDatabase`, `DatabaseModule` y `VeterinaryModule`.
+    **Cambio de esquema de Room, autorizado por Adrian el 27/11/2026:** version 2 ->
+    3 con `MIGRATION_2_3`, que solo CREA la tabla `consultation_drafts`. Ninguna
+    columna existente cambia, asi que no se le borra el carnet a nadie que ya tenga
+    la version 2 instalada.
+    La llave es (ownerId, petId), no solo ownerId como el borrador de afiliacion:
+    una veterinaria atiende varias mascotas la misma manana y empezar la segunda no
+    puede borrar la primera. 14 pruebas en verde, en la matriz como
+    `borrador-consulta`; entre ellas que dos cuentas en el mismo telefono no se ven
+    el borrador, que sin sesion no se guarda nada, y que el registro no lleva el
+    diagnostico ni el peso (P6).
   - Depende de: T-003
   - Aceptación: `ConsultationDraft` guarda el avance; `ConsultationRepository`
     declara guardar consulta, crear servicio nuevo, y guardar, leer y **borrar**
@@ -71,7 +138,7 @@ Progreso: **6 / 15 tareas** (1 verificada; 5 implementadas, por verificar; 2 sin
   - Archivos: `domain/model/ConsultationDraft.kt`,
     `domain/repository/ConsultationRepository.kt`
 
-- [x] **T-005** — Validación y guardado _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-005** — Validación y guardado _(desmarcada 27/11/2026: `ValidateConsultationUseCase` y `SaveConsultationUseCase` no existen. La validación vive en `VeterinaryActionViewModel`, dentro de `ui`.)_
   - Depende de: T-004, T-002 · Bloqueada por: **Q-04** (formas de pago)
   - Aceptación: `ValidateConsultationUseCase` rechaza guardar sin forma de
     pago y sin renglones de cobro; `SaveConsultationUseCase` guarda la
@@ -129,7 +196,7 @@ Progreso: **6 / 15 tareas** (1 verificada; 5 implementadas, por verificar; 2 sin
     `di/ConsultationModule.kt`,
     `test/.../data/repository/ConsultationRepositoryImplTest.kt`
 
-- [ ] **T-009** — Borrado del borrador al cerrar
+- [x] **T-009** — Borrado del borrador al cerrar _(27/11/2026)_
   - Depende de: T-008
   - Aceptación: el borrador se elimina al guardar con éxito **y** al descartar
     la consulta; tras cualquiera de los dos, no queda diagnóstico, receta ni
@@ -146,7 +213,7 @@ Progreso: **6 / 15 tareas** (1 verificada; 5 implementadas, por verificar; 2 sin
 
 ## Fase F5 — Sección clínica
 
-- [x] **T-010** — ViewModel de la consulta _(implementada, por verificar · 17/11/2026)_
+- [ ] **T-010** — ViewModel de la consulta _(desmarcada 27/11/2026: `ui/consulta/` no existe, ni `ConsultationViewModel`, `ConsultationUiState` ni `CalculateChargeUseCase`. El cobro desglosado sigue sin existir.)_
   - Depende de: T-005, T-008
   - Aceptación: `ConsultationViewModel` expone un `StateFlow` con la parte
     clínica, la receta, los renglones y el resumen; recalcula el resumen con
@@ -234,3 +301,10 @@ T-012 (Q-05), T-013 (Q-03, Q-04), T-014 (Q-02).
 
 **Nota:** Q-03 (la tasa de IVA y si los precios de 011 la incluyen) bloquea el
 cálculo entero. Es la pregunta más urgente de esta unidad.
+  - 27/11/2026: 3 pruebas nuevas en `ConsultationDraftRepositoryImplTest` (17 en total).
+    No basta con que el borrador desaparezca de la consulta: las pruebas revisan TODO lo que queda
+    guardado y exigen que no aparezca el diagnostico, la receta ni el peso. Una fila que sobreviva
+    con el diagnostico dentro es una historia clinica en el telefono que el veterinario cree que ya
+    cerro. Se cubren los dos finales de la consulta —guardar con exito y descartar— porque los dos
+    deben dejar el almacenamiento limpio, y que borrar una no toque el borrador de otra mascota,
+    que puede estar a medias.

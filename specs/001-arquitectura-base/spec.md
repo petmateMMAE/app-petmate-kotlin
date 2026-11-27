@@ -272,3 +272,14 @@ Cada criterio es verificable por alguien que no escribió esta spec.
 - [ ] **Aprobada para pasar a `plan.md`.**
 
 Siguiente: [`plan.md`](plan.md) → [`task.md`](task.md)
+
+
+## Preguntas resueltas contra el backend ya terminado
+
+Estas estaban marcadas como "esperando a Miguel". El backend se termino y se desplego, asi que
+se respondieron leyendo su codigo y su contrato. Las tareas que solo dependian de ellas YA NO
+ESTAN BLOQUEADAS.
+
+- **Q-02 RESUELTA (27/11/2026)** — La URL base de produccion es https://petmate-api.purplefield-b84659a6.chilecentral.azurecontainerapps.io/api/v1 y la salud esta en health/live y health/ready. Verificado: responden 200.
+- **Q-03 RESUELTA (27/11/2026)** — Todas las respuestas usan la misma envoltura: { statusCode, message, data }. Los errores llegan con ese mismo sobre y data en null.
+- **Q-04 RESUELTA (27/11/2026)** — En el CUERPO, no en una cabecera. POST /api/v1/auth/refresh no declara ningun parametro de cabecera y si tiene requestBody.

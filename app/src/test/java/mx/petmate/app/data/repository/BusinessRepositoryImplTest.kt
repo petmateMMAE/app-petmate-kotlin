@@ -61,7 +61,7 @@ class BusinessRepositoryImplTest {
         every { sessionStore.readAccessToken() } returns "acc-1"
         every { sessionStore.readRefreshToken() } returns "ref-1"
         val caller = AuthorizedCaller(retrofit.create(AuthApiService::class.java), sessionStore, authRepository)
-        repository = BusinessRepositoryImpl(retrofit.create(BusinessApiService::class.java), caller, sessionStore, json, dispatchers)
+        repository = BusinessRepositoryImpl(retrofit.create(BusinessApiService::class.java), caller, sessionStore, BusinessRepositoryDraftTest.FakeAffiliationDraftDao(), json, dispatchers)
     }
 
     @After

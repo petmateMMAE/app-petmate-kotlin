@@ -1,0 +1,142 @@
+# Configuracion de detekt (001/T-004). Autorizado por Adrian el 27/11/2026.
+#
+# Parte de la configuracion por omision (`buildUponDefaultConfig = true`) y solo cambia lo que este
+# proyecto necesita distinto. Cada cambio lleva su motivo: una regla apagada sin explicacion la
+# vuelve a prender el siguiente que pase por aqui, y entonces rompe la build de alguien mas.
+#
+# Las reglas que valen de verdad aqui son las que vigilan la constitucion: nada de `println`, nada
+# de `!!` en produccion, nada de excepciones atrapadas en silencio, y nada de dispatchers escritos
+# a mano.
+
+build:
+  maxIssues: 0
+  excludeCorrectable: false
+
+config:
+  validation: true
+  warningsAsErrors: false
+
+complexity:
+  LongMethod:
+    # Un ViewModel con cinco acciones y su validacion pasa de 60 lineas sin ser complicado.
+    threshold: 80
+  LongParameterList:
+    # `createVaccine(petId, name, appliedOn, batch, nextDoseOn, onSuccess)` son 6 y esta bien:
+    # son los campos del formulario, no un diseno enredado.
+    functionThreshold: 8
+    constructorThreshold: 10
+    ignoreDefaultParameters: true
+    ignoreDataClasses: true
+    # Un Composable sin estado recibe su estado y **un lambda por cada accion del usuario**: ese es
+    # el patron que pide la constitucion (P3, la interfaz no decide nada). `PetsContent` tiene 9 y
+    # esta bien escrito. Contarlos como defecto empujaria a juntar las acciones en un objeto, que
+    # es justo lo que vuelve ilegible una pantalla de Compose.
+    ignoreAnnotated: ['Composable']
+  TooManyFunctions:
+    # Un repositorio implementa su contrato completo; partirlo por contar funciones no mejora nada.
+    thresholdInClasses: 30
+    thresholdInInterfaces: 30
+    thresholdInFiles: 40
+    ignorePrivate: true
+    ignoreOverridden: true
+  CyclomaticComplexMethod:
+    threshold: 20
+  LargeClass:
+    threshold: 800
+
+exceptions:
+  TooGenericExceptionCaught:
+    # La capa de datos atrapa a proposito para traducir a AppError (constitucion seccion 4).
+    excludes: ['**/data/**']
+  SwallowedException:
+    active: true
+  TooGenericExceptionThrown:
+    active: true
+
+naming:
+  FunctionNaming:
+    # Los Composables son PascalCase por convencion de Compose.
+    ignoreAnnotated: ['Composable']
+  FunctionMaxLength:
+    # Los nombres de prueba son frases en espanol entre acentos graves, y asi se leen los fallos.
+    active: false
+  TopLevelPropertyNaming:
+    constantPattern: '[A-Z][_A-Z0-9]*'
+  MatchingDeclarationName:
+    # Hay archivos que agrupan a proposito: `BusinessViewModels.kt`, `PetViewModels.kt`.
+    active: false
+
+style:
+  MagicNumber:
+    # En pruebas y en la interfaz los numeros literales son el dato, no una constante escondida.
+    excludes: ['**/test/**', '**/androidTest/**', '**/ui/**']
+    ignorePropertyDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+    ignoreAnnotation: true
+    ignoreNamedArgument: true
+  MaxLineLength:
+    maxLineLength: 120
+    excludeCommentStatements: false
+  ForbiddenComment:
+    # Un TODO sin dueno ni fecha es deuda que nadie reclama. Va en memoria.md o en el task.md de
+    # su spec, donde alguien la lee.
+    comments:
+      - reason: 'Anota la deuda en memoria.md o en el task.md de su spec, no en un comentario suelto.'
+        value: 'TODO:'
+      - reason: 'Anota la deuda en memoria.md o en el task.md de su spec, no en un comentario suelto.'
+        value: 'FIXME:'
+  UnusedPrivateMember:
+    active: true
+  ForbiddenMethodCall:
+    # Se intento prender el 27/11/2026 para vigilar `println` y `Thread.sleep`, y se dejo apagada
+    # **a proposito**: esta regla necesita resolucion de tipos, asi que solo corre en las tareas
+    # `detektMain` / `detektDebug` (marcadas EXPERIMENTAL por detekt y que exigen el classpath
+    # compilado). En la tarea `detekt`, que es la que corre el pipeline, **no se dispara nunca**:
+    # se comprobo con un `println` deliberado y detekt no lo marco.
+    # Una regla que calla siempre es peor que no tenerla, porque alguien confia en ella. Quien las
+    # vigila de verdad es `ArchitectureLayersTest`, que lee los archivos reales de `src/main` y
+    # falla sola si aparece un `println` o un dispatcher escrito a mano.
+    active: false
+  ReturnCount:
+    max: 4
+    excludeGuardClauses: true
+  ThrowsCount:
+    max: 3
+  LoopWithTooManyJumpStatements:
+    maxJumpCount: 3
+  WildcardImport:
+    # Compose genera imports con comodin y Android Studio los pone solo.
+    excludeImports:
+      - 'androidx.compose.foundation.layout.*'
+      - 'androidx.compose.material3.*'
+      - 'androidx.compose.runtime.*'
+      - 'java.util.*'
+  UnnecessaryAbstractClass:
+    active: false
+  DataClassContainsFunctions:
+    # `MapUiState` calcula `visibleBusinesses` dentro, que es lo correcto: es derivado de sus campos.
+    active: false
+  SerialVersionUIDInSerializableClass:
+    active: false
+
+potential-bugs:
+  UnsafeCallOnNullableType:
+    # El `!!` esta prohibido en produccion por la constitucion; en pruebas es legitimo para
+    # desempaquetar lo que la propia prueba acaba de preparar.
+    excludes: ['**/test/**', '**/androidTest/**']
+  LateinitUsage:
+    excludes: ['**/test/**', '**/androidTest/**']
+
+coroutines:
+  InjectDispatcher:
+    # P5 de la constitucion: los dispatchers se inyectan con DispatcherProvider, no se escriben
+    # a mano. Esta regla es la que lo vigila, asi que no se toca.
+    active: true
+  GlobalCoroutineUsage:
+    active: true
+  SuspendFunWithFlowReturnType:
+    active: true
+
+performance:
+  SpreadOperator:
+    active: false

@@ -8,7 +8,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
-import mx.petmate.app.core.coroutines.DispatcherProvider
 import mx.petmate.app.core.log.Logger
 import mx.petmate.app.core.result.AppError
 import mx.petmate.app.core.result.AppResult
@@ -17,6 +16,7 @@ import mx.petmate.app.data.session.SessionStore
 import mx.petmate.app.domain.model.LoginCredentials
 import mx.petmate.app.domain.model.RegisterData
 import mx.petmate.app.domain.model.User
+import mx.petmate.app.util.testDispatcherProvider
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -40,11 +40,7 @@ class AuthRepositoryImplTest {
     private val sessionStore: SessionStore = mockk(relaxed = true)
     private val logger: Logger = mockk(relaxed = true)
     private val dispatcher = UnconfinedTestDispatcher()
-    private val dispatchers = object : DispatcherProvider {
-        override val io = dispatcher
-        override val default = dispatcher
-        override val main = dispatcher
-    }
+    private val dispatchers = testDispatcherProvider(dispatcher)
 
     @Before
     fun setUp() {

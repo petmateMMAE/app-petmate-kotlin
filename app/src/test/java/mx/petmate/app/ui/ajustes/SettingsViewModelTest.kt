@@ -119,4 +119,11 @@ class SettingsViewModelTest {
     fun `sin enlaces legales configurados no se ofrece ninguno`() {
         assertFalse(viewModel.state.value.legalLinks.isConfigured)
     }
+
+    @Test
+    fun `el atajo de enlaces legales devuelve lo mismo que el estado`() {
+        // La pantalla los lee por el atajo; si se desincronizara del estado, el aviso de privacidad
+        // de 020 apuntaria a una URL vieja.
+        assertEquals(viewModel.state.value.legalLinks, viewModel.legalLinks)
+    }
 }

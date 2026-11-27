@@ -100,6 +100,31 @@ Progreso: **4 / 11 tareas** (4 verificadas; 3 sin marcar: implementadas, falta p
     `data/local/dao/FollowUpDao.kt`,
     `androidTest/.../data/local/FollowUpDaoTest.kt`
   - Nota: cambiar el esquema de Room requiere autorización.
+  - 27/11/2026: la prueba instrumentada ya existe en
+    `androidTest/.../data/local/FollowUpDaoTest.kt`, 8 casos: guardado y lectura, upsert que
+    reemplaza en vez de duplicar, aislamiento entre cuentas (dos cuentas con el mismo
+    consultationId no se pisan), notas guardadas tal cual, fecha de revisión opcional, y dos que
+    revisan el esquema real con `PRAGMA table_info` para confirmar D-06: ninguna columna clínica,
+    y la lista exacta de columnas fijada para que agregar una obligue a pasar por la prueba.
+    Compila, pero NO se ha ejecutado: no hay emulador levantado en esta máquina. La tarea sigue
+    en [ ] porque su criterio es `connectedAndroidTest` y marcarla sin correrla sería falso.
+  - 27/11/2026, parte del `Flow`: **HECHA.** `FollowUpDao` ya expone dos consultas observables,
+    `observe(ownerId, consultationId): Flow<FollowUpEntity?>` y `observeAll(ownerId):
+    Flow<List<FollowUpEntity>>`. **No cambió el esquema**: agregar un `@Query` que devuelve `Flow`
+    no toca ninguna columna, así que no hizo falta migración ni subir la versión de la base.
+    Por qué importa el `Flow` y no es adorno: con solo `get` suspend, alguien tiene que acordarse
+    de volver a leer después de cada escritura, y el día que se olvide la veterinaria verá el
+    estado viejo y creerá que su cambio no se guardó. Con el flujo, el repositorio escribe en Room
+    y la pantalla se entera sola.
+    El orden de `observeAll` lo decide el DAO —primero los que tienen fecha de revisión, de la más
+    próxima a la más lejana, y al final los que no tienen— porque es el orden en que hay que
+    atenderlos y repetir esa decisión en cada pantalla es cómo se desincronizan.
+    Probado con 10 casos nuevos en `OfflineFirstFollowUpRepositoryTest` (pasó de 4 a 14, todos en
+    verde), con un doble de DAO que **reemite** como Room: si el doble solo devolviera un valor y
+    cerrara el flujo, la prueba pasaría sin comprobar lo único que importa.
+  - **Lo único que falta para marcar T-007** es correr `connectedAndroidTest`, y eso necesita un
+    emulador. No se levantó: esta máquina ya se quedó sin memoria una vez esta noche con el
+    emulador encendido, y tumbarla a media sesión cuesta más que la marca.
 
 > **Verificación F3:** bitácora ordenada por el servidor; sin duplicar
 > expediente clínico.
@@ -108,8 +133,38 @@ Progreso: **4 / 11 tareas** (4 verificadas; 3 sin marcar: implementadas, falta p
 
 ## Fase F4 — Repositorio
 
-- [ ] **T-008** — `FollowUpRepositoryImpl`
+- [x] **T-008** — `FollowUpRepositoryImpl` _(hecha 27/11/2026)_
   - Depende de: T-006, T-007, T-005
+  - Estado (27/11/2026): **los cuatro casos de la verificación corren en verde**
+    con `./gradlew test`. 14 pruebas en
+    `test/.../data/repository/OfflineFirstFollowUpRepositoryTest.kt`.
+    - Lectura sin red: lo leído con red se vuelve a leer sin red, con sus notas.
+    - Cambio sin red: devuelve el fallo y **lo guardado no se mueve**. Un cambio
+      que no llegó al servidor no puede verse como aplicado.
+    - Cambio exitoso: queda guardado y el flujo observable lo reemite.
+    - Cambio rechazado por el backend (409): no pisa lo local.
+    Más: una nota que no llegó al servidor no aparece en la bitácora local, y
+    la lectura observable respeta el filtro por `ownerId` igual que `get`.
+    **D-05 con una prueba estructural, no de comportamiento.** El criterio dice
+    que el cambio de estado no se encola en el outbox de 005. Comprobar eso por
+    comportamiento solo demuestra que **hoy** no se encola. La prueba
+    `este repositorio no conoce el outbox de sincronizacion` lee el archivo real
+    y falla si aparece `SyncOutbox`, `SyncScheduler`, `outbox` o `enqueue`: el día
+    que alguien se lo inyecte, falla sola, sin que nadie tenga que acordarse de
+    D-05. Por qué importa: si el alta se encolara, la veterinaria daría de alta a
+    una mascota, se iría sin red, y el alta se aplicaría horas después sin que
+    nadie la confirme.
+    **Diferencia de nombres con la spec, a propósito.** La tarea nombra
+    `data/repository/FollowUpRepositoryImpl.kt`, `di/FollowUpModule.kt` y
+    `FollowUpRepositoryImplTest.kt`. El proyecto los tiene como
+    `OfflineFirstFollowUpRepository.kt`, dentro de `di/VeterinaryModule.kt`, y
+    `OfflineFirstFollowUpRepositoryTest.kt`. No se renombró nada: el seguimiento
+    no es un repositorio aparte, es el de veterinaria (014) con lectura local
+    encima, y por eso delega con `by remote`. Partirlo en un repositorio propio
+    duplicaría los doce métodos del contrato para no ganar nada.
+    **Lo que queda y no es mío:** que el `FollowUpViewModel` consuma
+    `observeFollowup()` en vez de pedir una sola vez. Eso es `ui/` (Eduardo). El
+    repositorio ya expone el flujo y está probado.
   - Aceptación: la lectura observa Room y la red la refresca; el cambio de
     estado **requiere conexión** y no se encola en el outbox de 005 (D-05);
     sin red, la lectura funciona y el cambio se explica como no disponible; un

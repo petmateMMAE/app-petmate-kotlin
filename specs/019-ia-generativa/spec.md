@@ -193,3 +193,12 @@ dar media pastilla cada doce horas durante una semana, con comida.
 - [ ] **Supuesto 4 confirmado**: la llamada la hace el backend.
 - [ ] Preguntas abiertas con dueño, en especial Q-04 (qué datos viajan).
 - [ ] **Aprobada para pasar a `plan.md`.**
+
+
+## Preguntas resueltas contra el backend ya terminado
+
+Estas estaban marcadas como "esperando a Miguel". El backend se termino y se desplego, asi que
+se respondieron leyendo su codigo y su contrato. Las tareas que solo dependian de ellas YA NO
+ESTAN BLOQUEADAS.
+
+- **Q-01 RESUELTA (27/11/2026)** — NO existe endpoint de IA generativa en el backend.
