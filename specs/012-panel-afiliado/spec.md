@@ -189,3 +189,12 @@ toque.
 - [ ] Supuestos confirmados o corregidos.
 - [ ] Preguntas abiertas con dueño.
 - [ ] **Aprobada para pasar a `plan.md`.**
+
+
+## Preguntas resueltas contra el backend ya terminado
+
+Estas estaban marcadas como "esperando a Miguel". El backend se termino y se desplego, asi que
+se respondieron leyendo su codigo y su contrato. Las tareas que solo dependian de ellas YA NO
+ESTAN BLOQUEADAS.
+
+- **Q-01 RESUELTA (27/11/2026)** — NO existe endpoint de resumen del panel. La app arma el resumen con varias llamadas. Esto es una respuesta, no un pendiente.

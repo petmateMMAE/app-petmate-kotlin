@@ -69,7 +69,7 @@ Los componentes de 001 se citan como `001/K-xx` y los de 002 como `002/ID-xx`.
   - Nota: **no se inventan rutas ni campos**. Si Q-01 sigue abierta, la tarea
     no se ejecuta.
 
-- [ ] **T-003** — Veredicto, errores y mensaje único
+- [x] **T-003** — Veredicto, errores y mensaje único _(27/11/2026)_
   - Depende de: T-002, 001/T-008, 001/T-013
   - Aceptación: cada respuesta se traduce a aprobado, rechazado o no validado;
     el mensaje visible es único para todas las categorías; no se muestra el
@@ -78,6 +78,14 @@ Los componentes de 001 se citan como `001/K-xx` y los de 002 como `002/ID-xx`.
   - Archivos: `data/moderation/ModerationPolicy.kt`,
     `core/text/ModerationMessages.kt`,
     `test/.../data/moderation/ModerationPolicyTest.kt`
+  - Hecho: `ModerationPolicy` traduce la respuesta del moderador a Approved, Rejected o NotValidated,
+    y descarta la categoria interna y el puntaje ahi mismo, en la frontera, para que no puedan
+    filtrarse a la pantalla ni al log. `ModerationMessages` da un UNICO texto para todo lo no
+    permitido; tamano y formato si tienen el suyo, porque ahi la persona puede actuar.
+    14 pruebas, incluida la comparacion entre dos categorias que exige el criterio y una que
+    verifica que el mensaje es un id de recurso sin argumentos, de modo que no hay por donde colar
+    un puntaje. Un fallo del servicio NUNCA se traduce a aprobado (R-08): si lo hiciera, tirar el
+    moderador seria la forma mas facil de saltarselo.
 
 > **Punto de verificación F1:** contrato cerrado y veredicto sin detalles
 > internos.
@@ -86,7 +94,7 @@ Los componentes de 001 se citan como `001/K-xx` y los de 002 como `002/ID-xx`.
 
 ## Fase F2 — Texto
 
-- [ ] **T-004** — Moderación de texto en línea
+- [x] **T-004** — Moderación de texto en línea
   - Depende de: T-003
   - Aceptación: con red, el texto se modera antes de guardarse y enviarse; el
     aprobado se guarda una vez; el rechazado no se guarda ni se envía; la UI
@@ -95,6 +103,7 @@ Los componentes de 001 se citan como `001/K-xx` y los de 002 como `002/ID-xx`.
   - Archivos: `data/moderation/InlineTextModerator.kt`,
     `test/.../data/moderation/InlineTextModeratorTest.kt`
 
+  - 27/11/2026: `InlineTextModerator` con 4 pruebas. Modera ANTES de guardar: al reves, un texto rechazado ya habria quedado en la base, con la ventana en la que alguien pudo leerlo. Una de las pruebas verifica justo ese orden. Si el servicio falla no se guarda (R-08).
 - [ ] **T-005** — Moderación de texto diferida al sincronizar
   - Depende de: T-004, 005/T-009 (contrato de sincronización)
   - Aceptación: sin red, el texto se guarda marcado como pendiente; al
@@ -116,7 +125,7 @@ Los componentes de 001 se citan como `001/K-xx` y los de 002 como `002/ID-xx`.
 
 ## Fase F3 — Archivos
 
-- [ ] **T-006** — Moderación de imagen antes de subir
+- [x] **T-006** — Moderación de imagen antes de subir _(27/11/2026)_
   - Depende de: T-003, 001/T-012
   - Aceptación: la imagen se modera antes de la subida; el aprobado se sube una
     sola vez; el rechazado no se sube y el temporal se borra; sin red la
@@ -126,7 +135,12 @@ Los componentes de 001 se citan como `001/K-xx` y los de 002 como `002/ID-xx`.
     `data/moderation/TemporaryFileStore.kt`,
     `test/.../data/moderation/ImageModeratorTest.kt`
 
-- [ ] **T-007** — Moderación de video antes de subir
+  - 27/11/2026: `ImageModerator` + `TemporaryFileStore`, 5 pruebas. El temporal se borra en un
+    `finally`: pase lo que pase —rechazo, fallo de red o excepcion a media subida— el archivo no se
+    queda en la cache del telefono. El usuario cree que no se guardo nada y tiene que ser cierto
+    tambien ahi. Sin red no se sube NI se encola: encolar un archivo sin moderar seria subirlo mas
+    tarde sin revisar.
+- [~] **T-007** — Moderación de video antes de subir _(FUERA DE ALCANCE · 27/11/2026)_
   - Depende de: T-006 · Bloqueada por: **Q-03**
   - Aceptación: el video sigue el mismo camino que la imagen, con los límites
     de formato, tamaño y duración acordados; sin veredicto no se sube.
@@ -141,6 +155,14 @@ Los componentes de 001 se citan como `001/K-xx` y los de 002 como `002/ID-xx`.
 
 ## Fase F4 — Robustez
 
+  - FUERA DE ALCANCE, no pendiente. La app no maneja video en ninguna pantalla. La spec 016 lo dice
+    explicitamente: "Se envian texto y fotos. No hay audio, video, ubicacion ni archivos", y lo
+    repite en su tabla de exclusiones. Esta spec nombra el video porque se escribio de forma
+    generica ("texto, imagen o video"), pero esa capacidad nunca llego al producto.
+    No se implementa: seria codigo para algo que la app no hace, y habria que mantenerlo. Si algun
+    dia se agrega el video, `ImageModerator` ya tiene la forma a copiar y `ModerationGateway` ya
+    declara `moderateVideo`, que hoy devuelve NotValidated — es decir, sin video no se sube nada,
+    que es el comportamiento seguro.
 - [ ] **T-008** — Fail-closed, timeout e idempotencia
   - Depende de: T-004, T-006 · Bloqueada por: **Q-04**
   - Aceptación: timeout, 5xx y respuesta ambigua se traducen a "no validado" y
@@ -153,7 +175,7 @@ Los componentes de 001 se citan como `001/K-xx` y los de 002 como `002/ID-xx`.
     `data/moderation/ModerationIdempotency.kt`,
     `test/.../data/moderation/ModerationRetryPolicyTest.kt`
 
-- [ ] **T-009** — Auditoría sin contenido
+- [x] **T-009** — Auditoría sin contenido _(27/11/2026)_
   - Depende de: T-003, 001/T-006
   - Aceptación: se registran tipo, resultado, duración e identificador opaco;
     no se registra texto, imagen, nombre de usuario ni puntaje; hay prueba que
@@ -161,8 +183,16 @@ Los componentes de 001 se citan como `001/K-xx` y los de 002 como `002/ID-xx`.
   - Verificación: `./gradlew test` y búsqueda sobre el registro (C-11).
   - Archivos: `data/moderation/ModerationAuditLogger.kt`,
     `test/.../data/moderation/ModerationAuditLoggerTest.kt`
+  - Hecho: `ModerationAuditLogger` escribe tipo, resultado, duracion y un identificador opaco (los
+    primeros 12 caracteres del SHA-256 del contenido: sirve para correlacionar dos intentos del mismo
+    texto, no se puede revertir). 5 pruebas; la principal busca el texto rechazado y cada una de sus
+    palabras en la salida del registro y exige que no esten.
+    Por que importa: un log con el contenido prohibido es una copia de ese contenido en un sitio
+    menos protegido que la base de datos, y que a veces sale del telefono en un reporte de errores.
+    Tampoco se registra el puntaje ni la categoria: con eso alguien podria calibrar un texto hasta
+    pasar el filtro.
 
-- [ ] **T-010** — Verificación de llaves y configuración
+- [x] **T-010** — Verificación de llaves y configuración
   - Depende de: T-002
   - Aceptación: el APK y el repositorio no contienen llaves de Azure; la URL
     del endpoint sale de la configuración por entorno de 001; una prueba
@@ -178,6 +208,7 @@ Los componentes de 001 se citan como `001/K-xx` y los de 002 como `002/ID-xx`.
 
 ## Fase F5 — Cierre
 
+  - 27/11/2026: `NoCloudKeysTest`, 5 pruebas sobre los archivos reales: BuildConfig, recursos, codigo fuente y build.gradle.kts. Verifica que no hay llaves de Azure, que la app no llama directo a los servicios de nube (si lo hiciera necesitaria la llave) y que BASE_URL sale de la configuracion por entorno. Una llave dentro de un APK es publica: basta descomprimirlo.
 - [ ] **T-011** — Matriz de pruebas de moderación
   - Depende de: T-005, T-007, T-008, T-009
   - Aceptación: una sola suite cubre texto en línea, texto diferido, imagen,

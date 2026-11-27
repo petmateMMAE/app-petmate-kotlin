@@ -9,6 +9,20 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
+    <!-- Camara para escanear el QR (spec 003 y 013). Se declara aqui a
+         proposito: antes solo llegaba por el manifiesto fusionado de una
+         dependencia, asi que el escaneo dependia de que esa libreria siguiera
+         declarandola. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+    <!-- Avisos de salud, seguimiento y chat (spec 003 y 006). En Android 13+
+         (API 33) pedir este permiso sin declararlo no muestra dialogo: se niega
+         en silencio, y encender una categoria en Ajustes nunca funcionaba. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application
         android:name=".PetMateApplication"
         android:allowBackup="false"

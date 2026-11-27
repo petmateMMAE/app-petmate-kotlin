@@ -110,5 +110,3 @@ data class ScanFicha(
     val weights: List<WeightRecord>?,
     val consultations: List<FichaConsultation>?,
 )
-
-data class AttendedPet(val name: String, val scannedAt: String)

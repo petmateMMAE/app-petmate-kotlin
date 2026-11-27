@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -57,6 +58,31 @@ import mx.petmate.app.ui.theme.petMateColors
 // Mis mascotas (SCREENS.pets / petsEmpty de la maqueta)
 // =====================================================================================================
 
+/** Etiquetas de prueba de mis mascotas (spec 007, T-007 a T-011). */
+object PetsTags {
+    const val LIST = "pets_list"
+    const val LOADING = "pets_loading"
+    const val ERROR = "pets_error"
+    const val EMPTY = "pets_empty"
+    const val ADD_CARD = "pets_add_card"
+    const val NEXT_STRIP = "pets_next_strip"
+    const val FORM = "pet_form"
+    const val FORM_LOADING = "pet_form_loading"
+    const val FORM_SAVE = "pet_form_save"
+    const val FORM_DELETE = "pet_form_delete"
+    const val SPECIES_DOG = "pet_form_species_dog"
+    const val SPECIES_CAT = "pet_form_species_cat"
+    const val DELETE_DIALOG = "pet_delete_dialog"
+    fun card(petId: String) = "pet_card_$petId"
+}
+
+/**
+ * Mis mascotas (spec 007, T-007).
+ *
+ * Solo lee el ViewModel y pide el refresco; lo que se pinta esta en
+ * `PetsContent`, que recibe el estado ya hecho y por eso se puede probar sin
+ * Hilt, sin Room y sin red.
+ */
 @Composable
 fun PetsScreen(
     userName: String,
@@ -70,6 +96,38 @@ fun PetsScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) { viewModel.refresh() }
+    PetsContent(
+        state = state,
+        userName = userName,
+        isGuest = isGuest,
+        onTabSelected = onTabSelected,
+        onPetClick = onPetClick,
+        onAddPet = onAddPet,
+        onNeedAccount = onNeedAccount,
+        onRetry = viewModel::refresh,
+        modifier = modifier,
+    )
+}
+
+/**
+ * La lista de mascotas tal como se ve (spec 007, T-007 y T-011).
+ *
+ * Los tres estados que no son la lista -carga, error y vacio- tienen cada uno
+ * su propio texto: un error de red no deja la pantalla en blanco, ofrece
+ * reintentar.
+ */
+@Composable
+internal fun PetsContent(
+    state: PetsUiState,
+    userName: String,
+    isGuest: Boolean,
+    onTabSelected: (OwnerTab) -> Unit,
+    onPetClick: (String) -> Unit,
+    onAddPet: () -> Unit,
+    onNeedAccount: () -> Unit,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val firstName = userName.trim().substringBefore(' ')
 
     PetScaffoldColumn(
@@ -85,8 +143,10 @@ fun PetsScreen(
         bottom = { PetMateBottomBar(selected = OwnerTab.Pets, onTabSelected = onTabSelected) },
     ) {
         when {
-            state.isLoading -> PetLoading()
-            state.error != null && state.pets.isEmpty() -> PetError(state.error!!, onRetry = viewModel::refresh)
+            state.isLoading -> Box(Modifier.testTag(PetsTags.LOADING)) { PetLoading() }
+            state.error != null && state.pets.isEmpty() -> Box(Modifier.testTag(PetsTags.ERROR)) {
+                PetError(state.error, onRetry = onRetry)
+            }
             state.pets.isEmpty() -> PetEmptyState(
                 icon = R.drawable.ic_pm_paw,
                 title = stringResource(R.string.pets_empty_title),
@@ -100,13 +160,14 @@ fun PetsScreen(
                         modifier = Modifier.fillMaxWidth(),
                     )
                 },
-                modifier = Modifier.padding(horizontal = 18.dp),
+                modifier = Modifier.padding(horizontal = 18.dp).testTag(PetsTags.EMPTY),
             )
             else -> Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 18.dp, vertical = 4.dp),
+                    .padding(horizontal = 18.dp, vertical = 4.dp)
+                    .testTag(PetsTags.LIST),
             ) {
                 val first = state.pets.first()
                 first.next?.let { NextStrip(petName = first.pet.name, event = it, onClick = { onPetClick(first.pet.id) }) }
@@ -133,7 +194,8 @@ private fun NextStrip(petName: String, event: NextEvent, onClick: () -> Unit) {
             .clip(RoundedCornerShape(18.dp))
             .background(extra.sunSoft)
             .clickable(onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 12.dp),
+            .padding(horizontal = 14.dp, vertical = 12.dp)
+            .testTag(PetsTags.NEXT_STRIP),
     ) {
         Box(contentAlignment = Alignment.Center, modifier = Modifier.size(42.dp).background(extra.sun, RoundedCornerShape(12.dp))) {
             Icon(painterResource(R.drawable.ic_pm_bell), contentDescription = null, tint = extra.onSun, modifier = Modifier.size(22.dp))
@@ -162,7 +224,8 @@ private fun PetCard(summary: PetSummary, onClick: () -> Unit) {
             .clip(shape)
             .background(MaterialTheme.colorScheme.surface)
             .clickable(onClick = onClick)
-            .padding(12.dp),
+            .padding(12.dp)
+            .testTag(PetsTags.card(pet.id)),
     ) {
         PetAvatar(name = pet.name, species = pet.species, size = 76.dp, petId = pet.id)
         Column(modifier = Modifier.weight(1f)) {
@@ -209,7 +272,8 @@ private fun AddPetCard(onClick: () -> Unit) {
             .heightIn(min = 76.dp)
             .clip(RoundedCornerShape(22.dp))
             .border(2.dp, extra.line, RoundedCornerShape(22.dp))
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .testTag(PetsTags.ADD_CARD),
     ) {
         Icon(painterResource(R.drawable.ic_pm_plus), contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
         Spacer(Modifier.width(10.dp))
@@ -232,6 +296,23 @@ fun sexLabel(sex: PetSex): String? = when (sex) {
 // Nueva mascota / Editar (SCREENS.petForm de la maqueta)
 // =====================================================================================================
 
+/** Lo que el formulario avisa hacia afuera (spec 007, T-008). */
+data class PetFormCallbacks(
+    val onName: (String) -> Unit = {},
+    val onBreed: (String) -> Unit = {},
+    val onSpecies: (PetSpecies) -> Unit = {},
+    val onSex: (PetSex) -> Unit = {},
+    val onBirthDate: (String?) -> Unit = {},
+    val onSave: () -> Unit = {},
+    val onDelete: () -> Unit = {},
+)
+
+/**
+ * Alta y edicion de una mascota (spec 007, T-008).
+ *
+ * Aqui vive lo que tiene estado: el ViewModel, los avisos de guardado y
+ * borrado, y el mensaje emergente. La pantalla en si es `PetFormContent`.
+ */
 @Composable
 fun PetFormScreen(
     onBackClick: () -> Unit,
@@ -242,7 +323,6 @@ fun PetFormScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    var confirmDelete by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(state.savedPetId) { state.savedPetId?.let { onSaved(it, !state.isEdit) } }
     LaunchedEffect(state.deleted) { if (state.deleted) onDeleted() }
@@ -254,8 +334,41 @@ fun PetFormScreen(
         }
     }
 
+    PetFormContent(
+        state = state,
+        onBackClick = onBackClick,
+        callbacks = PetFormCallbacks(
+            onName = viewModel::onName,
+            onBreed = viewModel::onBreed,
+            onSpecies = viewModel::onSpecies,
+            onSex = viewModel::onSex,
+            onBirthDate = viewModel::onBirthDate,
+            onSave = viewModel::save,
+            onDelete = viewModel::delete,
+        ),
+        modifier = modifier,
+    )
+}
+
+/**
+ * El formulario tal como se ve (spec 007, T-008 y T-009).
+ *
+ * Un solo formulario sirve para alta y para edicion: la diferencia es
+ * `isEdit`, que cambia los titulos y agrega el borrado. Los errores de cada
+ * campo llegan en el estado, ya traducidos, y el borrado **siempre** pasa por
+ * una confirmacion explicita.
+ */
+@Composable
+internal fun PetFormContent(
+    state: PetFormUiState,
+    onBackClick: () -> Unit,
+    callbacks: PetFormCallbacks,
+    modifier: Modifier = Modifier,
+) {
+    var confirmDelete by rememberSaveable { mutableStateOf(false) }
+
     PetScaffoldColumn(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize().testTag(PetsTags.FORM),
         top = {
             PetTopBar(
                 title = if (state.isEdit) stringResource(R.string.pet_form_edit_title, state.name) else stringResource(R.string.pet_form_new_title),
@@ -266,17 +379,17 @@ fun PetFormScreen(
             PetBottomAction {
                 PetMateButton(
                     text = stringResource(if (state.isEdit) R.string.pet_form_save_changes else R.string.pet_form_save),
-                    onClick = viewModel::save,
+                    onClick = callbacks.onSave,
                     icon = R.drawable.ic_pm_check,
                     loading = state.isSaving,
                     enabled = !state.isLoading,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag(PetsTags.FORM_SAVE),
                 )
             }
         },
     ) {
         if (state.isLoading) {
-            PetLoading()
+            Box(Modifier.testTag(PetsTags.FORM_LOADING)) { PetLoading() }
             return@PetScaffoldColumn
         }
         Column(
@@ -306,8 +419,8 @@ fun PetFormScreen(
             }
             PetFieldLabel(stringResource(R.string.pet_form_species), required = true)
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                SpeciesTile(PetSpecies.Dog, state.species == PetSpecies.Dog, Modifier.weight(1f)) { viewModel.onSpecies(PetSpecies.Dog) }
-                SpeciesTile(PetSpecies.Cat, state.species == PetSpecies.Cat, Modifier.weight(1f)) { viewModel.onSpecies(PetSpecies.Cat) }
+                SpeciesTile(PetSpecies.Dog, state.species == PetSpecies.Dog, Modifier.weight(1f).testTag(PetsTags.SPECIES_DOG)) { callbacks.onSpecies(PetSpecies.Dog) }
+                SpeciesTile(PetSpecies.Cat, state.species == PetSpecies.Cat, Modifier.weight(1f).testTag(PetsTags.SPECIES_CAT)) { callbacks.onSpecies(PetSpecies.Cat) }
             }
             state.errors[PetRules.Field.Species]?.let {
                 Text(it.asString(), color = MaterialTheme.petMateColors.alert, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 6.dp))
@@ -320,7 +433,7 @@ fun PetFormScreen(
             )
             PetMateTextField(
                 value = state.name,
-                onValueChange = viewModel::onName,
+                onValueChange = callbacks.onName,
                 label = stringResource(R.string.pet_form_name),
                 placeholder = stringResource(R.string.pet_form_name_placeholder),
                 required = true,
@@ -328,7 +441,7 @@ fun PetFormScreen(
             )
             PetMateTextField(
                 value = state.breed,
-                onValueChange = viewModel::onBreed,
+                onValueChange = callbacks.onBreed,
                 label = stringResource(R.string.pet_form_breed),
                 placeholder = stringResource(R.string.pet_form_breed_placeholder),
                 error = state.errors[PetRules.Field.Breed],
@@ -337,13 +450,13 @@ fun PetFormScreen(
             PetSegmented(
                 options = listOf(PetSex.Male to stringResource(R.string.pets_sex_male), PetSex.Female to stringResource(R.string.pets_sex_female)),
                 selected = state.sex.takeIf { it != PetSex.Unknown },
-                onSelect = viewModel::onSex,
+                onSelect = callbacks.onSex,
                 modifier = Modifier.padding(bottom = 14.dp),
             )
             PetDateField(
                 label = stringResource(R.string.pet_form_birth),
                 value = state.birthDate,
-                onValueChange = viewModel::onBirthDate,
+                onValueChange = callbacks.onBirthDate,
                 hint = stringResource(R.string.pet_form_birth_hint),
                 error = state.errors[PetRules.Field.BirthDate],
             )
@@ -353,7 +466,7 @@ fun PetFormScreen(
                     onClick = { confirmDelete = true },
                     style = PetMateButtonStyle.Soft,
                     icon = R.drawable.ic_pm_trash,
-                    modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+                    modifier = Modifier.fillMaxWidth().padding(top = 6.dp).testTag(PetsTags.FORM_DELETE),
                 )
             }
             VSpace(24.dp)
@@ -369,7 +482,7 @@ fun PetFormScreen(
             icon = R.drawable.ic_pm_trash,
             onConfirm = {
                 confirmDelete = false
-                viewModel.delete()
+                callbacks.onDelete()
             },
             onDismiss = { confirmDelete = false },
         )

@@ -10,12 +10,17 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.serialization.json.Json
 import mx.petmate.app.core.coroutines.DispatcherProvider
+import mx.petmate.app.core.log.Logger
 import mx.petmate.app.data.local.FollowUpDao
+import mx.petmate.app.data.local.dao.ConsultationDraftDao
 import mx.petmate.app.data.remote.VeterinaryApiService
+import mx.petmate.app.data.repository.ConsultationDraftRepositoryImpl
 import mx.petmate.app.data.repository.OfflineFirstFollowUpRepository
 import mx.petmate.app.data.repository.VeterinaryRepositoryImpl
+import mx.petmate.app.data.session.SessionStore
 import mx.petmate.app.domain.model.SessionState
 import mx.petmate.app.domain.repository.AuthRepository
+import mx.petmate.app.domain.repository.ConsultationDraftRepository
 import mx.petmate.app.domain.repository.VeterinaryRepository
 import retrofit2.Retrofit
 import javax.inject.Singleton
@@ -53,4 +58,21 @@ object VeterinaryModule {
             dispatchers = dispatchers,
         )
     }
+
+    /**
+     * Borrador de consulta (spec 014, T-004).
+     *
+     * Vive solo en el telefono: no se manda al servidor hasta que la consulta se cierra, y por eso
+     * es un contrato aparte de [VeterinaryRepository].
+     */
+    @Provides
+    @Singleton
+    fun provideConsultationDraftRepository(
+        dao: ConsultationDraftDao,
+        sessionStore: SessionStore,
+        dispatchers: DispatcherProvider,
+        json: Json,
+        logger: Logger,
+    ): ConsultationDraftRepository =
+        ConsultationDraftRepositoryImpl(dao, sessionStore, dispatchers, json, logger)
 }

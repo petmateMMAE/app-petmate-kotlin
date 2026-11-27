@@ -156,7 +156,7 @@ autenticado.
 |---|---|---|---|
 | G-01 | El catálogo de razas no existe y se inventa | Medio | Q-02; mientras no exista, raza como texto libre acotado |
 | G-02 | Una foto sin moderar se sube por un atajo | Alto | Todo pasa por 004; prueba C-06 |
-| G-03 | Borrar una mascota deja su carnet huérfano | Alto | Q-04; el borrado es lógico y el servidor decide el alcance |
+| G-03 | Borrar una mascota deja su carnet huérfano | Alto | **Q-04 RESUELTA 27/11/2026: no aplica.** El borrado es físico y en cascada; el carnet se borra con la mascota y el QR muere con ella |
 | G-04 | La edad se calcula distinto en dos pantallas | Medio | Un solo caso de uso con reloj inyectable; prueba C-04 |
 | G-05 | Un usuario ve mascotas ajenas por un filtro mal puesto | Alto | Filtro por sesión en el repositorio y prueba C-09 |
 | G-06 | La subida de la foto bloquea el guardado | Medio | Se guarda primero la mascota y la foto se sube después |
@@ -214,3 +214,18 @@ autenticado.
 - [ ] Los requisitos y los criterios de éxito son suficientes para planificar.
 - [ ] Las preguntas abiertas están identificadas y se sabe a quién preguntar.
 - [ ] **Aprobada para pasar a `plan.md`.**
+
+
+## Preguntas resueltas contra el backend ya terminado
+
+Estas estaban marcadas como "esperando a Miguel". El backend se termino y se desplego, asi que
+se respondieron leyendo su codigo y su contrato. Las tareas que solo dependian de ellas YA NO
+ESTAN BLOQUEADAS.
+
+- **Q-01 RESUELTA (27/11/2026)** — 10 rutas bajo /api/v1/pets: create, get-all, get-by-id/{id}, update/{id}, delete/{id}, get-qr/{id}, regenerate-qr/{id}, upload-photo/{id}, get-photo-url/{id}, delete-photo/{id}. PetResponse: id, name, species, breed, birthDate, sex, photoUrl, createdAt, updatedAt. Detalle en backend-petmate-sdd-aspnetcore/openapi/openapi.json (76 rutas, 132 esquemas). El backend esta TERMINADO y desplegado; el contrato completo esta ahi, no hay que preguntarle a nadie.
+
+- **Q-02 RESUELTA (27/11/2026)** — No hay catálogo de razas y nadie lo mantiene. La **especie** sí es lista cerrada de exactamente dos valores, `"Perro"` y `"Gato"` (`Pet.SpeciesDog` / `Pet.SpeciesCat` en `PetMate.Domain/Pets/Pet.cs`; `Pet.IsValidSpecies` rechaza cualquier otro). La **raza** es texto libre opcional de hasta 60 caracteres (`Pet.MaxBreedLength`, `IsValidBreed(required: false)`). Leído del código del backend terminado, no supuesto. Esto confirma la mitigación que ya traía el riesgo G-01.
+- **Q-04 RESUELTA (27/11/2026)** — El borrado **no es lógico: es físico y en cascada** (`DeleteMyPetHandler`, pm-104). Borra primero los hijos —recordatorios, vacunas, desparasitaciones, pesos, alergias, consultas, fotos de chat, mensajes, conversaciones, seguimientos, permisos de acceso y escaneos— y al final la mascota, **que se lleva su QR**. Cada paso es idempotente. Consecuencias: el carnet **no queda huérfano** (desaparece con la mascota) y los QR vigentes **mueren con ella**, no se invalidan por separado. Esto **corrige el riesgo G-03**, que suponía borrado lógico con alcance decidido por el servidor.
+- **Q-06 RESUELTA (27/11/2026)** — El campo «esterilizado» **no existe en el contrato**: no está en `PetDetails`, ni en `PetRequest`, ni en `PetResponse`, ni en `PetValidation`; `grep -rni "steril|esteril|neuter|castr"` sobre todo `src/` del backend no devuelve ni una coincidencia en código. No hay dónde guardarlo, así que el formulario **no debe ofrecerlo**. Si la maqueta lo pinta, es un desacuerdo maqueta-contrato que hay que llevar al equipo; no es algo que la interfaz pueda persistir.
+- **Q-08 RESUELTA (27/11/2026)** — De `PetValidation.Check` y las constantes de `Pet`: **obligatorios** nombre (1 a 50 caracteres) y especie (`Perro`|`Gato`); **obligatorio con valor por omisión** sexo (`Male`|`Female`|`Unknown`, así que `Unknown` siempre satisface al servidor); **opcionales** raza (≤60), fecha de nacimiento (ni futura ni de hace más de 50 años) y foto (URL HTTPS, ≤2048). `PetRequest` marca los seis como `required` en el JSON, pero cuatro aceptan `null`: lo que manda es la validación de arriba, no la lista `required` del esquema.
+- **Q-09 RESUELTA (27/11/2026)** — El orden lo fija el servidor: `MongoPetRepository.ListByOwner` ordena `SortByDescending(CreatedAtUtc).ThenByDescending(Id)`, es decir **la más recién creada primero**, y pagina con `skip`/`take`. El cliente **no debe reordenar** (serían dos criterios que pueden no coincidir, igual que la lección de 010/Q-06). Verificado: no hay ningún `sortedBy` sobre la lista de mascotas en `ui/pets/` ni en `PetRepositoryImpl`.

@@ -10,7 +10,7 @@
 Ninguna tarea se ejecuta sin autorización explícita del humano
 (`constitution.md` §4).
 
-Progreso: **2 / 13 tareas** (2 verificadas, al 26/11/2026)
+Progreso: **3 / 13 tareas** (3 verificadas, al 27/11/2026)
 
 ---
 
@@ -40,8 +40,8 @@ Progreso: **2 / 13 tareas** (2 verificadas, al 26/11/2026)
 
 ## Fase F2 — Datos
 
-- [ ] **T-003** — DTOs, servicio remoto y mappers
-  - Depende de: T-002 · Bloqueada por: **Q-01, Q-02**
+- [x] **T-003** — DTOs, servicio remoto y mappers
+  - Depende de: T-002 · Q-01 y Q-02 RESUELTAS contra el backend (27/11/2026)
   - Aceptación: DTOs de mensaje y conversación con su serialización;
     `ChatApiService` declara listar paginado y enviar; mappers en ambos
     sentidos; el orden lo fija la fecha del servidor.
@@ -49,6 +49,20 @@ Progreso: **2 / 13 tareas** (2 verificadas, al 26/11/2026)
   - Archivos: `data/remote/dto/MessageDto.kt`,
     `data/remote/ChatApiService.kt`, `data/mapper/MessageMapper.kt`,
     `test/.../data/mapper/MessageMapperTest.kt`
+  - Nota (27/11/2026): hecha contra el backend desplegado. Archivos reales:
+    `data/remote/dto/MessageDto.kt`, `data/remote/ChatApiService.kt`,
+    `data/remote/MessageMapper.kt`, `data/remote/dto/Int64AsStringSerializer.kt`
+    y `test/.../data/remote/MessageMapperTest.kt` (8 pruebas). El repo pone los
+    mappers en `data/remote/`, no en `data/mapper/`, que no existe.
+  - **El cursor es el `id` del ultimo mensaje, no el `seq`.** `after` es un uuid:
+    el backend busca ese mensaje y usa su secuencia como corte
+    (`ListMessagesHandler`). Mandar el `seq` revienta el parseo del Guid.
+  - **El orden es ascendente y se pagina hacia adelante.** El `ChatRepository` de
+    T-002 documenta "del mas nuevo al mas viejo": **contradice al backend** y hay
+    que corregirlo (es de otra sesion, no se toco).
+  - `mark-read` exige `upToMessageId`, no solo la conversacion.
+  - `kind` tiene **tres** valores (`Text`, `System`, `Photo`) y `MessageContent`
+    solo modela dos; el de sistema se conserva como texto.
 
 - [ ] **T-004** — Historial local paginado
   - Depende de: T-001 · Bloqueada por: **Q-02** (estrategia de paginación)
@@ -195,7 +209,7 @@ Progreso: **2 / 13 tareas** (2 verificadas, al 26/11/2026)
 | F5 Fotos | T-011 | Adjuntos moderados |
 | F6 Integración | T-012, T-013 | Contador, advertencia, push y cierre |
 
-**Bloqueadas:** T-003 (Q-01, Q-02), T-004 (Q-02), T-006 (Q-04), T-011 (Q-04).
+**Bloqueadas:** T-004 (Q-02 resuelta; queda la autorizacion de esquema de Room), T-006 (Q-04), T-011 (Q-04). T-003 ya no lo esta.
 
 **Nota:** Q-06 (cifrado de extremo a extremo) no bloquea ninguna tarea pero sí
 cambia la arquitectura si el profesor lo exige. Conviene resolverla antes de

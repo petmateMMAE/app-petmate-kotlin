@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -53,7 +54,9 @@ import mx.petmate.app.ui.components.PetMateButtonStyle
 import mx.petmate.app.ui.components.PetMateTextField
 import mx.petmate.app.ui.components.permissions.CameraFallback
 import mx.petmate.app.ui.components.permissions.rememberPermissionRequest
-import mx.petmate.app.ui.map.OsmMapHandle
+import mx.petmate.app.ui.ficha.AllergyBanner
+import mx.petmate.app.ui.ficha.AllergyLine
+import mx.petmate.app.ui.map.rememberMapCommands
 import mx.petmate.app.ui.pets.PetBottomAction
 import mx.petmate.app.ui.pets.PetConfirmDialog
 import mx.petmate.app.ui.pets.PetEmptyState
@@ -242,7 +245,7 @@ fun BizEditScreen(
 @Composable
 fun EditLocationScreen(viewModel: MyBusinessViewModel, onBackClick: () -> Unit, modifier: Modifier = Modifier) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val handle = remember { OsmMapHandle() }
+    val handle = rememberMapCommands()
     val b = state.business
     PetScaffoldColumn(
         modifier = modifier.fillMaxSize(),
@@ -380,6 +383,27 @@ fun ServiceFormScreen(viewModel: MyBusinessViewModel, serviceId: String?, onBack
 
 // ---------- Escanear y ficha ----------
 
+/** Etiquetas de prueba del escaner y de la ficha (spec 013, T-008, T-010 y T-011). */
+object ScanTags {
+    const val SCANNER = "scanner_screen"
+    const val FRAME = "scanner_frame"
+    const val OPEN_CAMERA = "scanner_open_camera"
+    const val MANUAL_CODE = "scanner_manual_code"
+    const val MANUAL_SUBMIT = "scanner_manual_submit"
+    const val CAMERA_DENIED = "scanner_camera_denied"
+    const val ERROR = "scanner_error"
+    const val FICHA = "ficha_screen"
+    const val CLINICAL_ACTIONS = "ficha_clinical_actions"
+    const val NOT_VET_NOTICE = "ficha_not_vet_notice"
+}
+
+/**
+ * Pantalla del escaner (spec 013, T-008).
+ *
+ * Aqui vive todo lo que tiene estado: el ViewModel, el lanzador de la camara y
+ * la peticion de permiso. Lo que se pinta esta en `ScannerContent`, que no sabe
+ * nada de eso y por tanto se puede probar sin camara.
+ */
 @Composable
 fun ScannerScreen(viewModel: ScanViewModel, bottomBar: @Composable () -> Unit, modifier: Modifier = Modifier) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -394,7 +418,6 @@ fun ScannerScreen(viewModel: ScanViewModel, bottomBar: @Composable () -> Unit, m
         )
         return
     }
-    val extra = MaterialTheme.petMateColors
     val launcher = rememberLauncherForActivityResult(ScanContract()) { result -> result.contents?.let { viewModel.resolve(it) } }
     val launchScanner = {
         launcher.launch(
@@ -415,7 +438,35 @@ fun ScannerScreen(viewModel: ScanViewModel, bottomBar: @Composable () -> Unit, m
         },
         onDenied = { cameraDenied = true },
     )
-    Column(modifier = modifier.fillMaxSize().background(Color(0xFF15131C))) {
+    ScannerContent(
+        state = state,
+        cameraDenied = cameraDenied,
+        onOpenCamera = openCamera,
+        onCode = viewModel::onCode,
+        onResolveCode = { viewModel.resolve() },
+        bottomBar = bottomBar,
+        modifier = modifier,
+    )
+}
+
+/**
+ * Lo que se ve del escaner, sin camara ni permisos (spec 013, T-008 y T-009).
+ *
+ * La entrada manual del codigo esta **siempre** presente, no solo cuando se
+ * niega la camara: es una ruta propia, no un consuelo.
+ */
+@Composable
+internal fun ScannerContent(
+    state: ScanUiState,
+    cameraDenied: Boolean,
+    onOpenCamera: () -> Unit,
+    onCode: (String) -> Unit,
+    onResolveCode: () -> Unit,
+    bottomBar: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val extra = MaterialTheme.petMateColors
+    Column(modifier = modifier.fillMaxSize().background(Color(0xFF15131C)).testTag(ScanTags.SCANNER)) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.weight(1f).fillMaxWidth().statusBarsPadding().verticalScroll(rememberScrollState()).padding(horizontal = 22.dp),
@@ -426,7 +477,8 @@ fun ScannerScreen(viewModel: ScanViewModel, bottomBar: @Composable () -> Unit, m
                 modifier = Modifier
                     .size(220.dp)
                     .border(4.dp, extra.sun, RoundedCornerShape(32.dp))
-                    .clickable(onClick = openCamera),
+                    .clickable(onClick = onOpenCamera)
+                    .testTag(ScanTags.FRAME),
             ) {
                 Icon(painterResource(R.drawable.ic_pm_qr), contentDescription = null, tint = Color.White.copy(alpha = 0.85f), modifier = Modifier.size(96.dp))
             }
@@ -443,18 +495,18 @@ fun ScannerScreen(viewModel: ScanViewModel, bottomBar: @Composable () -> Unit, m
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 18.dp),
             )
-            PetMateButton("Abrir cámara", openCamera, icon = R.drawable.ic_pm_qr, loading = state.resolving, modifier = Modifier.fillMaxWidth())
+            PetMateButton("Abrir cámara", onOpenCamera, icon = R.drawable.ic_pm_qr, loading = state.resolving, modifier = Modifier.fillMaxWidth().testTag(ScanTags.OPEN_CAMERA))
             VSpace(18.dp)
             if (cameraDenied) {
-                CameraFallback(onRetry = openCamera, modifier = Modifier.padding(bottom = 12.dp))
+                CameraFallback(onRetry = onOpenCamera, modifier = Modifier.padding(bottom = 12.dp).testTag(ScanTags.CAMERA_DENIED))
             }
             Box(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp)).padding(14.dp)) {
                 Column {
-                    PetMateTextField(state.code, viewModel::onCode, "O escribe el código", placeholder = "8 caracteres, por ejemplo K7Q2M9XA")
-                    PetMateButton("Ver ficha", { viewModel.resolve() }, style = PetMateButtonStyle.Outline, enabled = !state.resolving, modifier = Modifier.fillMaxWidth())
+                    PetMateTextField(state.code, onCode, "O escribe el código", placeholder = "8 caracteres, por ejemplo K7Q2M9XA", modifier = Modifier.testTag(ScanTags.MANUAL_CODE))
+                    PetMateButton("Ver ficha", onResolveCode, style = PetMateButtonStyle.Outline, enabled = !state.resolving, modifier = Modifier.fillMaxWidth().testTag(ScanTags.MANUAL_SUBMIT))
                 }
             }
-            state.error?.let { ErrorNotice(it, modifier = Modifier.padding(top = 12.dp)) }
+            state.error?.let { ErrorNotice(it, modifier = Modifier.padding(top = 12.dp).testTag(ScanTags.ERROR)) }
             VSpace(24.dp)
         }
         bottomBar()
@@ -538,22 +590,52 @@ fun FichaScreen(
         FichaAction.None -> Unit
     }
 
+    FichaContent(
+        ficha = ficha,
+        isVet = isVet,
+        onClose = onClose,
+        onConsultClick = { action = FichaAction.Consult },
+        onVaccineClick = { action = FichaAction.Vaccine },
+        onDewormClick = { action = FichaAction.Deworm },
+        modifier = modifier,
+    )
+}
+
+/**
+ * La ficha tal como se ve, de solo lectura (spec 013, T-011).
+ *
+ * No decide a donde se va: recibe los avisos y quien la llama es el que navega.
+ * Las acciones clinicas solo existen si el negocio es veterinaria; para tienda
+ * y estetica no se pintan, y ademas se dice por que. Lo que se oculta aqui es
+ * presentacion: la proteccion de verdad es que el servidor no mande lo clinico
+ * (spec 013, T-006).
+ */
+@Composable
+internal fun FichaContent(
+    ficha: ScanFicha,
+    isVet: Boolean,
+    onClose: () -> Unit,
+    onConsultClick: () -> Unit,
+    onVaccineClick: () -> Unit,
+    onDewormClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val extra = MaterialTheme.petMateColors
     androidx.activity.compose.BackHandler(onBack = onClose)
     PetScaffoldColumn(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize().testTag(ScanTags.FICHA),
         top = { PetTopBar(title = "Ficha de ${ficha.name}", subtitle = "Solo lectura", onBackClick = onClose) },
         bottom = { PetBottomAction { PetMateButton("Terminar y salir", onClose, style = PetMateButtonStyle.Ghost, icon = R.drawable.ic_pm_logout, modifier = Modifier.fillMaxWidth()) } },
     ) {
         Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 18.dp)) {
             if (isVet && ficha.petId != null) {
-                BizCard {
+                BizCard(modifier = Modifier.testTag(ScanTags.CLINICAL_ACTIONS)) {
                     Column {
                         Text("Acciones clínicas", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.primary)
                         VSpace(8.dp)
                         PetMateButton(
                             text = "Registrar consulta y receta",
-                            onClick = { action = FichaAction.Consult },
+                            onClick = onConsultClick,
                             icon = R.drawable.ic_pm_edit,
                             modifier = Modifier.fillMaxWidth(),
                         )
@@ -561,14 +643,14 @@ fun FichaScreen(
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             PetMateButton(
                                 text = "Vacunar",
-                                onClick = { action = FichaAction.Vaccine },
+                                onClick = onVaccineClick,
                                 icon = R.drawable.ic_pm_syringe,
                                 style = PetMateButtonStyle.Outline,
                                 modifier = Modifier.weight(1f),
                             )
                             PetMateButton(
                                 text = "Desparasitar",
-                                onClick = { action = FichaAction.Deworm },
+                                onClick = onDewormClick,
                                 icon = R.drawable.ic_pm_pill,
                                 style = PetMateButtonStyle.Outline,
                                 modifier = Modifier.weight(1f),
@@ -586,23 +668,14 @@ fun FichaScreen(
                 }
             }
             VSpace(12.dp)
-            if (ficha.allergies.isNotEmpty()) {
-                Column(Modifier.fillMaxWidth().background(extra.alertSoft, RoundedCornerShape(20.dp)).padding(14.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(painterResource(R.drawable.ic_pm_alert), contentDescription = null, tint = extra.alert, modifier = Modifier.size(22.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text("¡Cuidado! Es alérgico a:", color = extra.alert, fontWeight = FontWeight.ExtraBold)
-                    }
-                    ficha.allergies.forEach { a ->
-                        Text("• ${a.name}" + (a.notes?.let { " — $it" } ?: ""), color = extra.alert, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 4.dp))
-                    }
-                }
-            } else {
-                TipBox("Sin alergias registradas.", icon = R.drawable.ic_pm_shield, soft = extra.okSoft, ink = extra.ok)
-            }
+            // Las alergias van antes que todo lo demas y para los dos tipos de negocio.
+            AllergyBanner(ficha.allergies.map { AllergyLine(it.name, it.notes) })
             if (!isVet) {
                 VSpace(12.dp)
-                TipBox("Como estética o tienda solo ves datos básicos y alergias. Vacunas, consultas y recetas son solo para veterinarias.")
+                TipBox(
+                    "Como estética o tienda solo ves datos básicos y alergias. Vacunas, consultas y recetas son solo para veterinarias.",
+                    modifier = Modifier.testTag(ScanTags.NOT_VET_NOTICE),
+                )
             } else {
                 FichaSection("Vacunas", ficha.vaccines, empty = "Sin vacunas registradas") { v ->
                     FichaRow(v.name, "${formatDate(v.appliedOn)}" + (v.appliedBy?.let { " · $it" } ?: ""), v.nextDoseOn?.let { "Próx. ${formatDate(it)}" })

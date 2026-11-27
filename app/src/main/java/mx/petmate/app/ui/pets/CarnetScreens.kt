@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -71,6 +72,22 @@ fun ShowMessages(message: UiText?, onShown: () -> Unit) {
 /** Secciones del carnet a las que se puede ir desde el resumen. */
 enum class CarnetSection { Vaccines, Deworm, Weight, Allergies, Qr, History }
 
+/** Etiquetas de prueba del carnet (spec 008, T-007). */
+object CarnetTags {
+    const val CARNET = "carnet_screen"
+    const val LOADING = "carnet_loading"
+    const val ERROR = "carnet_error"
+    const val SUMMARY = "carnet_summary"
+    const val SECTIONS = "carnet_sections"
+    fun section(section: CarnetSection) = "carnet_section_${section.name}"
+}
+
+/**
+ * Carnet de salud (spec 008, T-007).
+ *
+ * Solo lee el ViewModel y pide el refresco; lo que se pinta esta en
+ * `CarnetContent`.
+ */
 @Composable
 fun CarnetScreen(
     viewModel: PetCarnetViewModel,
@@ -84,15 +101,50 @@ fun CarnetScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) { viewModel.refresh() }
     ShowMessages(state.message, viewModel::messageShown)
+    CarnetContent(
+        state = state,
+        isGuest = isGuest,
+        onBackClick = onBackClick,
+        onEditClick = onEditClick,
+        onOpen = onOpen,
+        onNeedAccount = onNeedAccount,
+        onRetry = viewModel::refresh,
+        modifier = modifier,
+    )
+}
+
+/**
+ * El carnet tal como se ve (spec 008, T-007).
+ *
+ * Las seis secciones estan siempre, con su cuenta; el resumen de arriba usa los
+ * umbrales unicos de la app para el color de urgencia. Sin mascota cargada hay
+ * carga o error, nunca una pantalla a medias.
+ */
+@Composable
+internal fun CarnetContent(
+    state: CarnetUiState,
+    isGuest: Boolean,
+    onBackClick: () -> Unit,
+    onEditClick: () -> Unit,
+    onOpen: (CarnetSection) -> Unit,
+    onNeedAccount: () -> Unit,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val extra = MaterialTheme.petMateColors
     val pet = state.pet
 
-    Column(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .testTag(CarnetTags.CARNET),
+    ) {
         when {
-            pet == null && state.isLoading -> Box(Modifier.statusBarsPadding()) { PetLoading() }
-            pet == null -> Column(Modifier.statusBarsPadding()) {
+            pet == null && state.isLoading -> Box(Modifier.statusBarsPadding().testTag(CarnetTags.LOADING)) { PetLoading() }
+            pet == null -> Column(Modifier.statusBarsPadding().testTag(CarnetTags.ERROR)) {
                 PetTopBar(title = "", onBackClick = onBackClick)
-                PetError(state.error ?: UiText.Resource(R.string.error_unknown), onRetry = viewModel::refresh)
+                PetError(state.error ?: UiText.Resource(R.string.error_unknown), onRetry = onRetry)
             }
             else -> Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
                 // .hero
@@ -147,7 +199,7 @@ fun CarnetScreen(
                     val lastWeight = c.weights.maxByOrNull { it.measuredOn }
                     val allergies = c.allergies.filter { it.active }
                     // .sum
-                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.testTag(CarnetTags.SUMMARY)) {
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             SummaryCard(
                                 icon = R.drawable.ic_pm_syringe,
@@ -194,16 +246,16 @@ fun CarnetScreen(
                     }
                     PetSectionTitle(stringResource(R.string.carnet_sections))
                     // .sections (Historial clinico llega con la consulta veterinaria, spec 014).
-                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.testTag(CarnetTags.SECTIONS)) {
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            SectionButton(R.drawable.ic_pm_syringe, stringResource(R.string.vaccines_title), c.vaccines.size, extra.brandSoft, MaterialTheme.colorScheme.primary, Modifier.weight(1f)) { onOpen(CarnetSection.Vaccines) }
-                            SectionButton(R.drawable.ic_pm_pill, stringResource(R.string.deworm_title), c.dewormings.size, extra.okSoft, extra.ok, Modifier.weight(1f)) { onOpen(CarnetSection.Deworm) }
-                            SectionButton(R.drawable.ic_pm_weight, stringResource(R.string.weight_title), c.weights.size, extra.shopSoft, extra.shop, Modifier.weight(1f)) { onOpen(CarnetSection.Weight) }
+                            SectionButton(R.drawable.ic_pm_syringe, stringResource(R.string.vaccines_title), c.vaccines.size, extra.brandSoft, MaterialTheme.colorScheme.primary, Modifier.weight(1f).testTag(CarnetTags.section(CarnetSection.Vaccines))) { onOpen(CarnetSection.Vaccines) }
+                            SectionButton(R.drawable.ic_pm_pill, stringResource(R.string.deworm_title), c.dewormings.size, extra.okSoft, extra.ok, Modifier.weight(1f).testTag(CarnetTags.section(CarnetSection.Deworm))) { onOpen(CarnetSection.Deworm) }
+                            SectionButton(R.drawable.ic_pm_weight, stringResource(R.string.weight_title), c.weights.size, extra.shopSoft, extra.shop, Modifier.weight(1f).testTag(CarnetTags.section(CarnetSection.Weight))) { onOpen(CarnetSection.Weight) }
                         }
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            SectionButton(R.drawable.ic_pm_alert, stringResource(R.string.carnet_allergies), c.allergies.size, extra.alertSoft, extra.alert, Modifier.weight(1f)) { onOpen(CarnetSection.Allergies) }
-                            SectionButton(R.drawable.ic_pm_qr, stringResource(R.string.carnet_qr), null, extra.sunSoft, extra.sunInk, Modifier.weight(1f)) { onOpen(CarnetSection.Qr) }
-                            SectionButton(R.drawable.ic_pm_calendar, "Historial", null, extra.brandSoft, MaterialTheme.colorScheme.primary, Modifier.weight(1f)) { onOpen(CarnetSection.History) }
+                            SectionButton(R.drawable.ic_pm_alert, stringResource(R.string.carnet_allergies), c.allergies.size, extra.alertSoft, extra.alert, Modifier.weight(1f).testTag(CarnetTags.section(CarnetSection.Allergies))) { onOpen(CarnetSection.Allergies) }
+                            SectionButton(R.drawable.ic_pm_qr, stringResource(R.string.carnet_qr), null, extra.sunSoft, extra.sunInk, Modifier.weight(1f).testTag(CarnetTags.section(CarnetSection.Qr))) { onOpen(CarnetSection.Qr) }
+                            SectionButton(R.drawable.ic_pm_calendar, "Historial", null, extra.brandSoft, MaterialTheme.colorScheme.primary, Modifier.weight(1f).testTag(CarnetTags.section(CarnetSection.History))) { onOpen(CarnetSection.History) }
                         }
                     }
                     VSpace(24.dp)

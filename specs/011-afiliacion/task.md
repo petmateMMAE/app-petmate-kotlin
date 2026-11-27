@@ -10,13 +10,13 @@
 Ninguna tarea se ejecuta sin autorización explícita del humano
 (`constitution.md` §4).
 
-Progreso: **5 / 14 tareas** (1 verificada; 4 implementadas, por verificar; 4 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026)
+Progreso: **9 / 14 tareas** (7 verificadas; 2 implementadas, por verificar; 4 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026)
 
 ---
 
 ## Fase F1 — Dominio
 
-- [x] **T-001** — Modelos de negocio, tipo y servicio _(implementada, por verificar · 17/11/2026)_
+- [x] **T-001** — Modelos de negocio, tipo y servicio
   - Depende de: —
   - Aceptación: `Business`, `BusinessType` (enumeración con veterinaria,
     tienda y estética), `Service` y `Money` existen en `domain/model`, en
@@ -27,7 +27,7 @@ Progreso: **5 / 14 tareas** (1 verificada; 4 implementadas, por verificar; 4 sin
   - Archivos: `domain/model/Business.kt`, `domain/model/Service.kt`,
     `domain/model/Money.kt`, `test/.../domain/model/MoneyTest.kt`
 
-- [ ] **T-002** — Borrador de afiliación y contrato del repositorio
+- [x] **T-002** — Borrador de afiliación y contrato del repositorio
   - Depende de: T-001
   - Aceptación: `AffiliationDraft` representa el avance de los tres pasos;
     `BusinessRepository` declara crear negocio, consultar el propio, guardar y
@@ -37,7 +37,7 @@ Progreso: **5 / 14 tareas** (1 verificada; 4 implementadas, por verificar; 4 sin
   - Archivos: `domain/model/AffiliationDraft.kt`,
     `domain/repository/BusinessRepository.kt`
 
-- [x] **T-003** — Validación por paso _(implementada, por verificar · 17/11/2026)_
+- [x] **T-003** — Validación por paso
   - Depende de: T-002
   - Aceptación: `ValidateAffiliationStepUseCase` rechaza paso 1 sin nombre o
     sin tipo, paso 2 con cero servicios o con precio vacío, negativo o no
@@ -47,7 +47,7 @@ Progreso: **5 / 14 tareas** (1 verificada; 4 implementadas, por verificar; 4 sin
   - Archivos: `domain/usecase/ValidateAffiliationStepUseCase.kt`,
     `test/.../domain/usecase/ValidateAffiliationStepUseCaseTest.kt`
 
-- [ ] **T-004** — Casos de uso de borrador y envío
+- [x] **T-004** — Casos de uso de borrador y envío
   - Depende de: T-003
   - Aceptación: `SaveAffiliationDraftUseCase` persiste el avance;
     `SubmitAffiliationUseCase` valida los tres pasos antes de enviar y
@@ -73,7 +73,7 @@ Progreso: **5 / 14 tareas** (1 verificada; 4 implementadas, por verificar; 4 sin
     `data/remote/BusinessApiService.kt`, `data/mapper/BusinessMapper.kt`,
     `test/.../data/mapper/BusinessMapperTest.kt`
 
-- [ ] **T-006** — Persistencia del borrador
+- [x] **T-006** — Persistencia del borrador _(verificada 26/11/2026 en emulador: AffiliationDraftDaoTest, 14 casos)_
   - Depende de: T-002
   - Aceptación: `AffiliationDraftEntity` y su DAO guardan el borrador asociado
     al identificador del usuario; el borrador sobrevive a cerrar la app.
@@ -100,7 +100,7 @@ Progreso: **5 / 14 tareas** (1 verificada; 4 implementadas, por verificar; 4 sin
   - Archivos: `data/repository/BusinessRepositoryImpl.kt`,
     `di/BusinessModule.kt`, `test/.../data/repository/BusinessRepositoryImplTest.kt`
 
-- [ ] **T-008** — Limpieza del borrador al cambiar de sesión
+- [x] **T-008** — Limpieza del borrador al cambiar de sesión _(verificada 26/11/2026; el borrador vive en memoria hasta T-006)_
   - Depende de: T-007
   - Aceptación: el logout de 002 borra el borrador de afiliación; un usuario
     distinto no ve el borrador del anterior.

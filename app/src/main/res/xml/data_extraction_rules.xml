@@ -1,19 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-   Sample data extraction rules file; uncomment and customize as necessary.
-   See https://developer.android.com/about/versions/12/backup-restore#xml-changes
-   for details.
+   Reglas de extraccion de datos para Android 12 (API 31) y superior (001/T-042, spec 002 G-05).
+
+   POR QUE NO BASTA android:allowBackup="false":
+   la documentacion de Android dice que, en dispositivos de algunos fabricantes,
+   allowBackup="false" apaga el respaldo en la nube pero NO apaga la transferencia entre
+   dispositivos. Y si no se declara <device-transfer>, ese modo queda habilitado para todo
+   el contenido de la app. Es decir: sin este archivo, al migrar a un telefono nuevo se
+   copiarian petmate_session (el token de sesion) y petmate.db (el carnet de salud de las
+   mascotas), aunque el manifiesto diga allowBackup="false".
+   https://developer.android.com/identity/data/autobackup
+
+   Se excluye el dominio completo con path="." a proposito, no archivo por archivo: asi una
+   tabla nueva o un archivo de preferencias nuevo queda excluido solo, sin que nadie tenga
+   que acordarse de volver aqui. Los datos viven en el backend; perderlos al cambiar de
+   telefono solo significa volver a iniciar sesion.
+
+   Lo vigila BackupRulesSecurityTest.
 -->
 <data-extraction-rules>
     <cloud-backup>
-        <!-- TODO: Use <include> and <exclude> to control what is backed up.
-        <include .../>
-        <exclude .../>
-        -->
+        <exclude domain="sharedpref" path="." />
+        <exclude domain="database" path="." />
+        <exclude domain="file" path="." />
+        <exclude domain="external" path="." />
     </cloud-backup>
-    <!--
     <device-transfer>
-        <include .../>
-        <exclude .../>
+        <exclude domain="sharedpref" path="." />
+        <exclude domain="database" path="." />
+        <exclude domain="file" path="." />
+        <exclude domain="external" path="." />
     </device-transfer>
-    -->
 </data-extraction-rules>

@@ -1,0 +1,48 @@
+# Estilo del proyecto (001/T-004). Lo leen ktlint, Android Studio y IntelliJ, asi que el formato
+# que exige el pipeline es el mismo que aplica el IDE al guardar. Sin este archivo, cada quien
+# formatea con los valores por omision de su editor y el linter pelea con el IDE.
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = crlf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{kt,kts}]
+max_line_length = 120
+
+# Reglas de ktlint. Las que se apagan van con su motivo: una regla apagada sin explicacion se
+# vuelve a prender sola en la siguiente revision y rompe la build de alguien.
+ktlint_code_style = android_studio
+
+# El codigo y los comentarios de este proyecto estan en espanol y llevan acentos y enes. La regla
+# que prohibe caracteres no ASCII marcaria cada "mascota" y "sesion" como violacion.
+ktlint_standard_no-unicode-escape = enabled
+
+# Compose: los Composables se nombran en PascalCase y la regla de nombres de funcion lo rechaza.
+ktlint_function_naming_ignore_when_annotated_with = Composable, Test, ParameterizedTest
+
+# Los nombres de prueba van entre acentos graves y en espanol con espacios, que es lo que hace
+# legible el reporte de fallos. La regla del tope de 64 caracteres los cortaria a la mitad.
+ktlint_standard_function-naming = disabled
+
+# El import con comodin esta prohibido por el proyecto salvo en los paquetes de Compose, donde
+# el propio Android Studio los genera.
+ij_kotlin_packages_to_use_import_on_demand = unset
+
+[*.{yml,yaml,json}]
+indent_size = 2
+
+[*.md]
+# Markdown usa dos espacios al final de linea como salto. Recortarlos rompe el formato.
+trim_trailing_whitespace = false
+
+[*.{bat,cmd}]
+end_of_line = crlf
+
+[gradlew]
+end_of_line = lf

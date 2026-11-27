@@ -1,5 +1,6 @@
 package mx.petmate.app.ui.business
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,9 +14,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import mx.petmate.app.core.result.AppError
 import mx.petmate.app.core.result.AppResult
+import mx.petmate.app.domain.model.AffiliationRules
 import mx.petmate.app.domain.model.AttendedPet
 import mx.petmate.app.domain.model.BusinessDraft
 import mx.petmate.app.domain.model.BusinessKind
+import mx.petmate.app.domain.model.DraftedService
 import mx.petmate.app.domain.model.BusinessService
 import mx.petmate.app.domain.model.NearbyBusiness
 import mx.petmate.app.domain.model.OwnBusiness
@@ -27,6 +30,7 @@ import mx.petmate.app.domain.model.SharedData
 import mx.petmate.app.domain.model.TimeRange
 import mx.petmate.app.domain.repository.AuthRepository
 import mx.petmate.app.domain.repository.BusinessRepository
+import mx.petmate.app.domain.usecase.ValidateAffiliationStepUseCase
 import mx.petmate.app.ui.map.MapViewModel
 import javax.inject.Inject
 
@@ -48,11 +52,12 @@ fun AppError.businessMessage(): String = when (this) {
     is AppError.Unknown -> "Algo salió mal. Intenta de nuevo."
 }
 
-private val TIME = Regex("^([01]\\d|2[0-3]):[0-5]\\d$")
-private val PHONE = Regex("^(\\+?52)?\\d{10}$")
-
-/** Valida telefono de 10 digitos (se admite +52, pm-107). */
-fun isValidPhone(value: String): Boolean = PHONE.matches(value.filter { !it.isWhitespace() && it != '-' })
+/**
+ * Valida telefono de 10 digitos (se admite +52, pm-107).
+ *
+ * Delega en el dominio: la regla vive en `AffiliationRules` (spec 011, T-003).
+ */
+fun isValidPhone(value: String): Boolean = AffiliationRules.isValidPhone(value)
 
 /** Formulario de datos del negocio: el mismo para afiliar y para editar. */
 data class BusinessForm(
@@ -66,27 +71,22 @@ data class BusinessForm(
     val days: Set<String> = setOf("monday", "tuesday", "wednesday", "thursday", "friday"),
     val open: String = "09:00",
     val close: String = "18:00",
-    val errors: Map<String, String> = emptyMap(),
+    /** Error de cada campo como recurso de `strings.xml`; nunca texto incrustado (spec 011, T-003). */
+    val errors: Map<String, Int> = emptyMap(),
 ) {
     fun schedule(): Map<String, List<TimeRange>> = days.associateWith { listOf(TimeRange(open, close)) }
 
     fun toDraft() = BusinessDraft(kind, name, cleanPhone(phone), cleanPhone(whatsApp), address, description, licenseNumber, schedule())
 
-    /** Errores por campo; vacio si todo esta bien. [editing] = el tipo y la direccion no se editan. */
-    fun validate(editing: Boolean = false): Map<String, String> = buildMap {
-        if (!editing && kind == null) put("kind", "Elige qué ofreces.")
-        if (name.trim().length < 2) put("name", "Escribe el nombre del negocio.")
-        if (!isValidPhone(phone)) put("phone", "Debe tener 10 dígitos.")
-        if (whatsApp.isNotBlank() && !isValidPhone(whatsApp)) put("whatsApp", "Debe tener 10 dígitos o quedar vacío.")
-        if (!editing && address.trim().length < 5) put("address", "Escribe calle, número y colonia.")
-        if (!editing && kind == BusinessKind.Veterinary && licenseNumber.isBlank()) put("license", "La cédula es obligatoria para veterinarias.")
-        if (days.isNotEmpty()) {
-            when {
-                !TIME.matches(open) || !TIME.matches(close) -> put("hours", "Usa el formato 24 h, por ejemplo 09:00.")
-                close <= open -> put("hours", "La hora de cierre debe ser después de la de apertura.")
-            }
-        }
-    }
+    /**
+     * Errores por campo; vacio si todo esta bien. [editing] = el tipo, la
+     * direccion y la cedula no se editan.
+     *
+     * No valida nada por su cuenta: las reglas son las del dominio
+     * (`ValidateAffiliationStepUseCase`, spec 011, T-003).
+     */
+    fun validate(editing: Boolean = false): Map<String, Int> =
+        ValidateAffiliationStepUseCase().data(toDraft(), editing).toFormErrors()
 
     companion object {
         fun cleanPhone(value: String) = value.filter { it.isDigit() || it == '+' }
@@ -130,7 +130,8 @@ data class AffiliateUiState(
     val services: List<DraftService> = emptyList(),
     val newServiceName: String = "",
     val newServicePrice: String = "",
-    val servicesError: String? = null,
+    /** Error de los servicios como recurso de `strings.xml` (spec 011, T-003). */
+    @param:StringRes val servicesError: Int? = null,
     val latitude: Double = MapViewModel.DEFAULT_CENTER.first,
     val longitude: Double = MapViewModel.DEFAULT_CENTER.second,
     val saving: Boolean = false,
@@ -183,8 +184,24 @@ class AffiliateViewModel @Inject constructor(
     fun next() = _state.update { s ->
         when (s.step) {
             1 -> s.form.validate().let { errors -> if (errors.isEmpty()) s.copy(step = 2) else s.copy(form = s.form.copy(errors = errors)) }
-            2 -> if (s.services.none { it.selected }) s.copy(servicesError = "Elige al menos un servicio.") else s.copy(step = 3)
+            2 -> validateServices(s)
             else -> s
+        }
+    }
+
+    /**
+     * Paso 2 con las reglas del dominio (spec 011, T-003).
+     *
+     * Solo cuentan los servicios marcados: los sugeridos sin marcar no son
+     * parte del borrador.
+     */
+    private fun validateServices(state: AffiliateUiState): AffiliateUiState {
+        val chosen = state.services.filter { it.selected }.map { DraftedService(it.name, parsePrice(it.price)) }
+        val issues = ValidateAffiliationStepUseCase().services(chosen)
+        return if (issues.isEmpty()) {
+            state.copy(step = 3, servicesError = null)
+        } else {
+            state.copy(servicesError = issues.first().messageRes())
         }
     }
 

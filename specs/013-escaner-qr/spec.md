@@ -194,3 +194,13 @@ pantalla las alergias y el historial de la mascota, sin haber tocado nada más.
       el backend, no la app.
 - [ ] Preguntas abiertas con dueño, en especial Q-02.
 - [ ] **Aprobada para pasar a `plan.md`.**
+
+
+## Preguntas resueltas contra el backend ya terminado
+
+Estas estaban marcadas como "esperando a Miguel". El backend se termino y se desplego, asi que
+se respondieron leyendo su codigo y su contrato. Las tareas que solo dependian de ellas YA NO
+ESTAN BLOQUEADAS.
+
+- **Q-01 RESUELTA (27/11/2026)** — POST /api/v1/scans/resolve, recibe { code } y devuelve la ficha. Los negocios atendidos salen de GET /api/v1/scans/get-attended.
+- **Q-04 RESUELTA (27/11/2026)** — El codigo corto es el campo qrCode que devuelve pets/get-qr/{id}, el mismo que recibe scans/resolve en { code }.

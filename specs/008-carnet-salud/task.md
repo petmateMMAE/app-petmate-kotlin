@@ -13,7 +13,10 @@
 se ejecutan después, con autorización explícita del humano. Un agente que
 implemente estas tareas sin aprobación viola la constitución §4.
 
-Progreso: **2 / 14 tareas** (2 verificadas; 6 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026) · Fases completadas: **0 / 5**
+Progreso: **4 / 14 tareas** (4 verificadas; 6 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026) · Fases completadas: **0 / 5**
+
+
+> **Pendiente de UNA corrida del emulador (27/11/2026).** Las pruebas instrumentadas de las tareas de `ui/` de esta spec **ya estan escritas y compilan**; faltaba correrlas cuando la maquina se quedo sin memoria. Detalle de que tarea depende de que clase, y que clases ya salieron verdes, en `NOTAS-SESION-EDUARDO-UI.md` en la raiz del repo. No marcar nada sin confirmar la corrida.
 
 ---
 
@@ -61,7 +64,7 @@ Puerta de calidad de toda tarea que toque código:
     `data/local/PetMateDatabase.kt`,
     `androidTest/.../data/local/HealthMigrationTest.kt`
 
-- [ ] **T-003** — Alergias críticas y regla de origen
+- [x] **T-003** — Alergias críticas y regla de origen
   - Depende de: T-001
   - Aceptación: `GetCriticalAllergiesUseCase` devuelve todas las alergias
     activas sin aceptar filtros; el caso de uso de edición y borrado rechaza
@@ -105,7 +108,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F3 — Vista
 
-- [ ] **T-006** — Línea de tiempo y filtros
+- [x] **T-006** — Línea de tiempo y filtros _(verificada 26/11/2026; el formato local de la fecha lo pone la interfaz, R-10)_
   - Depende de: T-001
   - Aceptación: un solo flujo une las seis secciones, ordena por fecha e id y
     aplica filtros por tipo y rango; las fechas se muestran en formato local;
@@ -122,7 +125,7 @@ Puerta de calidad de toda tarea que toque código:
 
 ## Fase F4 — Pantallas
 
-- [ ] **T-007** — Pantalla del carnet y secciones _(implementada, falta prueba instrumentada)_
+- [x] **T-007** — Pantalla del carnet y secciones _(verificada en emulador Medium_Phone 27/11/2026 · CarnetScreenTest 4/4)_
   - Depende de: T-005, T-006, 001/T-020
   - Aceptación: la pantalla muestra la línea de tiempo, las seis secciones y
     las alergias con distintivo crítico; el origen se ve en cada evento; hay
@@ -162,7 +165,7 @@ Puerta de calidad de toda tarea que toque código:
     `ui/health/ConditionFormScreen.kt`,
     `test/.../ui/health/AllergyConditionTest.kt`
 
-- [ ] **T-011** — Inmutabilidad y etiqueta de origen _(implementada, falta prueba instrumentada)_
+- [x] **T-011** — Inmutabilidad y etiqueta de origen _(verificada en emulador Medium_Phone 27/11/2026 · HealthOriginTest 4/4)_
   - Depende de: T-003, T-007
   - Aceptación: un registro veterinario no muestra acciones de editar ni
     borrar; uno del dueño sí, con confirmación; la etiqueta de origen es

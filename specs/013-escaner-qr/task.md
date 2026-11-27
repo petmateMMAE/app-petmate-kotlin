@@ -16,6 +16,9 @@ Progreso: **6 / 12 tareas** (6 implementadas, por verificar; 4 sin marcar: imple
 > filtra por tipo de negocio, la unidad no se puede implementar con seguridad
 > y hay que corregir el backend primero.
 
+
+> **Pendiente de UNA corrida del emulador (27/11/2026).** Las pruebas instrumentadas de las tareas de `ui/` de esta spec **ya estan escritas y compilan**; faltaba correrlas cuando la maquina se quedo sin memoria. Detalle de que tarea depende de que clase, y que clases ya salieron verdes, en `NOTAS-SESION-EDUARDO-UI.md` en la raiz del repo. No marcar nada sin confirmar la corrida.
+
 ---
 
 ## Fase F1 — Dominio
@@ -106,7 +109,7 @@ Progreso: **6 / 12 tareas** (6 implementadas, por verificar; 4 sin marcar: imple
   - Nota: agregar la librería requiere autorización (skill
     `agregar-dependencia`).
 
-- [ ] **T-008** — Pantalla del escáner _(implementada, falta prueba instrumentada)_
+- [x] **T-008** — Pantalla del escáner _(verificada en emulador Medium_Phone 27/11/2026 · ScanScreensTest 24/24)_
   - Depende de: T-007
   - Aceptación: abre la cámara pidiendo el permiso según 003; muestra guía
     visual y linterna; al leer un QR válido navega a la ficha; **libera la
@@ -140,7 +143,7 @@ Progreso: **6 / 12 tareas** (6 implementadas, por verificar; 4 sin marcar: imple
 
 ## Fase F5 — Ficha
 
-- [ ] **T-010** — Alergias destacadas _(implementada, falta prueba instrumentada)_
+- [x] **T-010** — Alergias destacadas _(verificada en emulador Medium_Phone 27/11/2026 · AllergyBannerTest 5/5)_
   - Depende de: T-006
   - Aceptación: `AllergyBanner` se pinta por encima del resto de la ficha y
     **es independiente de las secciones autorizadas**; aparece tanto para
@@ -151,7 +154,7 @@ Progreso: **6 / 12 tareas** (6 implementadas, por verificar; 4 sin marcar: imple
   - Archivos: `ui/ficha/AllergyBanner.kt`,
     `androidTest/.../ui/ficha/AllergyBannerTest.kt`
 
-- [ ] **T-011** — Pantalla de la ficha _(implementada, falta prueba instrumentada)_
+- [x] **T-011** — Pantalla de la ficha _(verificada en emulador Medium_Phone 27/11/2026 · ScanScreensTest 24/24)_
   - Depende de: T-010
   - Aceptación: muestra los básicos de la mascota y las secciones que llegaron
     autorizadas; es de solo lectura; una veterinaria ve la entrada a registrar

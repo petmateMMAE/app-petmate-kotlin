@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -46,8 +47,12 @@ import mx.petmate.app.ui.components.ErrorNotice
 import mx.petmate.app.ui.components.PetMateButton
 import mx.petmate.app.ui.components.PetMateButtonStyle
 import mx.petmate.app.ui.components.PetMateTextField
-import mx.petmate.app.ui.map.OsmMap
-import mx.petmate.app.ui.map.OsmMapHandle
+import mx.petmate.app.ui.map.MapCamera
+import mx.petmate.app.ui.map.MapSurfaceState
+import mx.petmate.app.ui.map.MapSurface
+import mx.petmate.app.ui.map.OsmMapSurface
+import mx.petmate.app.ui.map.MapCommands
+import mx.petmate.app.ui.map.rememberMapCommands
 import mx.petmate.app.ui.map.rememberLocationRequest
 import mx.petmate.app.ui.pets.PetBottomAction
 import mx.petmate.app.ui.pets.PetFieldLabel
@@ -66,7 +71,7 @@ fun AffiliateScreen(
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val handle = remember { OsmMapHandle() }
+    val handle = rememberMapCommands()
     val requestLocation = rememberLocationRequest(viewModel::onLocation)
     LaunchedEffect(Unit) { requestLocation(true) }
     // Al terminar, la sesion ya trae el negocio: se entra al modo negocio y el grafo cambia solo.
@@ -137,7 +142,7 @@ fun BusinessDataForm(
     footer: @Composable () -> Unit = {},
 ) {
     val extra = MaterialTheme.petMateColors
-    val err = { key: String -> form.errors[key]?.let { UiText.Dynamic(it) } }
+    val err = { key: String -> form.errors[key]?.let { UiText.Resource(it) } }
     Column(modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 18.dp)) {
         header()
         if (!editing) {
@@ -146,7 +151,7 @@ fun BusinessDataForm(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                 BusinessKind.entries.forEach { kind -> KindOption(kind, selected = form.kind == kind, onClick = { onKind(kind) }, modifier = Modifier.weight(1f)) }
             }
-            form.errors["kind"]?.let { Text(it, color = extra.alert, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 6.dp)) }
+            form.errors["kind"]?.let { Text(stringResource(it), color = extra.alert, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 6.dp)) }
             VSpace(14.dp)
         }
         PetMateTextField(form.name, { v -> onForm { it.copy(name = v.take(80)) } }, "Nombre del negocio", placeholder = "Ej. Veterinaria Los Ángeles", leadingIcon = R.drawable.ic_pm_store, required = true, error = err("name"))
@@ -180,7 +185,8 @@ fun BusinessDataForm(
                 PetMateTextField(form.close, { v -> onForm { it.copy(close = v.take(5)) } }, "Cierra", placeholder = "18:00", modifier = Modifier.weight(1f), bottomSpacing = 4.dp)
             }
             Text(
-                form.errors["hours"] ?: "Formato 24 h. Para cerrar a medianoche escribe 23:59.",
+                form.errors["hours"]?.let { stringResource(it) }
+                    ?: "Formato 24 h. Para cerrar a medianoche escribe 23:59.",
                 color = if (form.errors["hours"] != null) extra.alert else extra.ink2,
                 fontSize = 13.sp,
                 modifier = Modifier.padding(bottom = 14.dp),
@@ -254,7 +260,7 @@ private fun ServicesStep(state: AffiliateUiState, viewModel: AffiliateViewModel)
                 )
             }
         }
-        state.servicesError?.let { Text(it, color = extra.alert, fontSize = 13.sp, fontWeight = FontWeight.SemiBold) }
+        state.servicesError?.let { Text(stringResource(it), color = extra.alert, fontSize = 13.sp, fontWeight = FontWeight.SemiBold) }
         PetSectionTitle("Agregar otro")
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             PetMateTextField(state.newServiceName, { viewModel.onNewService(name = it.take(80)) }, "Servicio", placeholder = "Ej. Hotel canino", modifier = Modifier.weight(1f))
@@ -270,9 +276,11 @@ fun PinPicker(
     latitude: Double,
     longitude: Double,
     address: String,
-    handle: OsmMapHandle,
+    handle: MapCommands,
     hint: String,
     modifier: Modifier = Modifier,
+    /** Quien dibuja el mapa. Por omision el adaptador del proveedor (spec 010, T-007). */
+    mapSurface: MapSurface = { state, mapModifier -> OsmMapSurface(state, mapModifier) },
 ) {
     val extra = MaterialTheme.petMateColors
     Column(modifier = modifier.fillMaxSize().padding(horizontal = 18.dp)) {
@@ -285,14 +293,15 @@ fun PinPicker(
                 .clip(RoundedCornerShape(24.dp))
                 .border(1.dp, extra.line, RoundedCornerShape(24.dp)),
         ) {
-            OsmMap(
-                businesses = emptyList(),
-                selectedBusinessId = null,
-                showUserLocation = false,
-                onBusinessClick = {},
-                centerLatitude = latitude,
-                centerLongitude = longitude,
-                handle = handle,
+            mapSurface(
+                MapSurfaceState(
+                    businesses = emptyList(),
+                    selectedBusinessId = null,
+                    showUserLocation = false,
+                    camera = MapCamera(latitude, longitude),
+                    commands = handle,
+                ),
+                Modifier,
             )
             // Pin al centro: la punta queda exactamente en el centro del mapa.
             Box(

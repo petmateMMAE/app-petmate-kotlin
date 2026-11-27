@@ -2,6 +2,7 @@ package mx.petmate.app.domain.repository
 
 import mx.petmate.app.core.result.AppResult
 import mx.petmate.app.domain.model.AccessGrant
+import mx.petmate.app.domain.model.AffiliationDraft
 import mx.petmate.app.domain.model.AttendedPet
 import mx.petmate.app.domain.model.BusinessDraft
 import mx.petmate.app.domain.model.BusinessService
@@ -21,6 +22,18 @@ interface BusinessRepository {
     // Negocio propio.
     /** Copia local del negocio propio (el backend no tiene "ver mi negocio"); null si no se conoce. */
     fun cachedOwnBusiness(): OwnBusiness?
+
+    // Borrador de afiliacion (spec 011, T-002 y T-006): el avance de los tres pasos.
+    // Es local: el backend no guarda borradores, solo recibe el negocio terminado.
+
+    /** Guarda el avance del formulario para el usuario de la sesion activa. */
+    suspend fun saveAffiliationDraft(draft: AffiliationDraft): AppResult<Unit>
+
+    /** Borrador del usuario de la sesion activa; null si no hay o si es de otra cuenta. */
+    suspend fun readAffiliationDraft(): AppResult<AffiliationDraft?>
+
+    /** Borra el borrador. Se llama al afiliarse y al cerrar sesion (T-008). */
+    suspend fun clearAffiliationDraft(): AppResult<Unit>
     suspend fun createBusiness(draft: BusinessDraft, latitude: Double, longitude: Double): AppResult<OwnBusiness>
     suspend fun updateBusiness(draft: BusinessDraft): AppResult<OwnBusiness>
     suspend fun updateLocation(latitude: Double, longitude: Double): AppResult<OwnBusiness>

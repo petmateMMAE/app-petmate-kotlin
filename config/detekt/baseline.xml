@@ -1,0 +1,509 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:Money.kt$Money.Companion$value == null || value.isNaN() || value.isInfinite() || value &lt; 0</ID>
+    <ID>ComplexCondition:ShareExpiry.kt$ShareExpiry$month !in 1..12 || day !in 1..31 || hour !in 0..23 || minute !in 0..59 || second !in 0..60</ID>
+    <ID>CyclomaticComplexMethod:CarnetScreens.kt$@Composable internal fun CarnetContent( state: CarnetUiState, isGuest: Boolean, onBackClick: () -&gt; Unit, onEditClick: () -&gt; Unit, onOpen: (CarnetSection) -&gt; Unit, onNeedAccount: () -&gt; Unit, onRetry: () -&gt; Unit, modifier: Modifier = Modifier, )</ID>
+    <ID>DestructuringDeclarationWithTooManyEntries:HistoryScreens.kt$val (iconRes, iconBg, iconTint, kindLabel) = when (item.kind) { "Consultation" -&gt; Quad(R.drawable.ic_pm_edit, extra.brandSoft, MaterialTheme.colorScheme.primary, "Consulta") "Vaccine" -&gt; Quad(R.drawable.ic_pm_syringe, extra.brandSoft, MaterialTheme.colorScheme.primary, "Vacuna") "Deworming" -&gt; Quad(R.drawable.ic_pm_pill, extra.okSoft, extra.ok, "Desparasitación") "Weight" -&gt; Quad(R.drawable.ic_pm_weight, extra.shopSoft, extra.shop, "Peso") else -&gt; Quad(R.drawable.ic_pm_calendar, extra.surface2, MaterialTheme.colorScheme.onSurface, item.kind) }</ID>
+    <ID>DestructuringDeclarationWithTooManyEntries:IllustratedMap.kt$(x, y, w, h)</ID>
+    <ID>LongMethod:AccountScreens.kt$@Composable fun DeleteAccountScreen(onBackClick: () -&gt; Unit, modifier: Modifier = Modifier)</ID>
+    <ID>LongMethod:CarnetScreens.kt$@Composable fun QrScreen( viewModel: PetCarnetViewModel, isGuest: Boolean, onBackClick: () -&gt; Unit, onNeedAccount: () -&gt; Unit, modifier: Modifier = Modifier, onShareClick: () -&gt; Unit = {}, )</ID>
+    <ID>LongMethod:CarnetScreens.kt$@Composable internal fun CarnetContent( state: CarnetUiState, isGuest: Boolean, onBackClick: () -&gt; Unit, onEditClick: () -&gt; Unit, onOpen: (CarnetSection) -&gt; Unit, onNeedAccount: () -&gt; Unit, onRetry: () -&gt; Unit, modifier: Modifier = Modifier, )</ID>
+    <ID>LongMethod:HistoryScreens.kt$@Composable fun ConsultationDetailScreen( consultationId: String, onBackClick: () -&gt; Unit, viewModel: PetHistoryViewModel = hiltViewModel(), modifier: Modifier = Modifier, )</ID>
+    <ID>LongMethod:HomeScreen.kt$@Composable private fun ProfileContent( isGuest: Boolean, name: String, email: String, isAffiliate: Boolean, isLoggingOut: Boolean, actions: ProfileActions, onConfirmLogout: () -&gt; Unit, modifier: Modifier = Modifier, businessMode: Boolean = false, bottomBar: (@Composable () -&gt; Unit)? = null, )</ID>
+    <ID>LongMethod:MapScreen.kt$@Composable internal fun MapContent( uiState: MapUiState, onQueryChange: (String) -&gt; Unit, onTypeToggle: (BusinessType) -&gt; Unit, onBusinessClick: (String) -&gt; Unit, onDismissBusiness: () -&gt; Unit, onCallClick: (MapBusiness) -&gt; Unit, onWhatsAppClick: (MapBusiness) -&gt; Unit, onDirectionsClick: (MapBusiness) -&gt; Unit, onBusinessDetailsClick: (String) -&gt; Unit, onZoomInClick: () -&gt; Unit, onZoomOutClick: () -&gt; Unit, onMyLocationClick: () -&gt; Unit, onEnableLocationClick: () -&gt; Unit, onHelpClick: () -&gt; Unit, onRetryClick: () -&gt; Unit, onTabSelected: (OwnerTab) -&gt; Unit, modifier: Modifier = Modifier, /** * Quien dibuja el mapa (spec 010, T-006 y T-007). * * Por omision el adaptador de osmdroid. Las previsualizaciones pasan * [IllustratedMapSurface] y las pruebas [FakeMapSurface]: esta pantalla no * nombra a ningun proveedor. */ mapSurface: MapSurface = { state, mapModifier -&gt; OsmMapSurface(state, mapModifier) }, camera: MapCamera = MapCamera.Default, mapCommands: MapCommands? = null, )</ID>
+    <ID>LongMethod:MapScreen.kt$@Composable private fun BusinessSheet( business: MapBusiness, onDismiss: () -&gt; Unit, onCallClick: () -&gt; Unit, onWhatsAppClick: () -&gt; Unit, onDirectionsClick: () -&gt; Unit, onDetailsClick: () -&gt; Unit, modifier: Modifier = Modifier, )</ID>
+    <ID>LongMethod:OwnerBusinessScreens.kt$@Composable fun BizProfileScreen(viewModel: BizProfileViewModel, onBackClick: () -&gt; Unit, modifier: Modifier = Modifier)</ID>
+    <ID>LongMethod:PetMateButtons.kt$@Composable fun PetMateButton( text: String, onClick: () -&gt; Unit, modifier: Modifier = Modifier, style: PetMateButtonStyle = PetMateButtonStyle.Primary, @DrawableRes icon: Int? = null, @DrawableRes trailingIcon: Int? = null, enabled: Boolean = true, loading: Boolean = false, )</ID>
+    <ID>LongMethod:PetMateNavHost.kt$private fun NavGraphBuilder.petsGraph( navController: NavHostController, user: User?, isGuest: Boolean, onNeedAccount: () -&gt; Unit, )</ID>
+    <ID>LongMethod:PetMateTextField.kt$@Composable fun PetMateTextField( value: String, onValueChange: (String) -&gt; Unit, label: String, modifier: Modifier = Modifier, placeholder: String = "", @DrawableRes leadingIcon: Int? = null, required: Boolean = false, hint: String? = null, error: UiText? = null, isPassword: Boolean = false, keyboardType: KeyboardType = KeyboardType.Text, imeAction: ImeAction = ImeAction.Next, enabled: Boolean = true, bottomSpacing: Dp = 14.dp, )</ID>
+    <ID>LongMethod:PetsScreens.kt$@Composable internal fun PetFormContent( state: PetFormUiState, onBackClick: () -&gt; Unit, callbacks: PetFormCallbacks, modifier: Modifier = Modifier, )</ID>
+    <ID>LongMethod:RegisterScreen.kt$@Composable private fun RegisterContent( uiState: RegisterUiState, onNameChange: (String) -&gt; Unit, onEmailChange: (String) -&gt; Unit, onPasswordChange: (String) -&gt; Unit, onPasswordConfirmationChange: (String) -&gt; Unit, onPrivacyChange: (Boolean) -&gt; Unit, onSubmit: () -&gt; Unit, onGoToLogin: () -&gt; Unit, onBackClick: () -&gt; Unit, modifier: Modifier = Modifier, )</ID>
+    <ID>LongMethod:VeterinaryActionScreens.kt$@Composable fun ConsultationFormScreen( petId: String, petName: String, onBackClick: () -&gt; Unit, onSaved: () -&gt; Unit, /** Recibe el id de la consulta recien creada, antes de [onSaved] (spec 015, T-011). */ onSavedWithId: (String) -&gt; Unit = {}, viewModel: VeterinaryActionViewModel = hiltViewModel(), modifier: Modifier = Modifier, )</ID>
+    <ID>LongMethod:VeterinaryActionScreens.kt$@Composable fun DewormByBusinessScreen( petId: String, petName: String, onBackClick: () -&gt; Unit, onSaved: () -&gt; Unit, viewModel: VeterinaryActionViewModel = hiltViewModel(), modifier: Modifier = Modifier, )</ID>
+    <ID>LongMethod:VeterinaryActionScreens.kt$@Composable fun VaccineByBusinessScreen( petId: String, petName: String, onBackClick: () -&gt; Unit, onSaved: () -&gt; Unit, viewModel: VeterinaryActionViewModel = hiltViewModel(), modifier: Modifier = Modifier, )</ID>
+    <ID>MagicNumber:AuthRepositoryImpl.kt$AuthRepositoryImpl$401</ID>
+    <ID>MagicNumber:AuthorizedCaller.kt$AuthorizedCaller$401</ID>
+    <ID>MagicNumber:AuthorizedCaller.kt$AuthorizedCaller$403</ID>
+    <ID>MagicNumber:Business.kt$ShareDuration.OneDay$1440</ID>
+    <ID>MagicNumber:Business.kt$ShareDuration.SevenDays$10080</ID>
+    <ID>MagicNumber:Business.kt$ShareDuration.ThirtyMinutes$30</ID>
+    <ID>MagicNumber:ErrorMapper.kt$401</ID>
+    <ID>MagicNumber:ErrorMapper.kt$403</ID>
+    <ID>MagicNumber:PetRules.kt$PetDates$12</ID>
+    <ID>MagicNumber:PetRules.kt$PetDates$3</ID>
+    <ID>MagicNumber:PetRules.kt$PetRules$10</ID>
+    <ID>MagicNumber:PetRules.kt$PetRules$10.0</ID>
+    <ID>MagicNumber:RetryInterceptor.kt$RetryInterceptor$500</ID>
+    <ID>MagicNumber:RetryInterceptor.kt$RetryInterceptor$599</ID>
+    <ID>MagicNumber:SamplePetRepository.kt$SamplePetRepository$11</ID>
+    <ID>MagicNumber:SamplePetRepository.kt$SamplePetRepository$11.6</ID>
+    <ID>MagicNumber:SamplePetRepository.kt$SamplePetRepository$12.1</ID>
+    <ID>MagicNumber:SamplePetRepository.kt$SamplePetRepository$12.4</ID>
+    <ID>MagicNumber:SamplePetRepository.kt$SamplePetRepository$3.8</ID>
+    <ID>MagicNumber:SamplePetRepository.kt$SamplePetRepository$403</ID>
+    <ID>MagicNumber:SamplePetRepository.kt$SamplePetRepository$404</ID>
+    <ID>MagicNumber:ShareExpiry.kt$ShareExpiry$100</ID>
+    <ID>MagicNumber:ShareExpiry.kt$ShareExpiry$12</ID>
+    <ID>MagicNumber:ShareExpiry.kt$ShareExpiry$146_097L</ID>
+    <ID>MagicNumber:ShareExpiry.kt$ShareExpiry$153</ID>
+    <ID>MagicNumber:ShareExpiry.kt$ShareExpiry$23</ID>
+    <ID>MagicNumber:ShareExpiry.kt$ShareExpiry$3</ID>
+    <ID>MagicNumber:ShareExpiry.kt$ShareExpiry$31</ID>
+    <ID>MagicNumber:ShareExpiry.kt$ShareExpiry$365</ID>
+    <ID>MagicNumber:ShareExpiry.kt$ShareExpiry$399</ID>
+    <ID>MagicNumber:ShareExpiry.kt$ShareExpiry$4</ID>
+    <ID>MagicNumber:ShareExpiry.kt$ShareExpiry$400</ID>
+    <ID>MagicNumber:ShareExpiry.kt$ShareExpiry$5</ID>
+    <ID>MagicNumber:ShareExpiry.kt$ShareExpiry$59</ID>
+    <ID>MagicNumber:ShareExpiry.kt$ShareExpiry$6</ID>
+    <ID>MagicNumber:ShareExpiry.kt$ShareExpiry$60</ID>
+    <ID>MagicNumber:ShareExpiry.kt$ShareExpiry$719_468L</ID>
+    <ID>MagicNumber:ShareExpiry.kt$ShareExpiry$9</ID>
+    <ID>MagicNumber:TaxRate.kt$TaxRate$100</ID>
+    <ID>MagicNumber:TaxRate.kt$TaxRate.Companion$100</ID>
+    <ID>MaxLineLength:AccountScreens.kt$Icon(painterResource(R.drawable.ic_pm_info), contentDescription = null, tint = extra.brandText, modifier = Modifier.size(20.dp))</ID>
+    <ID>MaxLineLength:AccountScreens.kt$Icon(painterResource(R.drawable.ic_pm_trash), contentDescription = null, tint = extra.alert, modifier = Modifier.size(32.dp))</ID>
+    <ID>MaxLineLength:AccountScreens.kt$Text(stringResource(R.string.delete_title), style = MaterialTheme.typography.headlineSmall.copy(fontSize = 24.sp))</ID>
+    <ID>MaxLineLength:AccountScreens.kt$Text(stringResource(R.string.legal_tip), fontSize = 14.sp, color = extra.brandText, fontWeight = FontWeight.SemiBold)</ID>
+    <ID>MaxLineLength:AccountScreens.kt$listOf(R.string.delete_item_account, R.string.delete_item_pets, R.string.delete_item_qr, R.string.delete_item_business)</ID>
+    <ID>MaxLineLength:AffiliateScreens.kt$.</ID>
+    <ID>MaxLineLength:AffiliateScreens.kt$1 -&gt; PetMateButton("Siguiente: tus servicios", viewModel::next, icon = R.drawable.ic_pm_next, modifier = Modifier.fillMaxWidth())</ID>
+    <ID>MaxLineLength:AffiliateScreens.kt$2 -&gt; PetMateButton("Siguiente: ubicación", viewModel::next, icon = R.drawable.ic_pm_pin, modifier = Modifier.fillMaxWidth())</ID>
+    <ID>MaxLineLength:AffiliateScreens.kt$BusinessKind.entries.forEach { kind -&gt; KindOption(kind, selected = form.kind == kind, onClick = { onKind(kind) }, modifier = Modifier.weight(1f)) }</ID>
+    <ID>MaxLineLength:AffiliateScreens.kt$Icon(painterResource(R.drawable.ic_pm_pin), contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))</ID>
+    <ID>MaxLineLength:AffiliateScreens.kt$Icon(painterResource(R.drawable.ic_pm_store), contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(22.dp))</ID>
+    <ID>MaxLineLength:AffiliateScreens.kt$Modifier.size(26.dp).background(if (s.selected) MaterialTheme.colorScheme.primary else extra.surface2, RoundedCornerShape(8.dp))</ID>
+    <ID>MaxLineLength:AffiliateScreens.kt$ORDERED_DAYS.forEach { day -&gt; SelectChip(DAY_LABELS.getValue(day), selected = day in form.days, onClick = { onToggleDay(day) }) }</ID>
+    <ID>MaxLineLength:AffiliateScreens.kt$PetMateButton("Agregar servicio", viewModel::addService, style = PetMateButtonStyle.Soft, icon = R.drawable.ic_pm_plus, modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp))</ID>
+    <ID>MaxLineLength:AffiliateScreens.kt$PetMateTextField(form.address, { v -&gt; onForm { it.copy(address = v.take(200)) } }, "Dirección", placeholder = "Calle, número y colonia", leadingIcon = R.drawable.ic_pm_pin, required = true, error = err("address"))</ID>
+    <ID>MaxLineLength:AffiliateScreens.kt$PetMateTextField(form.close, { v -&gt; onForm { it.copy(close = v.take(5)) } }, "Cierra", placeholder = "18:00", modifier = Modifier.weight(1f), bottomSpacing = 4.dp)</ID>
+    <ID>MaxLineLength:AffiliateScreens.kt$PetMateTextField(form.description, { v -&gt; onForm { it.copy(description = v.take(500)) } }, "Descripción", placeholder = "Opcional: qué te hace especial")</ID>
+    <ID>MaxLineLength:AffiliateScreens.kt$PetMateTextField(form.name, { v -&gt; onForm { it.copy(name = v.take(80)) } }, "Nombre del negocio", placeholder = "Ej. Veterinaria Los Ángeles", leadingIcon = R.drawable.ic_pm_store, required = true, error = err("name"))</ID>
+    <ID>MaxLineLength:AffiliateScreens.kt$PetMateTextField(form.open, { v -&gt; onForm { it.copy(open = v.take(5)) } }, "Abre", placeholder = "09:00", leadingIcon = R.drawable.ic_pm_calendar, modifier = Modifier.weight(1f), bottomSpacing = 4.dp)</ID>
+    <ID>MaxLineLength:AffiliateScreens.kt$PetMateTextField(form.phone, { v -&gt; onForm { it.copy(phone = v.take(13)) } }, "Teléfono", placeholder = "10 dígitos", leadingIcon = R.drawable.ic_pm_phone, required = true, keyboardType = KeyboardType.Phone, error = err("phone"))</ID>
+    <ID>MaxLineLength:AffiliateScreens.kt$PetMateTextField(form.whatsApp, { v -&gt; onForm { it.copy(whatsApp = v.take(13)) } }, "WhatsApp", placeholder = "Déjalo vacío si no tienes", leadingIcon = R.drawable.ic_pm_chat, keyboardType = KeyboardType.Phone, error = err("whatsApp"))</ID>
+    <ID>MaxLineLength:AffiliateScreens.kt$PetMateTextField(state.newServiceName, { viewModel.onNewService(name = it.take(80)) }, "Servicio", placeholder = "Ej. Hotel canino", modifier = Modifier.weight(1f))</ID>
+    <ID>MaxLineLength:AffiliateScreens.kt$PetMateTextField(state.newServicePrice, { viewModel.onNewService(price = it.take(10)) }, "Precio", placeholder = "$", keyboardType = KeyboardType.Decimal, modifier = Modifier.width(110.dp))</ID>
+    <ID>MaxLineLength:AffiliateScreens.kt$Text("Elige uno. Para otro tipo, afilia otro negocio con otra cuenta.", color = extra.ink2, fontSize = 13.sp, modifier = Modifier.padding(bottom = 8.dp))</ID>
+    <ID>MaxLineLength:AffiliateScreens.kt$Text("Sin días marcados el negocio aparece como cerrado.", color = extra.ink2, fontSize = 13.sp, modifier = Modifier.padding(bottom = 14.dp))</ID>
+    <ID>MaxLineLength:AffiliateScreens.kt$Text(s.name, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = if (selected) s.ink else MaterialTheme.colorScheme.onSurface)</ID>
+    <ID>MaxLineLength:AffiliateScreens.kt$TipBox("La foto del local llega pronto: mientras tanto se muestra una imagen de tu tipo de negocio.", modifier = Modifier.padding(bottom = 24.dp))</ID>
+    <ID>MaxLineLength:AffiliateScreens.kt$form.errors["kind"]?.let { Text(stringResource(it), color = extra.alert, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 6.dp)) }</ID>
+    <ID>MaxLineLength:AffiliateScreens.kt$if (s.selected) Icon(painterResource(R.drawable.ic_pm_check), contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(16.dp))</ID>
+    <ID>MaxLineLength:AffiliateScreens.kt$state.servicesError?.let { Text(stringResource(it), color = extra.alert, fontSize = 13.sp, fontWeight = FontWeight.SemiBold) }</ID>
+    <ID>MaxLineLength:AffiliateViewModelTest.kt$AffiliateViewModelTest$assertEquals("Media coordenada es peor que ninguna", centro, vm.state.value.latitude to vm.state.value.longitude)</ID>
+    <ID>MaxLineLength:AffiliateViewModelTest.kt$AffiliateViewModelTest$assertTrue("El primero viene marcado para que el paso 2 no arranque vacio", vm.state.value.services.first().selected)</ID>
+    <ID>MaxLineLength:AffiliateViewModelTest.kt$AffiliateViewModelTest$assertTrue("Un error viejo no puede quedarse pintado mientras el usuario corrige", vm.state.value.form.errors.isEmpty())</ID>
+    <ID>MaxLineLength:AffiliationUseCasesTest.kt$AffiliationUseCasesTest$AffiliationRules.Issue(AffiliationRules.Field.License, AffiliationRules.Problem.Required) in submission.issues</ID>
+    <ID>MaxLineLength:AuthRepositoryImpl.kt$AuthRepositoryImpl$SessionState.SignedIn(user, businessMode = user.businessType != null &amp;&amp; sessionStore.readMode() == MODE_BUSINESS)</ID>
+    <ID>MaxLineLength:AuthRepositoryImpl.kt$AuthRepositoryImpl$requireData(api.register(RegisterRequestDto(displayName = name, email = email, password = data.password)).data)</ID>
+    <ID>MaxLineLength:Business.kt$BusinessKind.Companion$fun fromApi(value: String?): BusinessKind?</ID>
+    <ID>MaxLineLength:Business.kt$FichaConsultation</ID>
+    <ID>MaxLineLength:Business.kt$Medication</ID>
+    <ID>MaxLineLength:Business.kt$SharedData$enum</ID>
+    <ID>MaxLineLength:BusinessApiService.kt$BusinessApiService$suspend</ID>
+    <ID>MaxLineLength:BusinessComponents.kt$Box</ID>
+    <ID>MaxLineLength:BusinessComponents.kt$BusinessKind.Grooming -&gt; KindStyle("Estética", R.drawable.ic_pm_scissors, c.spaSoft, c.spa, R.drawable.sample_business_spa)</ID>
+    <ID>MaxLineLength:BusinessComponents.kt$BusinessKind.Store -&gt; KindStyle("Tienda", R.drawable.ic_pm_bag, c.shopSoft, c.shop, R.drawable.sample_business_shop)</ID>
+    <ID>MaxLineLength:BusinessComponents.kt$BusinessKind.Veterinary -&gt; KindStyle("Veterinaria", R.drawable.ic_pm_cross, c.vetSoft, c.vet, R.drawable.sample_business_vet)</ID>
+    <ID>MaxLineLength:BusinessComponents.kt$Icon(painterResource(R.drawable.ic_pm_chevron), contentDescription = null, tint = extra.ink3, modifier = Modifier.size(18.dp))</ID>
+    <ID>MaxLineLength:BusinessComponents.kt$Icon(painterResource(icon), contentDescription = null, tint = if (selected) extra.brandText else extra.ink2, modifier = Modifier.size(15.dp))</ID>
+    <ID>MaxLineLength:BusinessComponents.kt$Icon(painterResource(tab.icon), contentDescription = null, tint = tint, modifier = Modifier.size(22.dp))</ID>
+    <ID>MaxLineLength:BusinessComponents.kt$KindStyle$data</ID>
+    <ID>MaxLineLength:BusinessComponents.kt$Row</ID>
+    <ID>MaxLineLength:BusinessComponents.kt$Text(text, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = if (selected) extra.brandText else MaterialTheme.colorScheme.onSurface)</ID>
+    <ID>MaxLineLength:BusinessComponents.kt$fun priceText(price: Double?): String</ID>
+    <ID>MaxLineLength:BusinessComponents.kt$modifier = Modifier.width(58.dp).height(32.dp).background(if (on) extra.brandSoft else Color.Transparent, CircleShape)</ID>
+    <ID>MaxLineLength:BusinessComponents.kt$val label = if (days.size == 1) DAY_LABELS.getValue(days.first()) else "${DAY_LABELS.getValue(days.first())} a ${DAY_LABELS.getValue(days.last())}"</ID>
+    <ID>MaxLineLength:BusinessDto.kt$/* * Transporte de negocios, mapa publico, autorizaciones de acceso y escaneo (backend 0.4.0, pm-105 a pm-129). * Contrato: docs/api/endpoints.md del backend. Los cuerpos llevan SOLO los campos del contrato (miembro desconocido = 400). */</ID>
+    <ID>MaxLineLength:BusinessDto.kt$AccessGrantRequestDto$/** `data`: Vaccines, Dewormings, Weights, Consultations (las alergias siempre van). `durationMinutes`: 30, 1440 o 10080. */</ID>
+    <ID>MaxLineLength:BusinessDto.kt$MedicationDto$data</ID>
+    <ID>MaxLineLength:BusinessDto.kt$ScanDewormingDto$data</ID>
+    <ID>MaxLineLength:BusinessDto.kt$ScanVaccineDto$data</ID>
+    <ID>MaxLineLength:BusinessFormTest.kt$BusinessFormTest$assertEquals("Lun a Vie 09:00–18:00 · Sáb 10:00–14:00", scheduleSummary(week + ("saturday" to listOf(TimeRange("10:00", "14:00")))))</ID>
+    <ID>MaxLineLength:BusinessFormTest.kt$BusinessFormTest$assertEquals(mapOf("monday" to listOf(TimeRange("10:00", "14:00")), "saturday" to listOf(TimeRange("10:00", "14:00"))), schedule)</ID>
+    <ID>MaxLineLength:BusinessFormTest.kt$BusinessFormTest$private val valid = BusinessForm(kind = BusinessKind.Store, name = "Tienda Tula", phone = "7711234567", address = "Centro, Tula")</ID>
+    <ID>MaxLineLength:BusinessFormTest.kt$BusinessFormTest$val week = listOf("monday", "tuesday", "wednesday", "thursday", "friday").associateWith { listOf(TimeRange("09:00", "18:00")) }</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$"Como estética o tienda solo ves datos básicos y alergias. Vacunas, consultas y recetas son solo para veterinarias."</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$"Este teléfono aún no tiene los datos de tu negocio. Toca «Mi negocio» y guárdalos para verlos aquí."</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$AccessRow(R.drawable.ic_pm_paw, "Mascotas atendidas", "Las que escaneaste hoy y esta semana", onAttendedClick, tint = extra.spa, soft = extra.spaSoft)</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$Box</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.7f))))</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$CameraFallback(onRetry = onOpenCamera, modifier = Modifier.padding(bottom = 12.dp).testTag(ScanTags.CAMERA_DENIED))</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$FichaRow(c.reason, formatDate(c.date) + " · " + c.diagnosis, c.medications.takeIf { it.isNotEmpty() }?.let { "Receta" })</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$FichaRow(v.name, "${formatDate(v.appliedOn)}" + (v.appliedBy?.let { " · $it" } ?: ""), v.nextDoseOn?.let { "Próx. ${formatDate(it)}" })</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$Icon(painterResource(R.drawable.ic_pm_paw), contentDescription = null, tint = extra.spa, modifier = Modifier.size(22.dp))</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$Icon(painterResource(R.drawable.ic_pm_qr), contentDescription = null, tint = Color.White.copy(alpha = 0.85f), modifier = Modifier.size(96.dp))</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$Icon(painterResource(R.drawable.ic_pm_qr), contentDescription = null, tint = extra.sun, modifier = Modifier.size(30.dp))</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$PetMateButton("Abrir cámara", onOpenCamera, icon = R.drawable.ic_pm_qr, loading = state.resolving, modifier = Modifier.fillMaxWidth().testTag(ScanTags.OPEN_CAMERA))</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$PetMateButton("Guardar cambios", { viewModel.save(onBackClick) }, icon = R.drawable.ic_pm_check, loading = state.saving, modifier = Modifier.fillMaxWidth())</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$PetMateButton("Ver ficha", onResolveCode, style = PetMateButtonStyle.Outline, enabled = !state.resolving, modifier = Modifier.fillMaxWidth().testTag(ScanTags.MANUAL_SUBMIT))</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$PetMateTextField(name, { name = it.take(80) }, "Nombre del servicio", placeholder = "Ej. Baño y corte", required = true)</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$PetMateTextField(state.code, onCode, "O escribe el código", placeholder = "8 caracteres, por ejemplo K7Q2M9XA", modifier = Modifier.testTag(ScanTags.MANUAL_CODE))</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$Row</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$Text("Acciones clínicas", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.primary)</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$Text("Escanear QR de mascota", color = extra.onSun, style = MaterialTheme.typography.headlineSmall.copy(fontSize = 20.sp))</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$Text("Mi negocio", color = Color.White.copy(alpha = 0.85f), fontWeight = FontWeight.Bold, fontSize = 14.sp)</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$Text(ficha.name, style = MaterialTheme.typography.headlineSmall.copy(fontSize = 24.sp, fontWeight = FontWeight.ExtraBold))</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$Text(it, color = extra.brandText, fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.background(extra.brandSoft, RoundedCornerShape(10.dp)).padding(horizontal = 8.dp, vertical = 4.dp))</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$Text(listOfNotNull(ficha.species, ficha.breed, age.joinToString(" ").ifBlank { null }).joinToString(" · "), color = extra.ink2)</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$Text(priceText(s.price), color = if (s.price != null) MaterialTheme.colorScheme.primary else extra.ink3, fontWeight = FontWeight.Bold, fontSize = 14.sp)</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$Text(scheduleSummary(state.form.schedule()), color = extra.ink2, fontSize = 13.sp, maxLines = 1)</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$Text(state.form.name.ifBlank { "Nombre del negocio" }, fontWeight = FontWeight.Bold, fontSize = 17.sp, modifier = Modifier.padding(top = 4.dp))</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$TipBox("Para volver a ver su ficha necesitas escanear su QR otra vez. Así cuidamos los datos del dueño.", icon = R.drawable.ic_pm_lock)</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$b?.let { Text(scheduleSummary(it.schedule), color = Color.White, fontSize = 13.sp, maxLines = 1) }</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$bottom = { PetBottomAction { PetMateButton("Agregar servicio", onAddClick, icon = R.drawable.ic_pm_plus, modifier = Modifier.fillMaxWidth()) } }</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$bottom = { PetBottomAction { PetMateButton("Terminar y salir", onClose, style = PetMateButtonStyle.Ghost, icon = R.drawable.ic_pm_logout, modifier = Modifier.fillMaxWidth()) } }</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$fun</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$if (kind == BusinessKind.Veterinary) "Ve su historial y alergias" else "Ve sus datos básicos y alergias"</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$modifier = Modifier.weight(1f).fillMaxWidth().statusBarsPadding().verticalScroll(rememberScrollState()).padding(horizontal = 22.dp)</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$state.items.isEmpty() -&gt; PetEmptyState(R.drawable.ic_pm_paw, "Nadie por aquí", if (state.period == "day") "Hoy aún no escaneas ninguna mascota." else "Esta semana no escaneaste mascotas.")</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$state.services.isEmpty() -&gt; PetEmptyState(R.drawable.ic_pm_bag, "Sin servicios", "Agrega lo que ofreces para que aparezca en el mapa.")</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$style = MaterialTheme.typography.headlineSmall.copy(fontSize = 26.sp, fontWeight = FontWeight.ExtraBold)</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$top = { PetTopBar(title = if (serviceId == null) "Nuevo servicio" else "Editar servicio", onBackClick = onBackClick) }</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$val age = listOfNotNull(ficha.ageYears?.takeIf { it &gt; 0 }?.let { "$it ${if (it == 1) "año" else "años"}" }, ficha.ageMonths?.takeIf { it &gt; 0 }?.let { "$it ${if (it == 1) "mes" else "meses"}" })</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$val launcher = rememberLauncherForActivityResult(ScanContract()) { result -&gt; result.contents?.let { viewModel.resolve(it) } }</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$val parser = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.US).apply { timeZone = java.util.TimeZone.getTimeZone("UTC") }</ID>
+    <ID>MaxLineLength:BusinessModeScreens.kt$var price by rememberSaveable(existing?.id) { mutableStateOf(existing?.price?.let { if (it % 1.0 == 0.0) it.toLong().toString() else it.toString() }.orEmpty()) }</ID>
+    <ID>MaxLineLength:BusinessModule.kt$BusinessModule.Companion$fun</ID>
+    <ID>MaxLineLength:BusinessNavGraph.kt$BizEditScreen(viewModel = hiltViewModel(), onBackClick = back, onEditLocationClick = { navController.navigate(Route.BIZ_LOCATION) })</ID>
+    <ID>MaxLineLength:BusinessNavGraph.kt$ServiceFormScreen(viewModel = hiltViewModel(), serviceId = entry.arguments?.getString(Route.ARG_SERVICE_ID), onBackClick = back)</ID>
+    <ID>MaxLineLength:BusinessNavGraph.kt$arguments = listOf(navArgument(Route.ARG_SERVICE_ID) { type = NavType.StringType; nullable = true; defaultValue = null })</ID>
+    <ID>MaxLineLength:BusinessNavGraph.kt$val bar: @Composable (BusinessTab) -&gt; Unit = { tab -&gt; BusinessBottomBar(selected = tab, onTabSelected = { navController.openBusinessTab(it) }) }</ID>
+    <ID>MaxLineLength:BusinessRepository.kt$BusinessRepository$suspend</ID>
+    <ID>MaxLineLength:BusinessRepository.kt$BusinessRepository$suspend fun updateService(id: String, name: String, description: String?, price: Double?): AppResult&lt;BusinessService&gt;</ID>
+    <ID>MaxLineLength:BusinessRepositoryImpl.kt$BusinessRepositoryImpl$AccessGrant(dto.id, dto.businessId, dto.data.mapNotNull { v -&gt; SharedData.entries.firstOrNull { e -&gt; e.apiValue == v } }, dto.expiresAt)</ID>
+    <ID>MaxLineLength:BusinessRepositoryImpl.kt$BusinessRepositoryImpl$b.copy(latitude = p.latitude, longitude = p.longitude, phone = p.phone, whatsApp = p.whatsApp)</ID>
+    <ID>MaxLineLength:BusinessRepositoryImpl.kt$BusinessRepositoryImpl$caller.call { api.getAttended(it, period).data?.items.orEmpty().map { a -&gt; AttendedPet(a.petName, a.scannedAt) } }</ID>
+    <ID>MaxLineLength:BusinessRepositoryImpl.kt$BusinessRepositoryImpl$caller.call { required(api.createService(it, ServiceRequestDto(name.trim(), description?.trim()?.ifEmpty { null }, price)).data).toDomain() }</ID>
+    <ID>MaxLineLength:BusinessRepositoryImpl.kt$BusinessRepositoryImpl$caller.call { required(api.updateService(it, id, ServiceRequestDto(name.trim(), description?.trim()?.ifEmpty { null }, price)).data).toDomain() }</ID>
+    <ID>MaxLineLength:BusinessRepositoryImpl.kt$BusinessRepositoryImpl$override suspend</ID>
+    <ID>MaxLineLength:BusinessRepositoryImpl.kt$BusinessRepositoryImpl$private suspend fun &lt;T&gt; io(block: suspend () -&gt; AppResult&lt;T&gt;): AppResult&lt;T&gt;</ID>
+    <ID>MaxLineLength:BusinessRepositoryImpl.kt$BusinessRepositoryImpl$runCatching { block() }.fold(onSuccess = { AppResult.Success(it) }, onFailure = { AppResult.Failure(it.toAppError()) })</ID>
+    <ID>MaxLineLength:BusinessRepositoryImpl.kt$BusinessRepositoryImpl$sessionStore.readBusinessJson()?.let { raw -&gt; runCatching { json.decodeFromString(BusinessDto.serializer(), raw).toDomain() }.getOrNull() }</ID>
+    <ID>MaxLineLength:BusinessRepositoryImpl.kt$FichaConsultation(c.consultedOn, c.businessName, c.reason, c.diagnosis, c.medications.map { m -&gt; Medication(m.name, m.dose, m.frequency, m.duration, m.instructions) })</ID>
+    <ID>MaxLineLength:BusinessRepositoryImpl.kt$OwnBusiness(id, kind, name, phone, whatsApp, address, description, latitude, longitude, licenseNumber, schedule.toDomainSchedule())</ID>
+    <ID>MaxLineLength:BusinessRepositoryImpl.kt$allergies = allergies.mapIndexed { i, a -&gt; Allergy("a$i", a.name, AllergyKind.fromApi(a.kind), a.notes, true, origin) }</ID>
+    <ID>MaxLineLength:BusinessRepositoryImpl.kt$dewormings = dewormings?.mapIndexed { i, d -&gt; Deworming("d$i", d.product, d.appliedOn, DewormingType.fromApi(d.type), d.appliedBy, d.nextOn, origin) }</ID>
+    <ID>MaxLineLength:BusinessRepositoryImpl.kt$private fun Map&lt;String, List&lt;TimeRangeDto&gt;&gt;.toDomainSchedule()</ID>
+    <ID>MaxLineLength:BusinessRepositoryImpl.kt$vaccines = vaccines?.mapIndexed { i, v -&gt; Vaccine("v$i", v.name, v.appliedOn, v.batch, v.appliedBy, v.nextDoseOn, origin) }</ID>
+    <ID>MaxLineLength:BusinessRepositoryImplTest.kt$BusinessRepositoryImplTest$"""{"name":"Vet Tula","phone":"7711234567","whatsApp":"7719998888","schedule":{"monday":[{"open":"09:00","close":"18:00"}]}}"""</ID>
+    <ID>MaxLineLength:BusinessRepositoryImplTest.kt$BusinessRepositoryImplTest$"""{"type":"Veterinary","name":"Vet Tula","phone":"7711234567","address":"Centro","latitude":20.05,"longitude":-99.34,"""</ID>
+    <ID>MaxLineLength:BusinessRepositoryImplTest.kt$BusinessRepositoryImplTest$MockResponse().setResponseCode(code).setHeader("Content-Type", "application/json").setBody("""{"statusCode":$code,"message":"ok","data":$data}""")</ID>
+    <ID>MaxLineLength:BusinessRepositoryImplTest.kt$BusinessRepositoryImplTest$assertEquals("""{"petId":"p-1","data":["Vaccines"],"durationMinutes":1440}""", server.takeRequest().body.readUtf8())</ID>
+    <ID>MaxLineLength:BusinessRepositoryImplTest.kt$BusinessRepositoryImplTest$repository = BusinessRepositoryImpl(retrofit.create(BusinessApiService::class.java), caller, sessionStore, BusinessRepositoryDraftTest.FakeAffiliationDraftDao(), json, dispatchers)</ID>
+    <ID>MaxLineLength:BusinessRepositoryImplTest.kt$BusinessRepositoryImplTest$val grant = (repository.shareAccess("p-1", null, setOf(SharedData.Vaccines), ShareDuration.OneDay) as AppResult.Success).data</ID>
+    <ID>MaxLineLength:BusinessRepositoryImplTest.kt$BusinessRepositoryImplTest.&lt;no name provided&gt;$latitude</ID>
+    <ID>MaxLineLength:BusinessRepositoryImplTest.kt$BusinessRepositoryImplTest.&lt;no name provided&gt;$todayHours</ID>
+    <ID>MaxLineLength:BusinessViewModels.kt$AffiliateViewModel$1 -&gt; s.form.validate().let { errors -&gt; if (errors.isEmpty()) s.copy(step = 2) else s.copy(form = s.form.copy(errors = errors)) }</ID>
+    <ID>MaxLineLength:BusinessViewModels.kt$AffiliateViewModel$fun onForm(change: (BusinessForm) -&gt; BusinessForm)</ID>
+    <ID>MaxLineLength:BusinessViewModels.kt$AffiliateViewModel$is AppResult.Failure -&gt; _state.update { it.copy(saving = false, error = created.error.businessMessage()) }</ID>
+    <ID>MaxLineLength:BusinessViewModels.kt$AffiliateViewModel$it.copy(services = it.services.mapIndexed { i, s -&gt; if (i == index) s.copy(selected = !s.selected) else s }, servicesError = null)</ID>
+    <ID>MaxLineLength:BusinessViewModels.kt$AffiliateViewModel$s.services.filter { it.selected }.forEach { repository.createService(it.name, null, parsePrice(it.price)) }</ID>
+    <ID>MaxLineLength:BusinessViewModels.kt$AttendedUiState</ID>
+    <ID>MaxLineLength:BusinessViewModels.kt$BizProfileUiState</ID>
+    <ID>MaxLineLength:BusinessViewModels.kt$BusinessForm$fun toDraft()</ID>
+    <ID>MaxLineLength:BusinessViewModels.kt$BusinessKind.Grooming -&gt; listOf(DraftService("Baño", "250", true), DraftService("Corte de pelo", "300", false), DraftService("Corte de uñas", "80", false))</ID>
+    <ID>MaxLineLength:BusinessViewModels.kt$BusinessKind.Store -&gt; listOf(DraftService("Alimento", "", true), DraftService("Accesorios", "", false), DraftService("Juguetes", "", false))</ID>
+    <ID>MaxLineLength:BusinessViewModels.kt$BusinessKind.Veterinary -&gt; listOf(DraftService("Consulta general", "350", true), DraftService("Vacunación", "250", false), DraftService("Desparasitación", "150", false))</ID>
+    <ID>MaxLineLength:BusinessViewModels.kt$MyBusinessViewModel$fun onForm(change: (BusinessForm) -&gt; BusinessForm)</ID>
+    <ID>MaxLineLength:BusinessViewModels.kt$MyBusinessViewModel$is AppResult.Failure -&gt; _state.update { it.copy(loadingServices = false, error = r.error.businessMessage()) }</ID>
+    <ID>MaxLineLength:BusinessViewModels.kt$MyBusinessViewModel$it.copy(business = cached, kind = kind, form = cached?.let(BusinessForm::from) ?: it.form.copy(kind = kind))</ID>
+    <ID>MaxLineLength:BusinessViewModels.kt$MyBusinessViewModel$val kind = cached?.kind ?: (auth.sessionState.first() as? SessionState.SignedIn)?.user?.businessType.let(BusinessKind::fromApi)</ID>
+    <ID>MaxLineLength:BusinessViewModels.kt$MyBusinessViewModel$val parsed = price.takeIf { it.isNotBlank() }?.let { parsePrice(it) ?: return _state.update { s -&gt; s.copy(error = "El precio debe ser un número, por ejemplo 300.") } }</ID>
+    <ID>MaxLineLength:BusinessViewModels.kt$MyBusinessViewModel$val r = if (id == null) repository.createService(name, description, parsed) else repository.updateService(id, name, description, parsed)</ID>
+    <ID>MaxLineLength:BusinessViewModels.kt$ScanViewModel$403 -&gt; "El dueño no ha compartido el historial con tu negocio, o ya venció. Pídele que genere el QR para compartir."</ID>
+    <ID>MaxLineLength:BusinessViewModels.kt$ScanViewModel$404 -&gt; "No encontramos ese código. Revisa que esté bien escrito o que el QR no se haya cambiado."</ID>
+    <ID>MaxLineLength:BusinessViewModels.kt$ScanViewModel$if (code.length != 8 &amp;&amp; code.length != 43) return _state.update { it.copy(error = "El código tiene 8 caracteres (o escanea el QR).") }</ID>
+    <ID>MaxLineLength:BusinessViewModels.kt$ScanViewModel$val isVet = (auth.sessionState.first() as? SessionState.SignedIn)?.user?.businessType.let(BusinessKind::fromApi) == BusinessKind.Veterinary</ID>
+    <ID>MaxLineLength:BusinessViewModels.kt$ShareViewModel$fun toggle(item: SharedData)</ID>
+    <ID>MaxLineLength:BusinessViewModels.kt$ShareViewModel$it.copy(saving = false, sharedWith = s.vets.firstOrNull { v -&gt; v.id == s.businessId }?.name ?: "Cualquier negocio que escanee")</ID>
+    <ID>MaxLineLength:BusinessViewModels.kt$ShareViewModel$val (lat, lng) = if (latitude != null &amp;&amp; longitude != null) latitude to longitude else MapViewModel.DEFAULT_CENTER</ID>
+    <ID>MaxLineLength:BusinessViewModels.kt$ShareViewModel$val vets = (repository.getNearby(lat, lng) as? AppResult.Success)?.data.orEmpty().filter { it.kind == BusinessKind.Veterinary }</ID>
+    <ID>MaxLineLength:Carnet.kt$AllergyKind.Companion$fun fromApi(value: String?): AllergyKind</ID>
+    <ID>MaxLineLength:Carnet.kt$DewormingType.Companion$fun fromApi(value: String?): DewormingType?</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$.</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$Box</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$Column</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$PetMateBadge(stringResource(R.string.qr_brightness), extra.sunSoft, extra.sunInk, icon = R.drawable.ic_pm_info)</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$PetMateBadge(stringResource(R.string.qr_only_yours), extra.okSoft, extra.ok, icon = R.drawable.ic_pm_shield)</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$PetMateIconButton(R.drawable.ic_pm_edit, stringResource(R.string.carnet_edit), if (isGuest) onNeedAccount else onEditClick)</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$Row</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$SectionButton(R.drawable.ic_pm_alert, stringResource(R.string.carnet_allergies), c.allergies.size, extra.alertSoft, extra.alert, Modifier.weight(1f).testTag(CarnetTags.section(CarnetSection.Allergies))) { onOpen(CarnetSection.Allergies) }</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$SectionButton(R.drawable.ic_pm_calendar, "Historial", null, extra.brandSoft, MaterialTheme.colorScheme.primary, Modifier.weight(1f).testTag(CarnetTags.section(CarnetSection.History))) { onOpen(CarnetSection.History) }</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$SectionButton(R.drawable.ic_pm_pill, stringResource(R.string.deworm_title), c.dewormings.size, extra.okSoft, extra.ok, Modifier.weight(1f).testTag(CarnetTags.section(CarnetSection.Deworm))) { onOpen(CarnetSection.Deworm) }</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$SectionButton(R.drawable.ic_pm_qr, stringResource(R.string.carnet_qr), null, extra.sunSoft, extra.sunInk, Modifier.weight(1f).testTag(CarnetTags.section(CarnetSection.Qr))) { onOpen(CarnetSection.Qr) }</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$SectionButton(R.drawable.ic_pm_syringe, stringResource(R.string.vaccines_title), c.vaccines.size, extra.brandSoft, MaterialTheme.colorScheme.primary, Modifier.weight(1f).testTag(CarnetTags.section(CarnetSection.Vaccines))) { onOpen(CarnetSection.Vaccines) }</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$SectionButton(R.drawable.ic_pm_weight, stringResource(R.string.weight_title), c.weights.size, extra.shopSoft, extra.shop, Modifier.weight(1f).testTag(CarnetTags.section(CarnetSection.Weight))) { onOpen(CarnetSection.Weight) }</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$Text(stringResource(R.string.qr_code_hint), color = extra.ink2, fontSize = 14.sp, textAlign = TextAlign.Center)</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$Text(stringResource(R.string.qr_lead), color = extra.ink2, fontSize = 15.sp, textAlign = TextAlign.Center, modifier = Modifier.padding(bottom = 8.dp))</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$Text(value, style = MaterialTheme.typography.headlineSmall.copy(fontSize = 19.sp, lineHeight = 21.sp), maxLines = 2)</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$background = if (allergies.isNotEmpty()) extra.alertSoft else MaterialTheme.colorScheme.surface</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$if (count != null) PetMateBadge(count.toString(), MaterialTheme.petMateColors.surface2, MaterialTheme.petMateColors.ink2)</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$if (icon != null) Icon(painterResource(icon), contentDescription = null, tint = Color(0xFF1D1733), modifier = Modifier.size(14.dp))</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$if (isGuest) DemoStrip(onCreateAccountClick = onNeedAccount, modifier = Modifier.padding(bottom = 6.dp))</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$pet == null &amp;&amp; state.isLoading -&gt; Box(Modifier.statusBarsPadding().testTag(CarnetTags.LOADING)) { PetLoading() }</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$style = MaterialTheme.typography.headlineSmall.copy(fontSize = 34.sp, fontWeight = FontWeight.ExtraBold)</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$style = MaterialTheme.typography.headlineSmall.copy(fontSize = 34.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 2.sp)</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$sub = lastWeight?.let { formatDate(it.measuredOn) } ?: stringResource(R.string.carnet_no_record)</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$sub = nextVaccine?.let { "${it.first.name} · ${whenText(it.second)}" } ?: stringResource(R.string.carnet_all_ok)</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$sub = stringResource(if (allergies.isEmpty()) R.string.carnet_no_active_allergies else R.string.allergy_active)</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$val nextVaccine = c.vaccines.mapNotNull { v -&gt; v.nextDoseOn?.let { v to it } }.filter { it.second &gt;= today }.minByOrNull { it.second }</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$value = if (allergies.isEmpty()) stringResource(R.string.carnet_none) else allergies.joinToString(", ") { it.name }</ID>
+    <ID>MaxLineLength:CarnetScreens.kt$value = nextVaccine?.second?.let { formatDate(it) } ?: stringResource(R.string.carnet_none)</ID>
+    <ID>MaxLineLength:DashboardDaoTest.kt$DashboardDaoTest$dao.replace(dashboard("u1"), listOf(alert("u1", "f1", null)), listOf(attended("u1", "Nube", "2026-11-26T10:00:00Z")))</ID>
+    <ID>MaxLineLength:DashboardDaoTest.kt$DashboardDaoTest$dao.replace(dashboard("u2"), listOf(alert("u2", "f2", null)), listOf(attended("u2", "Rocco", "2026-11-26T10:00:00Z")))</ID>
+    <ID>MaxLineLength:FollowUpViewModelTest.kt$FollowUpViewModelTest$coEvery { repository.updateFollowup("f-1", "Discharged", null) } returns AppResult.Success(followup("Discharged"))</ID>
+    <ID>MaxLineLength:HistoryScreens.kt$Icon(painterResource(iconRes), contentDescription = null, tint = iconTint, modifier = Modifier.size(22.dp))</ID>
+    <ID>MaxLineLength:HistoryScreens.kt$Text("Dosis: ${med.dose} · Frecuencia: ${med.frequency}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)</ID>
+    <ID>MaxLineLength:HistoryScreens.kt$Text("Duración: ${med.duration}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)</ID>
+    <ID>MaxLineLength:HistoryScreens.kt$Text("Notas de evolución:", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = extra.sunInk)</ID>
+    <ID>MaxLineLength:HistoryScreens.kt$Text("• ${n.text}", fontSize = 13.sp, color = extra.sunInk, modifier = Modifier.padding(top = 2.dp))</ID>
+    <ID>MaxLineLength:HomeScreen.kt$Icon(painterResource(R.drawable.ic_pm_chevron), contentDescription = null, tint = extra.ink3, modifier = Modifier.size(20.dp))</ID>
+    <ID>MaxLineLength:HomeScreen.kt$Icon(painterResource(R.drawable.ic_pm_store), contentDescription = null, tint = extra.sun, modifier = Modifier.size(32.dp))</ID>
+    <ID>MaxLineLength:HomeScreen.kt$Icon(painterResource(R.drawable.ic_pm_user), contentDescription = null, tint = extra.onSun, modifier = Modifier.size(32.dp))</ID>
+    <ID>MaxLineLength:HomeScreen.kt$MenuItem(R.drawable.ic_pm_logout, stringResource(R.string.profile_exit_demo), actions.onExitDemoClick)</ID>
+    <ID>MaxLineLength:HomeScreen.kt$PetMateButton(text = stringResource(R.string.home_logout), onClick = onConfirm, modifier = Modifier.fillMaxWidth())</ID>
+    <ID>MaxLineLength:HomeScreen.kt$Text(stringResource(R.string.profile_logout_body), fontSize = 14.sp, color = extra.ink2, textAlign = TextAlign.Center)</ID>
+    <ID>MaxLineLength:HomeScreen.kt$Text(stringResource(R.string.profile_logout_title), style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center)</ID>
+    <ID>MaxLineLength:HomeScreen.kt$if (bottomBar != null) bottomBar() else PetMateBottomBar(selected = OwnerTab.Profile, onTabSelected = actions.onTabSelected)</ID>
+    <ID>MaxLineLength:HomeScreen.kt$shadow(2.dp, CardShape, ambientColor = MaterialTheme.colorScheme.primary, spotColor = MaterialTheme.colorScheme.primary)</ID>
+    <ID>MaxLineLength:HomeScreen.kt$style = MaterialTheme.typography.headlineSmall.copy(fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)</ID>
+    <ID>MaxLineLength:IllustratedMap.kt$BusinessType.Shop -&gt; BusinessStyle(R.string.business_type_shop, R.drawable.ic_pm_bag, c.pinShop, c.shopSoft, c.shop)</ID>
+    <ID>MaxLineLength:IllustratedMap.kt$BusinessType.Spa -&gt; BusinessStyle(R.string.business_type_spa, R.drawable.ic_pm_scissors, c.pinSpa, c.spaSoft, c.spa)</ID>
+    <ID>MaxLineLength:IllustratedMap.kt$BusinessType.Vet -&gt; BusinessStyle(R.string.business_type_vet, R.drawable.ic_pm_cross, c.pinVet, c.vetSoft, c.vet)</ID>
+    <ID>MaxLineLength:IllustratedMap.kt$val drop = RoundedCornerShape(topStartPercent = 50, topEndPercent = 50, bottomEndPercent = 50, bottomStartPercent = 10)</ID>
+    <ID>MaxLineLength:ManifestSecurityTest.kt$ManifestSecurityTest$assertTrue("MainActivity debe usar launchMode=\"singleInstance\".", activity.contains("android:launchMode=\"singleInstance\""))</ID>
+    <ID>MaxLineLength:MapContentTest.kt$MapContentTest$assertTrue("la maqueta debe traer negocios de otros tipos", onlySpas.visibleBusinesses.size &lt; state.businesses.size)</ID>
+    <ID>MaxLineLength:MapIntents.kt$LocationManagerCompat.getCurrentLocation(manager, provider, CancellationSignal(), ContextCompat.getMainExecutor(context)) { onLocation(it) }</ID>
+    <ID>MaxLineLength:MapIntents.kt$private fun Context.hasLocationPermission(): Boolean</ID>
+    <ID>MaxLineLength:MapIntents.kt$safeStart(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.openstreetmap.org/?mlat=$latitude&amp;mlon=$longitude#map=17/$latitude/$longitude")))</ID>
+    <ID>MaxLineLength:MapIntents.kt$val geo = Intent(Intent.ACTION_VIEW, Uri.parse("geo:$latitude,$longitude?q=$latitude,$longitude(${Uri.encode(label)})"))</ID>
+    <ID>MaxLineLength:MapIntents.kt$val last = providers.mapNotNull { runCatching { manager.getLastKnownLocation(it) }.getOrNull() }.maxByOrNull { it.time }</ID>
+    <ID>MaxLineLength:MapIntents.kt$val providers = listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER).filter { runCatching { manager.isProviderEnabled(it) }.getOrDefault(false) }</ID>
+    <ID>MaxLineLength:MapScreen.kt$Row</ID>
+    <ID>MaxLineLength:MapViewModel.kt$MapViewModel$is AppResult.Failure -&gt; _state.update { it.copy(isLoading = false, error = UiText.Resource(R.string.map_error)) }</ID>
+    <ID>MaxLineLength:ModerationAuditLoggerTest.kt$ModerationAuditLoggerTest$audit.record(ModerationContentType.Text, ModerationVerdict.Rejected(ModerationRejection.ContentNotAllowed), 120, texto)</ID>
+    <ID>MaxLineLength:ModerationAuditLoggerTest.kt$ModerationAuditLoggerTest$audit.record(ModerationContentType.Text, ModerationVerdict.Rejected(ModerationRejection.ContentNotAllowed), 90, "algo")</ID>
+    <ID>MaxLineLength:ModerationPolicyTest.kt$ModerationPolicyTest$assertTrue("El mensaje debe salir de strings.xml, no construirse con datos del proveedor.", mensaje is UiText.Resource)</ID>
+    <ID>MaxLineLength:MyBusinessViewModelTest.kt$MyBusinessViewModelTest$assertFalse("No tiene sentido mandar al servidor datos que ya sabemos que no acepta", repository.seLlamo("updateBusiness"))</ID>
+    <ID>MaxLineLength:MyBusinessViewModelTest.kt$MyBusinessViewModelTest$repository.servicios = AppResult.Success(listOf(servicioFalso(name = "Consulta general"), servicioFalso(id = "s-2", name = "Vacunación")))</ID>
+    <ID>MaxLineLength:OwnerBusinessScreens.kt$ContactAction</ID>
+    <ID>MaxLineLength:OwnerBusinessScreens.kt$FlowRow</ID>
+    <ID>MaxLineLength:OwnerBusinessScreens.kt$Icon(painterResource(R.drawable.ic_pm_pin), contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))</ID>
+    <ID>MaxLineLength:OwnerBusinessScreens.kt$PetMateButton("Compartir", viewModel::share, icon = R.drawable.ic_pm_shield, loading = state.saving, modifier = Modifier.fillMaxWidth())</ID>
+    <ID>MaxLineLength:OwnerBusinessScreens.kt$Row</ID>
+    <ID>MaxLineLength:OwnerBusinessScreens.kt$SelectChip(meta.first, selected = item in state.data, onClick = { viewModel.toggle(item) }, icon = if (item in state.data) R.drawable.ic_pm_check else meta.second)</ID>
+    <ID>MaxLineLength:OwnerBusinessScreens.kt$ShareDuration.entries.forEach { d -&gt; SelectChip(d.label(), selected = state.duration == d, onClick = { viewModel.duration(d) }, modifier = Modifier.weight(1f)) }</ID>
+    <ID>MaxLineLength:OwnerBusinessScreens.kt$ShareOption("Cualquier negocio que escanee", "Si vas a uno que no está en la lista", state.businessId == null) { viewModel.selectBusiness(null) }</ID>
+    <ID>MaxLineLength:OwnerBusinessScreens.kt$ShareOption(v.name, "Veterinaria · a ${formatDistance(v.distanceMeters)}${if (v.isOpen) " · abierta" else ""}", state.businessId == v.id) { viewModel.selectBusiness(v.id) }</ID>
+    <ID>MaxLineLength:OwnerBusinessScreens.kt$Text("Las alergias siempre se comparten para cuidar a ${petName.ifBlank { "tu mascota" }}.", color = extra.ink2, fontSize = 13.sp, modifier = Modifier.padding(top = 8.dp))</ID>
+    <ID>MaxLineLength:OwnerBusinessScreens.kt$Text(DAY_LABELS.getValue(day), fontWeight = FontWeight.Bold, modifier = Modifier.width(56.dp))</ID>
+    <ID>MaxLineLength:OwnerBusinessScreens.kt$Text(priceText(s.price), fontWeight = FontWeight.Bold, color = if (s.price != null) MaterialTheme.colorScheme.primary else extra.ink3)</ID>
+    <ID>MaxLineLength:OwnerBusinessScreens.kt$b.phone?.let { phone -&gt; ContactAction("Llamar", R.drawable.ic_pm_phone, extra.okSoft, extra.ok, Modifier.weight(1f)) { context.dial(phone) } }</ID>
+    <ID>MaxLineLength:OwnerBusinessScreens.kt$b.whatsApp?.let { wa -&gt; ContactAction("WhatsApp", R.drawable.ic_pm_chat, extra.whatsApp, extra.whatsAppInk, Modifier.weight(1f)) { context.openWhatsApp(wa) } }</ID>
+    <ID>MaxLineLength:OwnerBusinessScreens.kt$color = if (ranges.isEmpty()) extra.ink3 else MaterialTheme.colorScheme.onSurface</ID>
+    <ID>MaxLineLength:OwnerBusinessScreens.kt$if (ranges.isEmpty()) "Cerrado" else ranges.joinToString(", ") { "${it.open}–${it.close}" }</ID>
+    <ID>MaxLineLength:OwnerBusinessScreens.kt$if (selected) Icon(painterResource(R.drawable.ic_pm_check), contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))</ID>
+    <ID>MaxLineLength:OwnerBusinessScreens.kt$modifier = modifier.heightIn(min = 58.dp).clip(RoundedCornerShape(16.dp)).background(soft).clickable(onClick = onClick).padding(8.dp)</ID>
+    <ID>MaxLineLength:OwnerBusinessScreens.kt$private</ID>
+    <ID>MaxLineLength:OwnerBusinessScreens.kt$style = MaterialTheme.typography.headlineSmall.copy(fontSize = 26.sp, fontWeight = FontWeight.ExtraBold)</ID>
+    <ID>MaxLineLength:OwnerBusinessScreens.kt$text = "Compartiste el historial con $who por ${state.duration.label()}. Que escaneen el QR de ${petName.ifBlank { "tu mascota" }}."</ID>
+    <ID>MaxLineLength:OwnerBusinessScreens.kt$top = { PetTopBar(title = "Compartir historial", subtitle = petName.ifBlank { null }, onBackClick = onBackClick) }</ID>
+    <ID>MaxLineLength:PermissionFlowTest.kt$PermissionFlowTest$assertEquals(PermissionStep.Granted, PermissionFlow.onReturnFromSettings(waiting, PermissionStatus.Granted).step)</ID>
+    <ID>MaxLineLength:Pet.kt$PetSex.Companion$fun fromApi(value: String?): PetSex</ID>
+    <ID>MaxLineLength:Pet.kt$PetSpecies.Companion$fun</ID>
+    <ID>MaxLineLength:PetComponents.kt$Icon(painterResource(R.drawable.ic_pm_calendar), contentDescription = null, tint = extra.ink2, modifier = Modifier.size(20.dp))</ID>
+    <ID>MaxLineLength:PetComponents.kt$Icon(painterResource(R.drawable.ic_pm_plus), contentDescription = null, tint = MaterialTheme.petMateColors.onSun, modifier = Modifier.size(26.dp))</ID>
+    <ID>MaxLineLength:PetComponents.kt$Icon(painterResource(icon), contentDescription = null, tint = if (danger) extra.alert else MaterialTheme.colorScheme.primary, modifier = Modifier.size(28.dp))</ID>
+    <ID>MaxLineLength:PetComponents.kt$Text(confirm, color = if (danger) extra.alert else MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)</ID>
+    <ID>MaxLineLength:PetComponents.kt$Text(label, fontWeight = FontWeight.Bold, color = if (on) MaterialTheme.colorScheme.onSurface else extra.ink2)</ID>
+    <ID>MaxLineLength:PetComponents.kt$Text(text, color = MaterialTheme.petMateColors.ink2, textAlign = TextAlign.Center, modifier = Modifier.padding(bottom = 18.dp))</ID>
+    <ID>MaxLineLength:PetComponents.kt$dismissButton = { TextButton(onClick = { open = false }) { Text(stringResource(R.string.profile_cancel)) } }</ID>
+    <ID>MaxLineLength:PetComponents.kt$error != null -&gt; Text(error.asString(), color = extra.alert, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 6.dp))</ID>
+    <ID>MaxLineLength:PetComponents.kt$if (m.get(x, y)) drawRect(ink, topLeft = Offset(x * cell, y * cell), size = Size(cell + 0.5f, cell + 0.5f))</ID>
+    <ID>MaxLineLength:PetComponents.kt$modifier = Modifier.size(56.dp).background(if (danger) extra.alertSoft else extra.brandSoft, RoundedCornerShape(18.dp))</ID>
+    <ID>MaxLineLength:PetComponents.kt$val state = rememberDatePickerState(initialSelectedDateMillis = (value ?: PetDates.today()).let { PetDates.toMillisUtc(it) })</ID>
+    <ID>MaxLineLength:PetHistoryViewModelTest.kt$PetHistoryViewModelTest$assertNull("Un error viejo encima de datos buenos confunde mas que no mostrar nada", vm.historyState.value.error)</ID>
+    <ID>MaxLineLength:PetMateNavHost.kt$/** Mascotas, carnet y QR (specs 007, 008 y 009). En el modo demo se ven las mascotas de ejemplo y guardar pide cuenta. */</ID>
+    <ID>MaxLineLength:PetMateNavHost.kt$BusinessGraph(user = state.user, onSwitchToOwner = { viewModel.setBusinessMode(false) }, modifier = modifier)</ID>
+    <ID>MaxLineLength:PetMateNavHost.kt$ConsultationDetailScreen(consultationId = entry.arguments?.getString(Route.ARG_CONSULTATION_ID).orEmpty(), onBackClick = back)</ID>
+    <ID>MaxLineLength:PetMateNavHost.kt$DewormScreen(viewModel, isGuest, back, onAddClick = { navController.navigate(Route.dewormForm(viewModel.petId)) }, onNeedAccount = onNeedAccount)</ID>
+    <ID>MaxLineLength:PetMateNavHost.kt$MainGraph(user = state.user, onLeaveDemo = {}, onSwitchToBusiness = { viewModel.setBusinessMode(true) }, modifier = modifier)</ID>
+    <ID>MaxLineLength:PetMateNavHost.kt$ShareScreen(viewModel = hiltViewModel(entry), petName = petState.pet?.name.orEmpty(), onBackClick = { navController.popBackStack() })</ID>
+    <ID>MaxLineLength:PetMateNavHost.kt$VaccinesScreen(viewModel, isGuest, back, onAddClick = { navController.navigate(Route.vaccineForm(viewModel.petId)) }, onNeedAccount = onNeedAccount)</ID>
+    <ID>MaxLineLength:PetMateNavHost.kt$arguments = listOf(navArgument(Route.ARG_PET_ID) { type = NavType.StringType; nullable = true; defaultValue = null })</ID>
+    <ID>MaxLineLength:PetMateNavHost.kt$arguments = petArg + navArgument(Route.ARG_ALLERGY_ID) { type = NavType.StringType; nullable = true; defaultValue = null }</ID>
+    <ID>MaxLineLength:PetMateNavHost.kt$composable</ID>
+    <ID>MaxLineLength:PetMateNavHost.kt$onShareClick = { entry.arguments?.getString(Route.ARG_PET_ID)?.let { navController.navigate(Route.share(it)) } }</ID>
+    <ID>MaxLineLength:PetRepositoryImpl.kt$PetRepositoryImpl$if (draft.active) created.toDomain() else required(api.updateAllergy(it, created.id, draft.toUpdate()).data).toDomain()</ID>
+    <ID>MaxLineLength:PetRepositoryImpl.kt$PetRepositoryImpl$private suspend fun &lt;T&gt; io(block: suspend () -&gt; AppResult&lt;T&gt;): AppResult&lt;T&gt;</ID>
+    <ID>MaxLineLength:PetRepositoryImplTest.kt$PetRepositoryImplTest$"""{"accessToken":"acc-2","refreshToken":"ref-2","user":{"id":"u-1","email":"ana@petmate.mx","role":"User"}}"""</ID>
+    <ID>MaxLineLength:PetRepositoryImplTest.kt$PetRepositoryImplTest$"allergies" to page("""{"id":"a-1","petId":"p-1","name":"Pollo","kind":"Allergy","status":"Resolved","origin":{"type":"Owner"}}""")</ID>
+    <ID>MaxLineLength:PetRepositoryImplTest.kt$PetRepositoryImplTest$"dewormings" to page("""{"id":"d-1","petId":"p-1","appliedOn":"2026-08-20","product":"Drontal","type":"Internal","origin":{"type":"Owner"}}""")</ID>
+    <ID>MaxLineLength:PetRepositoryImplTest.kt$PetRepositoryImplTest$"weights" to page("""{"id":"w-1","petId":"p-1","measuredOn":"2026-10-13","kilograms":12.4,"origin":{"type":"Owner"}}""")</ID>
+    <ID>MaxLineLength:PetRepositoryImplTest.kt$PetRepositoryImplTest$server.enqueue(json(200, wrapper(200, """{"items":[$petJson],"page":1,"pageSize":50,"totalCount":1,"totalPages":1}""")))</ID>
+    <ID>MaxLineLength:PetRepositoryImplTest.kt$PetRepositoryImplTest$val allergy = """{"id":"a-1","petId":"p-1","name":"Pollo","kind":"Allergy","status":"Active","origin":{"type":"Owner"}}"""</ID>
+    <ID>MaxLineLength:PetRepositoryImplTest.kt$PetRepositoryImplTest$val page = { items: String -&gt; wrapper(200, """{"items":[$items],"page":1,"pageSize":50,"totalCount":1,"totalPages":1}""") }</ID>
+    <ID>MaxLineLength:PetRepositoryRouter.kt$DelegatingPetRepository$override suspend fun addAllergy(petId: String, draft: mx.petmate.app.domain.model.AllergyDraft)</ID>
+    <ID>MaxLineLength:PetRepositoryRouter.kt$DelegatingPetRepository$override suspend fun addDeworming(petId: String, draft: mx.petmate.app.domain.model.DewormingDraft)</ID>
+    <ID>MaxLineLength:PetRepositoryRouter.kt$DelegatingPetRepository$override suspend fun addVaccine(petId: String, draft: mx.petmate.app.domain.model.VaccineDraft)</ID>
+    <ID>MaxLineLength:PetRepositoryRouter.kt$DelegatingPetRepository$override suspend fun addWeight(petId: String, measuredOn: String, kilograms: Double)</ID>
+    <ID>MaxLineLength:PetRepositoryRouter.kt$DelegatingPetRepository$override suspend fun updateAllergy(id: String, draft: mx.petmate.app.domain.model.AllergyDraft)</ID>
+    <ID>MaxLineLength:PetRepositoryRouter.kt$DelegatingPetRepository$override suspend fun updatePet(id: String, draft: mx.petmate.app.domain.model.PetDraft)</ID>
+    <ID>MaxLineLength:PetRules.kt$PetRules$if (kilograms &lt;= 0.0 || kilograms &gt; MAX_KILOGRAMS) listOf(Issue(Field.Kilograms, Problem.OutOfRange)) else emptyList()</ID>
+    <ID>MaxLineLength:PetRulesTest.kt$PetRulesTest$private</ID>
+    <ID>MaxLineLength:PetRulesTest.kt$PetRulesTest$setOf(PetRules.Field.Name to PetRules.Problem.Required, PetRules.Field.Species to PetRules.Problem.Required)</ID>
+    <ID>MaxLineLength:PetViewModels.kt$PetCarnetViewModel$carnetResult is AppResult.Failure -&gt; it.copy(isLoading = false, pet = petResult.getOrNull(), error = carnetResult.error.toPetUiText())</ID>
+    <ID>MaxLineLength:PetViewModels.kt$PetCarnetViewModel$else -&gt; it.copy(isLoading = false, pet = petResult.getOrNull(), carnet = carnetResult.getOrNull() ?: Carnet())</ID>
+    <ID>MaxLineLength:PetViewModels.kt$PetCarnetViewModel$is AppResult.Success -&gt; _uiState.update { it.copy(qr = result.data, message = UiText.Resource(mx.petmate.app.R.string.qr_regenerated)) }</ID>
+    <ID>MaxLineLength:PetViewModels.kt$PetFormViewModel$fun onBirthDate(value: String?)</ID>
+    <ID>MaxLineLength:PetViewModels.kt$PetFormViewModel$fun onSpecies(value: PetSpecies)</ID>
+    <ID>MaxLineLength:PetViewModels.kt$PetFormViewModel$it.copy(isLoading = false, name = p.name, species = p.species, breed = p.breed.orEmpty(), sex = p.sex, birthDate = p.birthDate)</ID>
+    <ID>MaxLineLength:PetViewModels.kt$PetsViewModel$is AppResult.Failure -&gt; _uiState.update { it.copy(isLoading = false, error = result.error.toPetUiText()) }</ID>
+    <ID>MaxLineLength:PetsApiService.kt$PetsApiService$suspend</ID>
+    <ID>MaxLineLength:PetsScreens.kt$.</ID>
+    <ID>MaxLineLength:PetsScreens.kt$Box</ID>
+    <ID>MaxLineLength:PetsScreens.kt$Icon(painterResource(R.drawable.ic_pm_bell), contentDescription = null, tint = extra.onSun, modifier = Modifier.size(22.dp))</ID>
+    <ID>MaxLineLength:PetsScreens.kt$Icon(painterResource(R.drawable.ic_pm_next), contentDescription = null, tint = extra.ink3, modifier = Modifier.size(24.dp))</ID>
+    <ID>MaxLineLength:PetsScreens.kt$Icon(painterResource(R.drawable.ic_pm_paw), contentDescription = null, tint = MaterialTheme.petMateColors.ink3, modifier = Modifier.size(40.dp))</ID>
+    <ID>MaxLineLength:PetsScreens.kt$Icon(painterResource(R.drawable.ic_pm_plus), contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))</ID>
+    <ID>MaxLineLength:PetsScreens.kt$PetMateBadge(stringResource(R.string.pets_badge_ok), extra.okSoft, extra.ok, icon = R.drawable.ic_pm_check)</ID>
+    <ID>MaxLineLength:PetsScreens.kt$SpeciesTile(PetSpecies.Cat, state.species == PetSpecies.Cat, Modifier.weight(1f).testTag(PetsTags.SPECIES_CAT)) { callbacks.onSpecies(PetSpecies.Cat) }</ID>
+    <ID>MaxLineLength:PetsScreens.kt$SpeciesTile(PetSpecies.Dog, state.species == PetSpecies.Dog, Modifier.weight(1f).testTag(PetsTags.SPECIES_DOG)) { callbacks.onSpecies(PetSpecies.Dog) }</ID>
+    <ID>MaxLineLength:PetsScreens.kt$Text(it.asString(), color = MaterialTheme.petMateColors.alert, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 6.dp))</ID>
+    <ID>MaxLineLength:PetsScreens.kt$Text(parts.joinToString(" · "), fontSize = 14.sp, color = extra.ink2, modifier = Modifier.padding(top = 2.dp, bottom = 6.dp))</ID>
+    <ID>MaxLineLength:PetsScreens.kt$Text(stringResource(R.string.pets_add), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, fontSize = 16.sp)</ID>
+    <ID>MaxLineLength:PetsScreens.kt$first.next?.let { NextStrip(petName = first.pet.name, event = it, onClick = { onPetClick(first.pet.id) }) }</ID>
+    <ID>MaxLineLength:PetsScreens.kt$options = listOf(PetSex.Male to stringResource(R.string.pets_sex_male), PetSex.Female to stringResource(R.string.pets_sex_female))</ID>
+    <ID>MaxLineLength:PetsScreens.kt$pluralStringResource(R.plurals.pets_badge_allergies, summary.activeAllergies, summary.activeAllergies)</ID>
+    <ID>MaxLineLength:PetsScreens.kt$subtitle = if (isGuest) stringResource(R.string.pets_subtitle_demo) else stringResource(R.string.pets_hello, firstName)</ID>
+    <ID>MaxLineLength:PetsScreens.kt$text = "${stringResource(if (next.isVaccine) R.string.pets_badge_vaccine else R.string.pets_badge_deworm)} ${whenText(next.date)}"</ID>
+    <ID>MaxLineLength:PetsScreens.kt$title = if (state.isEdit) stringResource(R.string.pet_form_edit_title, state.name) else stringResource(R.string.pet_form_new_title)</ID>
+    <ID>MaxLineLength:PetsScreens.kt$val what = if (event.isVaccine) stringResource(R.string.pets_next_vaccine, event.name) else stringResource(R.string.pets_next_deworm)</ID>
+    <ID>MaxLineLength:RecordScreens.kt$.</ID>
+    <ID>MaxLineLength:RecordScreens.kt$Box</ID>
+    <ID>MaxLineLength:RecordScreens.kt$Icon(painterResource(R.drawable.ic_pm_lock), contentDescription = null, tint = extra.ink2, modifier = Modifier.size(14.dp))</ID>
+    <ID>MaxLineLength:RecordScreens.kt$Icon(painterResource(R.drawable.ic_pm_weight), contentDescription = null, tint = extra.shop, modifier = Modifier.size(22.dp))</ID>
+    <ID>MaxLineLength:RecordScreens.kt$Icon(painterResource(icon), contentDescription = description, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(26.dp))</ID>
+    <ID>MaxLineLength:RecordScreens.kt$PetDateField(stringResource(R.string.deworm_date), applied, { applied = it; viewModel.clearFieldError(PetRules.Field.AppliedOn) }, required = true, error = errors[PetRules.Field.AppliedOn])</ID>
+    <ID>MaxLineLength:RecordScreens.kt$PetDateField(stringResource(R.string.deworm_next), next, { next = it; viewModel.clearFieldError(PetRules.Field.NextDate) }, hint = stringResource(R.string.record_next_hint), error = errors[PetRules.Field.NextDate])</ID>
+    <ID>MaxLineLength:RecordScreens.kt$PetDateField(stringResource(R.string.vaccine_applied_on), applied, { applied = it; viewModel.clearFieldError(PetRules.Field.AppliedOn) }, required = true, error = errors[PetRules.Field.AppliedOn])</ID>
+    <ID>MaxLineLength:RecordScreens.kt$PetDateField(stringResource(R.string.vaccine_next), next, { next = it; viewModel.clearFieldError(PetRules.Field.NextDate) }, hint = stringResource(R.string.record_next_hint), error = errors[PetRules.Field.NextDate])</ID>
+    <ID>MaxLineLength:RecordScreens.kt$PetMateBadge(origin.businessName ?: stringResource(R.string.record_by_business), extra.vetSoft, extra.vet, icon = R.drawable.ic_pm_cross)</ID>
+    <ID>MaxLineLength:RecordScreens.kt$PetMateBadge(stringResource(R.string.record_me), extra.brandSoft, extra.brandText, icon = R.drawable.ic_pm_user)</ID>
+    <ID>MaxLineLength:RecordScreens.kt$PetMateButton(saveLabel, onSave, icon = R.drawable.ic_pm_check, loading = saving, modifier = Modifier.fillMaxWidth())</ID>
+    <ID>MaxLineLength:RecordScreens.kt$PetMateButton(stringResource(R.string.allergies_add), if (isGuest) onNeedAccount else onAddClick, icon = R.drawable.ic_pm_plus, modifier = Modifier.fillMaxWidth())</ID>
+    <ID>MaxLineLength:RecordScreens.kt$PetMateButton(stringResource(R.string.deworm_add), if (isGuest) onNeedAccount else onAddClick, icon = R.drawable.ic_pm_plus, modifier = Modifier.fillMaxWidth())</ID>
+    <ID>MaxLineLength:RecordScreens.kt$PetMateButton(stringResource(R.string.vaccines_add), if (isGuest) onNeedAccount else onAddClick, icon = R.drawable.ic_pm_plus, modifier = Modifier.fillMaxWidth())</ID>
+    <ID>MaxLineLength:RecordScreens.kt$PetMateTextField(batch, { batch = it }, stringResource(R.string.vaccine_batch), placeholder = stringResource(R.string.vaccine_batch_placeholder), hint = stringResource(R.string.pets_optional))</ID>
+    <ID>MaxLineLength:RecordScreens.kt$PetMateTextField(by, { by = it }, stringResource(R.string.vaccine_by), placeholder = stringResource(R.string.vaccine_by_placeholder))</ID>
+    <ID>MaxLineLength:RecordScreens.kt$PetMateTextField(notes, { notes = it }, stringResource(R.string.allergy_notes), placeholder = stringResource(R.string.allergy_notes_placeholder))</ID>
+    <ID>MaxLineLength:RecordScreens.kt$PetMateTextField(otherName, { otherName = it }, stringResource(R.string.vaccine_other_name), placeholder = stringResource(R.string.vaccine_other_placeholder))</ID>
+    <ID>MaxLineLength:RecordScreens.kt$PetTopBar(title = stringResource(R.string.weight_title), subtitle = state.pet?.name, onBackClick = onBackClick)</ID>
+    <ID>MaxLineLength:RecordScreens.kt$Row</ID>
+    <ID>MaxLineLength:RecordScreens.kt$StepperButton(R.drawable.ic_pm_minus, stringResource(R.string.weight_less)) { kg = PetRules.roundKilograms((kg - 0.1).coerceAtLeast(0.1)) }</ID>
+    <ID>MaxLineLength:RecordScreens.kt$StepperButton(R.drawable.ic_pm_plus, stringResource(R.string.weight_more)) { kg = PetRules.roundKilograms((kg + 0.1).coerceAtMost(PetRules.MAX_KILOGRAMS)) }</ID>
+    <ID>MaxLineLength:RecordScreens.kt$Text("%.1f".format(kg.coerceAtLeast(0.0)), style = MaterialTheme.typography.headlineSmall.copy(fontSize = 34.sp, fontWeight = FontWeight.ExtraBold))</ID>
+    <ID>MaxLineLength:RecordScreens.kt$Text(stringResource(R.string.deworm_type_hint), fontSize = 13.sp, color = MaterialTheme.petMateColors.ink2, modifier = Modifier.padding(top = 6.dp, bottom = 14.dp))</ID>
+    <ID>MaxLineLength:RecordScreens.kt$Text(stringResource(R.string.record_by_you), fontSize = 13.sp, color = extra.ink2, modifier = Modifier.weight(1f))</ID>
+    <ID>MaxLineLength:RecordScreens.kt$Text(stringResource(R.string.record_locked_by, allergy.origin.businessName ?: stringResource(R.string.record_by_business)), fontSize = 13.sp, color = extra.ink2)</ID>
+    <ID>MaxLineLength:RecordScreens.kt$Text(stringResource(R.string.weight_kilos), fontSize = 13.sp, color = extra.ink2, fontWeight = FontWeight.SemiBold)</ID>
+    <ID>MaxLineLength:RecordScreens.kt$Text(text, color = MaterialTheme.petMateColors.alert, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 6.dp))</ID>
+    <ID>MaxLineLength:RecordScreens.kt$allergy.notes?.let { Text(it, color = extra.ink2, fontSize = 14.sp, modifier = Modifier.padding(top = 10.dp)) }</ID>
+    <ID>MaxLineLength:RecordScreens.kt$list.isEmpty() -&gt; PetEmptyState(R.drawable.ic_pm_pill, stringResource(R.string.deworm_empty_title), stringResource(R.string.deworm_empty_text))</ID>
+    <ID>MaxLineLength:RecordScreens.kt$list.isEmpty() -&gt; PetEmptyState(R.drawable.ic_pm_syringe, stringResource(R.string.vaccines_empty_title), stringResource(R.string.vaccines_empty_text))</ID>
+    <ID>MaxLineLength:RecordScreens.kt$options = listOf(AllergyKind.Allergy to stringResource(R.string.allergy_kind_allergy), AllergyKind.Condition to stringResource(R.string.allergy_kind_condition))</ID>
+    <ID>MaxLineLength:RecordScreens.kt$options = listOf(DewormingType.Internal to stringResource(R.string.deworm_internal), DewormingType.External to stringResource(R.string.deworm_external))</ID>
+    <ID>MaxLineLength:RecordScreens.kt$options = listOf(true to stringResource(R.string.allergy_active), false to stringResource(R.string.allergy_resolved))</ID>
+    <ID>MaxLineLength:RecordScreens.kt$stringResource(R.string.weight_delta, (if (delta &gt;= 0) "+" else "") + "%.1f".format(delta), formatDate(prev.measuredOn).take(5))</ID>
+    <ID>MaxLineLength:RecordScreens.kt$style = MaterialTheme.typography.headlineSmall.copy(fontSize = 46.sp, fontWeight = FontWeight.ExtraBold, lineHeight = 46.sp)</ID>
+    <ID>MaxLineLength:RecordScreens.kt$text = if (activeTab) stringResource(R.string.allergies_empty_active_text, petName) else stringResource(R.string.allergies_empty_resolved_text)</ID>
+    <ID>MaxLineLength:RecordScreens.kt$text = stringResource(if (allergy.active) R.string.allergy_mark_resolved else R.string.allergy_reactivate)</ID>
+    <ID>MaxLineLength:RecordScreens.kt$title = stringResource(if (activeTab) R.string.allergies_empty_active_title else R.string.allergies_empty_resolved_title)</ID>
+    <ID>MaxLineLength:RecordScreens.kt$}</ID>
+    <ID>MaxLineLength:Route.kt$Route$fun serviceForm(serviceId: String? = null)</ID>
+    <ID>MaxLineLength:SamplePetRepository.kt$SamplePetRepository$Allergy("a1", "Pollo", AllergyKind.Allergy, "Le da comezón y se rasca las orejas. Croquetas sin pollo.", true, RecordOrigin.Owner)</ID>
+    <ID>MaxLineLength:SamplePetRepository.kt$SamplePetRepository$Deworming("d1", "Drontal Plus", "2026-08-20", DewormingType.Internal, "Yo", "2026-11-20", RecordOrigin.Owner)</ID>
+    <ID>MaxLineLength:SamplePetRepository.kt$SamplePetRepository$carnets[entry.key] = entry.value.copy(allergies = sortAllergies(entry.value.allergies.map { if (it.id == id) updated else it }))</ID>
+    <ID>MaxLineLength:SamplePetRepository.kt$SamplePetRepository$override suspend</ID>
+    <ID>MaxLineLength:SamplePetRepository.kt$SamplePetRepository$vaccines = listOf(Vaccine("v3", "Triple felina", "2026-02-10", null, "Yo", "2027-02-10", RecordOrigin.Owner))</ID>
+    <ID>MaxLineLength:SamplePetRepository.kt$SamplePetRepository$val entry = carnets.entries.firstOrNull { (_, c) -&gt; c.allergies.any { it.id == id } } ?: return@locked notFound()</ID>
+    <ID>MaxLineLength:SamplePetRepository.kt$SamplePetRepository$val entry = carnets.entries.firstOrNull { (_, c) -&gt; c.dewormings.any { it.id == id } } ?: return@locked notFound()</ID>
+    <ID>MaxLineLength:SamplePetRepository.kt$SamplePetRepository$val record = Allergy(newId(), draft.name, draft.kind, draft.notes.ifBlank { null }, draft.active, RecordOrigin.Owner)</ID>
+    <ID>MaxLineLength:SamplePetRepository.kt$SamplePetRepository$val record = Deworming(newId(), draft.product, draft.appliedOn, draft.type, draft.appliedBy.ifBlank { null }, draft.nextOn, RecordOrigin.Owner)</ID>
+    <ID>MaxLineLength:SamplePetRepository.kt$SamplePetRepository$val updated = old.copy(name = draft.name, kind = draft.kind, notes = draft.notes.ifBlank { null }, active = draft.active)</ID>
+    <ID>MaxLineLength:SamplePetRepository.kt$SamplePetRepository$val vaccine = Vaccine(newId(), draft.name, draft.appliedOn, draft.batch.ifBlank { null }, draft.appliedBy.ifBlank { null }, draft.nextDoseOn, RecordOrigin.Owner)</ID>
+    <ID>MaxLineLength:SamplePetRepositoryTest.kt$SamplePetRepositoryTest$val pet = (repo.createPet(PetDraft("Rocky", PetSpecies.Dog, "", null, PetSex.Unknown)) as AppResult.Success).data</ID>
+    <ID>MaxLineLength:ScanScreensTest.kt$ScanScreensTest$weights = listOf(WeightRecord(id = "w1", measuredOn = "2026-06-01", kilograms = 12.4, origin = RecordOrigin.Owner))</ID>
+    <ID>MaxLineLength:ShareAuditLoggerTest.kt$ShareAuditLoggerTest$auditor.issued("p-1", "b-9", contenido(ShareSection.Vaccines, ShareSection.Consultations), "2026-11-27T10:00:00Z")</ID>
+    <ID>MaxLineLength:SplashScreen.kt$style = MaterialTheme.typography.bodyLarge.copy(fontSize = MaterialTheme.typography.titleMedium.fontSize)</ID>
+    <ID>MaxLineLength:SplashScreen.kt$style = MaterialTheme.typography.titleSmall.copy(fontSize = MaterialTheme.typography.bodyMedium.fontSize)</ID>
+    <ID>MaxLineLength:SubmitAffiliationUseCase.kt$SubmitAffiliationUseCase$Submission.Incomplete(listOf(AffiliationRules.Issue(AffiliationRules.Field.Pin, AffiliationRules.Problem.Required)))</ID>
+    <ID>MaxLineLength:VeterinaryActionScreens.kt$Text("Tipo de desparasitación", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)</ID>
+    <ID>MaxLineLength:VeterinaryActionScreens.kt$onValueChange = { medications[index] = med.copy(dose = it); viewModel.clearError() }</ID>
+    <ID>MaxLineLength:VeterinaryActionScreens.kt$onValueChange = { medications[index] = med.copy(frequency = it); viewModel.clearError() }</ID>
+    <ID>MaxLineLength:VeterinaryActionScreens.kt$onValueChange = { medications[index] = med.copy(instructions = it.ifEmpty { null }); viewModel.clearError() }</ID>
+    <ID>MaxLineLength:VeterinaryActionViewModel.kt$VeterinaryActionViewModel$else</ID>
+    <ID>MaxLineLength:VeterinaryActionViewModel.kt$VeterinaryActionViewModel$errors["weightKg"] = res(R.string.veterinary_error_weight_range, WEIGHT_MIN.toString(), WEIGHT_MAX.toString())</ID>
+    <ID>MaxLineLength:VeterinaryActionViewModel.kt$VeterinaryActionViewModel$when</ID>
+    <ID>MaxLineLength:VeterinaryRepositoryImpl.kt$VeterinaryRepositoryImpl$override suspend</ID>
+    <ID>MaxLineLength:VeterinaryRepositoryImplTest.kt$VeterinaryRepositoryImplTest$""""medications":[{"name":"Amoxicilina","dose":"1 tableta","frequency":"cada 12 h","duration":"7 dias"}]}"""</ID>
+    <ID>MaxLineLength:VeterinaryRepositoryImplTest.kt$VeterinaryRepositoryImplTest$"""{"consultationId":"c-1","name":"Meloxicam","dose":"0.5 ml","frequency":"cada 24 h","duration":"3 dias","instructions":"con comida"}"""</ID>
+    <ID>MaxLineLength:VeterinaryRepositoryImplTest.kt$VeterinaryRepositoryImplTest$repository.createDewormingByBusiness("p-1", "Drontal", "2026-11-11", DewormingType.Internal, "2027-02-11") as AppResult.Success</ID>
+    <ID>MaxLineLength:VeterinaryRepositoryImplTest.kt$VeterinaryRepositoryImplTest$val vaccine = (repository.createVaccineByBusiness("p-1", " Rabia ", "2026-11-11", "L-22", "2027-11-11") as AppResult.Success).data</ID>
+    <ID>MaxLineLength:WelcomeScreen.kt$style = MaterialTheme.typography.titleLarge.copy(fontSize = MaterialTheme.typography.bodyMedium.fontSize)</ID>
+    <ID>ReturnCount:Money.kt$Money.Companion$fun parse(text: String?): Money?</ID>
+    <ID>ReturnCount:ShareExpiry.kt$ShareExpiry$private fun offsetOf(raw: String?): Long?</ID>
+    <ID>ReturnCount:SubmitAffiliationUseCase.kt$SubmitAffiliationUseCase$suspend operator fun invoke(draft: AffiliationDraft): AppResult&lt;Submission&gt;</ID>
+    <ID>TooManyFunctions:DatabaseModule.kt$DatabaseModule</ID>
+    <ID>TooManyFunctions:Route.kt$Route</ID>
+    <ID>UnusedParameter:MapSurface.kt$modifier: Modifier = Modifier</ID>
+    <ID>UnusedPrivateMember:AccountScreens.kt$@Preview(showBackground = true, heightDp = 800) @Composable private fun DeleteAccountPreview()</ID>
+    <ID>UnusedPrivateMember:AccountScreens.kt$@Preview(showBackground = true, heightDp = 900) @Composable private fun LegalPreview()</ID>
+    <ID>UnusedPrivateMember:AlertList.kt$@PetMatePreviews @Preview @Composable private fun AlertListEmptyPreview()</ID>
+    <ID>UnusedPrivateMember:AlertList.kt$@PetMatePreviews @Preview @Composable private fun AlertListPreview()</ID>
+    <ID>UnusedPrivateMember:AllergyBanner.kt$@Preview @Composable private fun AllergyBannerEmptyPreview()</ID>
+    <ID>UnusedPrivateMember:AllergyBanner.kt$@Preview @Composable private fun AllergyBannerPreview()</ID>
+    <ID>UnusedPrivateMember:DemoStrip.kt$@Preview(showBackground = true) @Composable private fun DemoStripPreview()</ID>
+    <ID>UnusedPrivateMember:HomeScreen.kt$@Preview(showBackground = true, heightDp = 900) @Composable private fun ProfileDemoPreview()</ID>
+    <ID>UnusedPrivateMember:HomeScreen.kt$@Preview(showBackground = true, heightDp = 900) @Composable private fun ProfileSignedInPreview()</ID>
+    <ID>UnusedPrivateMember:LoginScreen.kt$@PetMatePreviews @Composable private fun LoginEmptyPreview()</ID>
+    <ID>UnusedPrivateMember:LoginScreen.kt$@PetMatePreviews @Composable private fun LoginFieldErrorsPreview()</ID>
+    <ID>UnusedPrivateMember:LoginScreen.kt$@PetMatePreviews @Composable private fun LoginFilledPreview()</ID>
+    <ID>UnusedPrivateMember:LoginScreen.kt$@PetMatePreviews @Composable private fun LoginSubmittingPreview()</ID>
+    <ID>UnusedPrivateMember:LoginScreen.kt$@PetMatePreviews @Composable private fun LoginWrongCredentialsPreview()</ID>
+    <ID>UnusedPrivateMember:MapScreen.kt$@PetMatePreviews @Composable private fun MapBusinessSelectedPreview()</ID>
+    <ID>UnusedPrivateMember:MapScreen.kt$@PetMatePreviews @Composable private fun MapClosedBusinessPreview()</ID>
+    <ID>UnusedPrivateMember:MapScreen.kt$@PetMatePreviews @Composable private fun MapEmptyPreview()</ID>
+    <ID>UnusedPrivateMember:MapScreen.kt$@PetMatePreviews @Composable private fun MapErrorPreview()</ID>
+    <ID>UnusedPrivateMember:MapScreen.kt$@PetMatePreviews @Composable private fun MapHelpPreview()</ID>
+    <ID>UnusedPrivateMember:MapScreen.kt$@PetMatePreviews @Composable private fun MapLoadingPreview()</ID>
+    <ID>UnusedPrivateMember:MapScreen.kt$@PetMatePreviews @Composable private fun MapOnlySpasPreview()</ID>
+    <ID>UnusedPrivateMember:MapScreen.kt$@PetMatePreviews @Composable private fun MapWithDataPreview()</ID>
+    <ID>UnusedPrivateMember:MapScreen.kt$@PetMatePreviews @Composable private fun MapWithoutLocationPreview()</ID>
+    <ID>UnusedPrivateMember:NextHealthCard.kt$@PetMatePreviews @Preview @Composable private fun NextHealthCardEmptyPreview()</ID>
+    <ID>UnusedPrivateMember:NextHealthCard.kt$@PetMatePreviews @Preview @Composable private fun NextHealthCardPreview()</ID>
+    <ID>UnusedPrivateMember:PermissionHarnessScreen.kt$@PetMatePreviews @Composable private fun PermissionHarnessPreview()</ID>
+    <ID>UnusedPrivateMember:RegisterScreen.kt$@PetMatePreviews @Composable private fun RegisterEmptyPreview()</ID>
+    <ID>UnusedPrivateMember:RegisterScreen.kt$@PetMatePreviews @Composable private fun RegisterErrorsPreview()</ID>
+    <ID>UnusedPrivateMember:RegisterScreen.kt$@PetMatePreviews @Composable private fun RegisterFilledPreview()</ID>
+    <ID>UnusedPrivateMember:RegisterScreen.kt$@PetMatePreviews @Composable private fun RegisterNetworkErrorPreview()</ID>
+    <ID>UnusedPrivateMember:RegisterScreen.kt$@PetMatePreviews @Composable private fun RegisterSubmittingPreview()</ID>
+    <ID>UnusedPrivateMember:ShareCountdown.kt$@PetMatePreviews @Preview @Composable private fun ShareCountdownExpiredPreview()</ID>
+    <ID>UnusedPrivateMember:ShareCountdown.kt$@PetMatePreviews @Preview @Composable private fun ShareCountdownPreview()</ID>
+    <ID>UnusedPrivateMember:SplashScreen.kt$@PetMatePreviews @Composable private fun SplashCheckingSessionPreview()</ID>
+    <ID>UnusedPrivateMember:SplashScreen.kt$@PetMatePreviews @Composable private fun SplashPreview()</ID>
+    <ID>UnusedPrivateMember:SyncStatusIndicator.kt$@PetMatePreviews @Composable private fun SyncStatusIndicatorPreview()</ID>
+    <ID>UnusedPrivateMember:WelcomeScreen.kt$@PetMatePreviews @Composable private fun WelcomeCarnetPreview()</ID>
+    <ID>UnusedPrivateMember:WelcomeScreen.kt$@PetMatePreviews @Composable private fun WelcomeMapPreview()</ID>
+    <ID>UnusedPrivateMember:WelcomeScreen.kt$@PetMatePreviews @Composable private fun WelcomeQrPreview()</ID>
+    <ID>UnusedPrivateMember:WelcomeScreen.kt$@PetMatePreviews @Composable private fun WelcomeWithoutDemoPreview()</ID>
+    <ID>UseCheckOrError:AuthRepositoryImpl.kt$AuthRepositoryImpl$throw IllegalStateException("Respuesta de autenticacion sin data")</ID>
+    <ID>UseCheckOrError:AuthRepositoryImpl.kt$AuthRepositoryImpl$throw IllegalStateException("Respuesta de perfil sin data")</ID>
+    <ID>UseCheckOrError:BusinessRepositoryImpl.kt$BusinessRepositoryImpl$throw IllegalStateException("Respuesta sin data")</ID>
+    <ID>UseCheckOrError:PetRepositoryImpl.kt$PetRepositoryImpl$throw IllegalStateException("Respuesta sin data")</ID>
+  </CurrentIssues>
+</SmellBaseline>

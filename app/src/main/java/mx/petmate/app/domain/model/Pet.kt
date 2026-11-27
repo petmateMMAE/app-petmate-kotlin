@@ -12,6 +12,12 @@ data class Pet(
     val breed: String?,
     val birthDate: String?,
     val sex: PetSex,
+    /**
+     * URL de la foto, tal como la devuelve el backend en `PetResponse.photoUrl`. Va con valor por
+     * omision para no obligar a tocar cada sitio que ya construye una mascota. Es null cuando no hay
+     * foto, y esa diferencia importa: la tarjeta muestra el avatar generico en vez de un hueco.
+     */
+    val photoUrl: String? = null,
 )
 
 /** Lista cerrada del backend: solo Perro o Gato (T110 del backend). */

@@ -10,7 +10,7 @@
 Ninguna tarea se ejecuta sin autorización explícita del humano
 (`constitution.md` §4).
 
-Progreso: **2 / 10 tareas** (2 verificadas; 1 sin marcar: implementada, falta prueba instrumentada, al 26/11/2026)
+Progreso: **3 / 10 tareas** (3 verificadas, al 27/11/2026)
 
 ---
 
@@ -52,7 +52,7 @@ Progreso: **2 / 10 tareas** (2 verificadas; 1 sin marcar: implementada, falta pr
     `data/remote/AiApiService.kt`, `data/mapper/GenerationMapper.kt`,
     `test/.../data/mapper/GenerationMapperTest.kt`
 
-- [ ] **T-004** — Caché por huella del contenido _(implementada, falta prueba instrumentada)_
+- [x] **T-004** — Caché por huella del contenido _(verificada 27/11/2026 en emulador: GeneratedTextDaoTest, suite instrumentada completa en verde)_
   - Depende de: T-001
   - Aceptación: `GeneratedTextEntity` y su DAO guardan el texto generado
     asociado al identificador **y a una huella del contenido original**

@@ -251,3 +251,17 @@ recordatorio útil.
 - [ ] Los requisitos y los criterios de éxito son suficientes para planificar.
 - [ ] Las preguntas abiertas están identificadas y se sabe a quién preguntar.
 - [ ] **Aprobada para pasar a `plan.md`.**
+
+
+## Preguntas resueltas contra el backend ya terminado
+
+Estas estaban marcadas como "esperando a Miguel". El backend se termino y se desplego, asi que
+se respondieron leyendo su codigo y su contrato. Las tareas que solo dependian de ellas YA NO
+ESTAN BLOQUEADAS.
+
+- **Q-02 RESUELTA (27/11/2026)** — GET /api/v1/businesses/get-nearby. Acepta latitude, longitude, radiusKm y types. Devuelve { items, page, pageSize, totalCount, totalPages }.
+- **Q-05 RESUELTA (27/11/2026)** — radiusKm es opcional: 5 km por omision y 50 km de maximo (PublicBusinessLimits). SI pagina, con page y pageSize. El servidor cachea 5 minutos. No cortes en el cliente: manda el radio y la pagina.
+- **Q-06 RESUELTA (27/11/2026)** — La devuelve el BACKEND, en NearbyBusiness.distanceMeters. No la calcules en el cliente: serian dos criterios que pueden no coincidir.
+
+- **Q-03 RESUELTA A MEDIAS (27/11/2026)** — La **lista de tipos sí está cerrada** por el backend: exactamente tres, `BusinessType { Veterinary = 1, Store = 2, Grooming = 3 }` (`PetMate.Domain/Businesses/Business.cs`). No hay más y no se inventan; los tres filtros del mapa ya corresponden uno a uno con ellos. Lo que **sigue abierto** es solo el **icono y el color de cada tipo**, que es decisión de maqueta y no se deduce de ningún código.
+- **Q-04 RESUELTA A MEDIAS (27/11/2026)** — El conjunto de campos disponibles está cerrado por el endpoint: `NearbyBusinessResponse` trae `id`, `name`, `type`, `photoUrl`, `isOpenNow`, `todayHours` y `distanceMeters`. **La dirección y el horario completo NO vienen en `get-nearby`** (viven en `BusinessResponse`, que es otra llamada), así que la tarjeta resumida no puede mostrarlos sin una petición extra. La tarjeta implementada muestra nombre, distancia y estado de apertura, los tres de esa lista. Lo que **sigue abierto** es si el equipo quiere además foto u horario de hoy, y si vale la pena la petición extra para la dirección.

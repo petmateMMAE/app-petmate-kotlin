@@ -128,8 +128,13 @@ fun PetScaffoldColumn(
 }
 
 /**
- * Foto de la mascota, como petArt() de la maqueta. El backend aun no guarda fotos (pm-079), asi que se usan
- * las imagenes de la maqueta: las mascotas de ejemplo tienen la suya y las demas la foto por defecto de su especie.
+ * Foto de la mascota, como petArt() de la maqueta: las mascotas de ejemplo tienen la suya y las demas la foto
+ * por defecto de su especie.
+ *
+ * Nota del 27/11/2026: el backend SI guarda fotos (upload-photo, get-photo-url) y `Pet.photoUrl` ya llega hasta
+ * aqui por el mapper. Lo que falta para pintar la foto real no es el dato, es un cargador de imagenes remotas:
+ * `coil-compose` no esta en el catalogo y 007/T-005 exige su autorizacion registrada. Mientras no se autorice,
+ * esta funcion se queda con las imagenes locales. No usar `photoUrl` aqui sin ese cargador.
  */
 @DrawableRes
 fun petPhoto(species: PetSpecies, petId: String? = null): Int = when (petId) {

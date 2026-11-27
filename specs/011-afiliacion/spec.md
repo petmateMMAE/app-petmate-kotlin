@@ -199,3 +199,12 @@ correcta.
 - [ ] Supuestos confirmados o corregidos.
 - [ ] Preguntas abiertas con dueño.
 - [ ] **Aprobada para pasar a `plan.md`.**
+
+
+## Preguntas resueltas contra el backend ya terminado
+
+Estas estaban marcadas como "esperando a Miguel". El backend se termino y se desplego, asi que
+se respondieron leyendo su codigo y su contrato. Las tareas que solo dependian de ellas YA NO
+ESTAN BLOQUEADAS.
+
+- **Q-01 RESUELTA (27/11/2026)** — 9 rutas bajo /api/v1/businesses: create, get, get-nearby, update, delete, upload-photo, get-photo-url, delete-photo y servicios. Detalle en backend-petmate-sdd-aspnetcore/openapi/openapi.json (76 rutas, 132 esquemas). El backend esta TERMINADO y desplegado; el contrato completo esta ahi, no hay que preguntarle a nadie.

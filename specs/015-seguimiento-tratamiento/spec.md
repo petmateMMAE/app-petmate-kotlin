@@ -192,3 +192,12 @@ el dueño que quiere saber cómo va.
 - [ ] Supuestos confirmados, en especial que el dueño no cambia el estado.
 - [ ] Preguntas abiertas con dueño.
 - [ ] **Aprobada para pasar a `plan.md`.**
+
+
+## Preguntas resueltas contra el backend ya terminado
+
+Estas estaban marcadas como "esperando a Miguel". El backend se termino y se desplego, asi que
+se respondieron leyendo su codigo y su contrato. Las tareas que solo dependian de ellas YA NO
+ESTAN BLOQUEADAS.
+
+- **Q-01 RESUELTA (27/11/2026)** — 5 rutas bajo /api/v1/followups: create, get-all, get-by-consultation/{id}, add-note y el cambio de estado. Detalle en backend-petmate-sdd-aspnetcore/openapi/openapi.json (76 rutas, 132 esquemas). El backend esta TERMINADO y desplegado; el contrato completo esta ahi, no hay que preguntarle a nadie.

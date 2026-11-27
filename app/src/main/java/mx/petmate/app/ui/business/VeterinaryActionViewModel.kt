@@ -8,8 +8,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import mx.petmate.app.R
 import mx.petmate.app.core.result.AppError
 import mx.petmate.app.core.result.AppResult
+import mx.petmate.app.core.ui.UiText
 import mx.petmate.app.domain.model.ConsultationDraft
 import mx.petmate.app.domain.model.DewormingType
 import mx.petmate.app.domain.model.MedicationDraft
@@ -19,8 +21,10 @@ import javax.inject.Inject
 
 data class VeterinaryActionUiState(
     val isSubmitting: Boolean = false,
-    val error: String? = null,
-    val fieldErrors: Map<String, String> = emptyMap(),
+    /** Aviso general. Es [UiText] y no texto: el mensaje sale de `strings.xml` (spec 014, T-003). */
+    val error: UiText? = null,
+    /** Error de cada campo, por su clave. Tambien [UiText]. */
+    val fieldErrors: Map<String, UiText> = emptyMap(),
     /** Id de la ultima consulta creada, para ofrecer abrir su seguimiento (spec 015, R-01). */
     val lastConsultationId: String? = null,
 )
@@ -43,37 +47,37 @@ class VeterinaryActionViewModel @Inject constructor(
         medications: List<MedicationDraft>,
         onSuccess: () -> Unit,
     ) {
-        val errors = mutableMapOf<String, String>()
+        val errors = mutableMapOf<String, UiText>()
         val trimmedReason = reason.trim()
         val trimmedDiagnosis = diagnosis.trim()
 
-        if (trimmedReason.isBlank()) errors["reason"] = "El motivo es obligatorio."
-        else if (trimmedReason.length > 500) errors["reason"] = "Máximo 500 caracteres."
+        if (trimmedReason.isBlank()) errors["reason"] = res(R.string.veterinary_error_reason_required)
+        else if (trimmedReason.length > TEXT_MAX) errors["reason"] = res(R.string.veterinary_error_too_long, TEXT_MAX)
 
-        if (trimmedDiagnosis.isBlank()) errors["diagnosis"] = "El diagnóstico es obligatorio."
-        else if (trimmedDiagnosis.length > 500) errors["diagnosis"] = "Máximo 500 caracteres."
+        if (trimmedDiagnosis.isBlank()) errors["diagnosis"] = res(R.string.veterinary_error_diagnosis_required)
+        else if (trimmedDiagnosis.length > TEXT_MAX) errors["diagnosis"] = res(R.string.veterinary_error_too_long, TEXT_MAX)
 
         val weightKg = if (weightKgText.isNotBlank()) {
             val parsed = weightKgText.replace(",", ".").toDoubleOrNull()
-            if (parsed == null || parsed < 0.1 || parsed > 200.0) {
-                errors["weightKg"] = "El peso debe estar entre 0.1 y 200 kg."
+            if (parsed == null || parsed < WEIGHT_MIN || parsed > WEIGHT_MAX) {
+                errors["weightKg"] = res(R.string.veterinary_error_weight_range, WEIGHT_MIN.toString(), WEIGHT_MAX.toString())
                 null
             } else parsed
         } else null
 
-        if (medications.size > 10) {
-            errors["medications"] = "Máximo 10 medicamentos por receta."
+        if (medications.size > MEDICATIONS_MAX) {
+            errors["medications"] = res(R.string.veterinary_error_medications_max, MEDICATIONS_MAX)
         }
 
         medications.forEachIndexed { index, med ->
-            if (med.name.isBlank()) errors["med_${index}_name"] = "Nombre obligatorio."
-            if (med.dose.isBlank()) errors["med_${index}_dose"] = "Dosis obligatoria."
-            if (med.frequency.isBlank()) errors["med_${index}_frequency"] = "Frecuencia obligatoria."
-            if (med.duration.isBlank()) errors["med_${index}_duration"] = "Duración obligatoria."
+            if (med.name.isBlank()) errors["med_${index}_name"] = res(R.string.veterinary_error_med_name)
+            if (med.dose.isBlank()) errors["med_${index}_dose"] = res(R.string.veterinary_error_med_dose)
+            if (med.frequency.isBlank()) errors["med_${index}_frequency"] = res(R.string.veterinary_error_med_frequency)
+            if (med.duration.isBlank()) errors["med_${index}_duration"] = res(R.string.veterinary_error_med_duration)
         }
 
         if (errors.isNotEmpty()) {
-            _state.update { it.copy(fieldErrors = errors, error = "Revisa los campos con error.") }
+            _state.update { it.copy(fieldErrors = errors, error = res(R.string.veterinary_error_check_fields)) }
             return
         }
 
@@ -104,21 +108,21 @@ class VeterinaryActionViewModel @Inject constructor(
         nextDoseOn: String?,
         onSuccess: () -> Unit,
     ) {
-        val errors = mutableMapOf<String, String>()
+        val errors = mutableMapOf<String, UiText>()
         val trimmedName = name.trim()
         val today = PetDates.today()
 
-        if (trimmedName.isBlank()) errors["name"] = "El nombre de la vacuna es obligatorio."
-        if (appliedOn.isBlank()) errors["appliedOn"] = "La fecha de aplicación es obligatoria."
-        else if (appliedOn > today) errors["appliedOn"] = "La fecha de aplicación no puede ser futura."
+        if (trimmedName.isBlank()) errors["name"] = res(R.string.veterinary_error_vaccine_name)
+        if (appliedOn.isBlank()) errors["appliedOn"] = res(R.string.veterinary_error_applied_required)
+        else if (appliedOn > today) errors["appliedOn"] = res(R.string.veterinary_error_applied_future)
 
         val next = nextDoseOn?.trim()?.ifEmpty { null }
         if (next != null && next <= appliedOn) {
-            errors["nextDoseOn"] = "La próxima dosis debe ser posterior a la fecha de aplicación."
+            errors["nextDoseOn"] = res(R.string.veterinary_error_next_dose_after)
         }
 
         if (errors.isNotEmpty()) {
-            _state.update { it.copy(fieldErrors = errors, error = "Revisa los campos con error.") }
+            _state.update { it.copy(fieldErrors = errors, error = res(R.string.veterinary_error_check_fields)) }
             return
         }
 
@@ -142,21 +146,21 @@ class VeterinaryActionViewModel @Inject constructor(
         nextOn: String?,
         onSuccess: () -> Unit,
     ) {
-        val errors = mutableMapOf<String, String>()
+        val errors = mutableMapOf<String, UiText>()
         val trimmedProduct = product.trim()
         val today = PetDates.today()
 
-        if (trimmedProduct.isBlank()) errors["product"] = "El nombre del producto es obligatorio."
-        if (appliedOn.isBlank()) errors["appliedOn"] = "La fecha de aplicación es obligatoria."
-        else if (appliedOn > today) errors["appliedOn"] = "La fecha de aplicación no puede ser futura."
+        if (trimmedProduct.isBlank()) errors["product"] = res(R.string.veterinary_error_product_required)
+        if (appliedOn.isBlank()) errors["appliedOn"] = res(R.string.veterinary_error_applied_required)
+        else if (appliedOn > today) errors["appliedOn"] = res(R.string.veterinary_error_applied_future)
 
         val next = nextOn?.trim()?.ifEmpty { null }
         if (next != null && next <= today) {
-            errors["nextOn"] = "La próxima desparasitación debe ser futura."
+            errors["nextOn"] = res(R.string.veterinary_error_next_deworming_future)
         }
 
         if (errors.isNotEmpty()) {
-            _state.update { it.copy(fieldErrors = errors, error = "Revisa los campos con error.") }
+            _state.update { it.copy(fieldErrors = errors, error = res(R.string.veterinary_error_check_fields)) }
             return
         }
 
@@ -175,18 +179,29 @@ class VeterinaryActionViewModel @Inject constructor(
     private fun handleFailure(error: AppError) {
         val message = when (error) {
             is AppError.Server -> when (error.code) {
-                403 -> "La autorización venció o no incluye a tu negocio."
-                400 -> "Revisa los datos: alguno no cumple el formato esperado."
-                404 -> "No se encontró la mascota."
-                409 -> "Ya existe un registro similar o en conflicto."
-                else -> "Error en el servidor (${error.code}). Intenta más tarde."
+                403 -> res(R.string.veterinary_error_grant_expired)
+                400 -> res(R.string.veterinary_error_bad_request)
+                404 -> res(R.string.veterinary_error_pet_not_found)
+                409 -> res(R.string.veterinary_error_conflict)
+                else -> res(R.string.veterinary_error_server, error.code)
             }
-            AppError.Network -> "Sin conexión. Revisa tu internet e intenta de nuevo."
-            AppError.Timeout -> "El servidor tardó en responder. Intenta de nuevo."
-            AppError.Unauthorized -> "Tu sesión expiró. Vuelve a iniciar sesión."
-            is AppError.Validation -> "Error en el campo ${error.field}."
-            is AppError.Unknown -> "Ocurrió un error inesperado."
+            AppError.Network -> res(R.string.veterinary_error_network)
+            AppError.Timeout -> res(R.string.veterinary_error_timeout)
+            AppError.Unauthorized -> res(R.string.veterinary_error_session)
+            is AppError.Validation -> res(R.string.veterinary_error_field, error.field)
+            is AppError.Unknown -> res(R.string.veterinary_error_unknown)
         }
         _state.update { it.copy(isSubmitting = false, error = message) }
+    }
+
+    private companion object {
+        /** Limites del contrato del backend (pm-130 a pm-142). */
+        const val TEXT_MAX = 500
+        const val MEDICATIONS_MAX = 10
+        const val WEIGHT_MIN = 0.1
+        const val WEIGHT_MAX = 200.0
+
+        /** Atajo para no repetir `UiText.Resource(...)` en cada regla. */
+        fun res(id: Int, vararg args: Any): UiText = UiText.Resource(id, args.toList())
     }
 }

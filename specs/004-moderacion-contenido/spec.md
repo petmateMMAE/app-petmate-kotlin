@@ -220,3 +220,12 @@ afiliado que sube contenido en su ficha.
 - [ ] Los requisitos y los criterios de éxito son suficientes para planificar.
 - [ ] Las preguntas abiertas están identificadas y se sabe a quién preguntar.
 - [ ] **Aprobada para pasar a `plan.md`.**
+
+
+## Preguntas resueltas contra el backend ya terminado
+
+Estas estaban marcadas como "esperando a Miguel". El backend se termino y se desplego, asi que
+se respondieron leyendo su codigo y su contrato. Las tareas que solo dependian de ellas YA NO
+ESTAN BLOQUEADAS.
+
+- **Q-01 RESUELTA (27/11/2026)** — NO existe endpoint de moderacion en el backend. Por eso NoOpModerationGateway devolviendo NotValidated es lo correcto: no hay contra que programar.

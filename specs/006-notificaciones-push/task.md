@@ -13,7 +13,7 @@
 se ejecutan después, con autorización explícita del humano. Un agente que
 implemente estas tareas sin aprobación viola la constitución §4.
 
-Progreso: **1 / 11 tareas** (1 verificada; 2 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026) · Fases completadas: **0 / 5**
+Progreso: **2 / 11 tareas** (2 verificadas; 2 sin marcar: implementadas, falta prueba instrumentada, al 26/11/2026)
 
 ---
 
@@ -75,7 +75,7 @@ Puerta de calidad de toda tarea que toque código:
   - Archivos: `data/push/PushReceiver.kt`, `data/push/ForegroundNotice.kt`,
     `androidTest/.../data/push/PushReceiverTest.kt`
 
-- [ ] **T-004** — Presentación con texto genérico
+- [x] **T-004** — Presentación con texto genérico
   - Depende de: T-003
   - Aceptación: cada categoría tiene un texto fijo en `strings.xml`; el
     payload no se muestra crudo; el detalle se carga al abrir; hay prueba de

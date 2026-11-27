@@ -171,21 +171,21 @@ internal fun OsmMap(
 }
 
 /** Control del mapa desde fuera (botones de zoom y "mi ubicacion"). */
-class OsmMapHandle {
+class OsmMapHandle : MapCommands {
     internal var view: MapView? = null
 
-    fun zoomIn() {
+    override fun zoomIn() {
         view?.controller?.zoomIn()
     }
 
-    fun zoomOut() {
+    override fun zoomOut() {
         view?.controller?.zoomOut()
     }
 
     /** Punto que esta al centro de la pantalla (donde queda el pin al afiliar). */
-    fun center(): Pair<Double, Double>? = view?.mapCenter?.let { it.latitude to it.longitude }
+    override fun center(): Pair<Double, Double>? = view?.mapCenter?.let { it.latitude to it.longitude }
 
-    fun centerOn(latitude: Double, longitude: Double) {
+    override fun centerOn(latitude: Double, longitude: Double) {
         view?.controller?.animateTo(GeoPoint(latitude, longitude))
     }
 }

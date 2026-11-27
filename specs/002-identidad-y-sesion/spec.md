@@ -290,3 +290,13 @@ El backend PetMate v0.1.0 quedó desplegado en Azure (Chile Central) y la app se
 
 - **Q-09 resuelta:** el nombre se guarda en el servidor con `PUT /api/v1/users/me/update` (`{ displayName }`, 1–80 caracteres) justo después del registro, y se lee con `GET /api/v1/users/me/get` al iniciar sesión.
 - La pantalla de perfil muestra los datos del servidor y el estado de la sesión.
+
+## Preguntas resueltas contra el backend ya terminado
+
+Estas estaban marcadas como "esperando a Miguel". El backend se termino y se desplego, asi que
+se respondieron leyendo su codigo y su contrato. Las tareas que solo dependian de ellas YA NO
+ESTAN BLOQUEADAS.
+
+- **Q-01 RESUELTA (27/11/2026)** — 6 rutas bajo /api/v1/auth: login, register, refresh, logout, forgot-password, reset-password. Cuerpos y codigos en backend-petmate-sdd-aspnetcore/openapi/openapi.json (76 rutas, 132 esquemas). El backend esta TERMINADO y desplegado; el contrato completo esta ahi, no hay que preguntarle a nadie.
+- **Q-05 RESUELTA (27/11/2026)** — En el cuerpo. Igual que 001/Q-04.
+- **Q-10 RESUELTA (27/11/2026)** — La envoltura { statusCode, message, data } es la misma para exito y error.

@@ -1,11 +1,17 @@
 package mx.petmate.app.data.repository
 
 import kotlinx.coroutines.async
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import mx.petmate.app.core.coroutines.DispatcherProvider
+import mx.petmate.app.core.result.AppError
 import mx.petmate.app.core.result.AppResult
 import mx.petmate.app.data.remote.AuthorizedCaller
 import mx.petmate.app.data.remote.BusinessApiService
@@ -21,9 +27,16 @@ import mx.petmate.app.data.remote.dto.ServiceRequestDto
 import mx.petmate.app.data.remote.dto.TimeRangeDto
 import mx.petmate.app.data.remote.dto.UpdateBusinessRequestDto
 import mx.petmate.app.data.remote.dto.UpdateLocationRequestDto
+import mx.petmate.app.data.local.dao.AffiliationDraftDao
+import mx.petmate.app.data.local.entity.AffiliationDraftEntity
+import mx.petmate.app.data.local.entity.DraftServiceJson
+import mx.petmate.app.data.local.entity.DraftTimeRangeJson
 import mx.petmate.app.data.remote.toAppError
 import mx.petmate.app.data.session.SessionStore
 import mx.petmate.app.domain.model.AccessGrant
+import mx.petmate.app.domain.model.AffiliationDraft
+import mx.petmate.app.domain.model.AffiliationStep
+import mx.petmate.app.domain.model.DraftedService
 import mx.petmate.app.domain.model.Allergy
 import mx.petmate.app.domain.model.AllergyKind
 import mx.petmate.app.domain.model.AttendedPet
@@ -54,6 +67,7 @@ class BusinessRepositoryImpl @Inject constructor(
     private val api: BusinessApiService,
     private val caller: AuthorizedCaller,
     private val sessionStore: SessionStore,
+    private val draftDao: AffiliationDraftDao,
     private val json: Json,
     private val dispatchers: DispatcherProvider,
 ) : BusinessRepository {
@@ -153,6 +167,61 @@ class BusinessRepositoryImpl @Inject constructor(
         caller.call { api.getAttended(it, period).data?.items.orEmpty().map { a -> AttendedPet(a.petName, a.scannedAt) } }
     }
 
+    // ---- Borrador de afiliacion (spec 011, T-002 y T-006; lo limpia T-008) ----
+    //
+    // Vive en Room, asi sobrevive a cerrar la app (T-006, C-08). El horario y
+    // los servicios se guardan como JSON porque el borrador siempre se lee y se
+    // escribe completo.
+
+    private val draftLock = Mutex()
+
+    override suspend fun saveAffiliationDraft(draft: AffiliationDraft): AppResult<Unit> = io {
+        draftLock.withLock {
+            val ownerId = currentOwnerId() ?: return@withLock AppResult.Failure(AppError.Unauthorized)
+            runCatching {
+                draftDao.deleteOthers(ownerId)
+                draftDao.upsert(draft.toEntity(ownerId, System.currentTimeMillis()))
+            }.fold(
+                onSuccess = { AppResult.Success(Unit) },
+                onFailure = { AppResult.Failure(AppError.Unknown(it)) },
+            )
+        }
+    }
+
+    override suspend fun readAffiliationDraft(): AppResult<AffiliationDraft?> = io {
+        draftLock.withLock {
+            val ownerId = currentOwnerId()
+            runCatching {
+                // El cambio de sesion no hereda borradores (T-008, C-13). Sin
+                // sesion no queda ninguno: el logout los borra.
+                if (ownerId == null) {
+                    draftDao.deleteAll()
+                    null
+                } else {
+                    draftDao.deleteOthers(ownerId)
+                    draftDao.get(ownerId)?.toDomain(json)
+                }
+            }.fold(
+                onSuccess = { AppResult.Success(it) },
+                onFailure = { AppResult.Failure(AppError.Unknown(it)) },
+            )
+        }
+    }
+
+    override suspend fun clearAffiliationDraft(): AppResult<Unit> = io {
+        draftLock.withLock {
+            runCatching {
+                currentOwnerId()?.let { draftDao.delete(it) } ?: draftDao.deleteAll()
+            }.fold(
+                onSuccess = { AppResult.Success(Unit) },
+                onFailure = { AppResult.Failure(AppError.Unknown(it)) },
+            )
+        }
+    }
+
+    /** Usuario de la sesion activa; null tras el logout. */
+    private fun currentOwnerId(): String? = sessionStore.readUser()?.id
+
     /** Guarda la copia local del negocio propio para el panel y el formulario de edicion. */
     private fun remember(dto: BusinessDto): OwnBusiness {
         sessionStore.saveBusinessJson(json.encodeToString(BusinessDto.serializer(), dto))
@@ -223,6 +292,53 @@ internal fun ScanFichaDto.toDomain(): ScanFicha {
         consultations = consultations?.map { c ->
             FichaConsultation(c.consultedOn, c.businessName, c.reason, c.diagnosis, c.medications.map { m -> Medication(m.name, m.dose, m.frequency, m.duration, m.instructions) })
         },
+    )
+}
+
+// ---------- Borrador de afiliacion (spec 011, T-006) ----------
+
+private val SCHEDULE_JSON = MapSerializer(String.serializer(), ListSerializer(DraftTimeRangeJson.serializer()))
+private val SERVICES_JSON = ListSerializer(DraftServiceJson.serializer())
+
+internal fun AffiliationDraft.toEntity(ownerId: String, nowMillis: Long) = AffiliationDraftEntity(
+    ownerId = ownerId,
+    kind = business.kind?.apiValue,
+    name = business.name,
+    phone = business.phone,
+    whatsApp = business.whatsApp,
+    address = business.address,
+    description = business.description,
+    licenseNumber = business.licenseNumber,
+    scheduleJson = Json.encodeToString(
+        SCHEDULE_JSON,
+        business.schedule.mapValues { (_, ranges) -> ranges.map { DraftTimeRangeJson(it.open, it.close) } },
+    ),
+    servicesJson = Json.encodeToString(SERVICES_JSON, services.map { DraftServiceJson(it.name, it.price) }),
+    latitude = latitude,
+    longitude = longitude,
+    step = step.name,
+    savedAtMillis = nowMillis,
+)
+
+internal fun AffiliationDraftEntity.toDomain(json: Json): AffiliationDraft {
+    val schedule = runCatching { json.decodeFromString(SCHEDULE_JSON, scheduleJson) }.getOrDefault(emptyMap())
+    val services = runCatching { json.decodeFromString(SERVICES_JSON, servicesJson) }.getOrDefault(emptyList())
+    return AffiliationDraft(
+        business = BusinessDraft(
+            kind = BusinessKind.fromApi(kind),
+            name = name,
+            phone = phone,
+            whatsApp = whatsApp,
+            address = address,
+            description = description,
+            licenseNumber = licenseNumber,
+            schedule = schedule.mapValues { (_, ranges) -> ranges.map { TimeRange(it.open, it.close) } },
+        ),
+        services = services.map { DraftedService(it.name, it.price) },
+        latitude = latitude,
+        longitude = longitude,
+        // Un paso que no se reconozca no debe tirar el borrador: se vuelve al primero.
+        step = AffiliationStep.entries.firstOrNull { it.name == step } ?: AffiliationStep.Data,
     )
 }
 

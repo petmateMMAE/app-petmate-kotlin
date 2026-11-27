@@ -16,9 +16,19 @@ data class DueColors(val container: Color, val content: Color)
  * rojo si ya paso o faltan 3 dias o menos, amarillo si faltan 14 o menos, y [neutral] si falta mas o no hay fecha.
  */
 @Composable
-fun dueColors(date: String?, neutral: DueColors? = null, today: String = PetDates.today()): DueColors {
+fun dueColors(date: String?, neutral: DueColors? = null, today: String = PetDates.today()): DueColors =
+    dueColors(ClassifyReviewDateUseCase { today }(date), neutral)
+
+/**
+ * Lo mismo, cuando la fecha ya viene clasificada.
+ *
+ * Lo usa la lista de alertas del panel (spec 012, T-011), que recibe la
+ * severidad ya calculada y no debe volver a clasificarla.
+ */
+@Composable
+fun dueColors(level: ReviewDateClass, neutral: DueColors? = null): DueColors {
     val colors = MaterialTheme.petMateColors
-    return when (ClassifyReviewDateUseCase { today }(date)) {
+    return when (level) {
         ReviewDateClass.Overdue, ReviewDateClass.Urgent -> DueColors(colors.alertSoft, colors.alert)
         ReviewDateClass.Soon -> DueColors(colors.sunSoft, colors.sunInk)
         else -> neutral ?: DueColors(colors.surface2, colors.ink2)
